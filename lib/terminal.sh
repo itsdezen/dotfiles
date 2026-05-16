@@ -15,20 +15,58 @@ setup_terminal_profile() {
     return 1
   fi
 
-  # Import the profile
-  info "Importing profile: $PROFILE_NAME"
-  open "$PROFILE_FILE"
+  # Close Terminal.app if running (required for profile update)
+  if pgrep -x "Terminal" > /dev/null; then
+    warn "Terminal.app is running and will be closed to apply settings"
+    read -r -p "  Close Terminal.app now? [Y/n] " response
+    if [[ ! "$response" =~ ^[Nn]$ ]]; then
+      osascript -e 'quit app "Terminal"' 2>/dev/null || killall Terminal 2>/dev/null
+      sleep 1
+    else
+      info "Skipping Terminal profile update (Terminal is running)"
+      return 0
+    fi
+  fi
 
-  # Wait a moment for Terminal to process
-  sleep 2
+  # Backup current preferences
+  if [[ -f ~/Library/Preferences/com.apple.Terminal.plist ]]; then
+    cp ~/Library/Preferences/com.apple.Terminal.plist \
+       ~/Library/Preferences/com.apple.Terminal.plist.backup 2>/dev/null
+    info "Backed up current Terminal preferences"
+  fi
+
+  # Extract profile data from .terminal file
+  local TEMP_PROFILE="/tmp/terminal_profile_$$.plist"
+  plutil -extract 0 xml1 -o "$TEMP_PROFILE" "$PROFILE_FILE" 2>/dev/null || {
+    # If extraction fails, the file is already in the right format
+    cp "$PROFILE_FILE" "$TEMP_PROFILE"
+  }
+
+  # Import profile into preferences (overwrite if exists)
+  /usr/libexec/PlistBuddy -c "Delete :'Window Settings':'$PROFILE_NAME'" \
+    ~/Library/Preferences/com.apple.Terminal.plist 2>/dev/null || true
+
+  /usr/libexec/PlistBuddy -c "Add :'Window Settings':'$PROFILE_NAME' dict" \
+    ~/Library/Preferences/com.apple.Terminal.plist 2>/dev/null || true
+
+  # Merge profile data
+  /usr/libexec/PlistBuddy -c "Merge '$TEMP_PROFILE' :'Window Settings':'$PROFILE_NAME'" \
+    ~/Library/Preferences/com.apple.Terminal.plist 2>/dev/null || {
+    warn "Could not merge profile automatically, trying import method..."
+    open "$PROFILE_FILE"
+    sleep 2
+  }
+
+  # Clean up
+  rm -f "$TEMP_PROFILE"
 
   # Set as default profile
   defaults write com.apple.Terminal "Default Window Settings" -string "$PROFILE_NAME"
   defaults write com.apple.Terminal "Startup Window Settings" -string "$PROFILE_NAME"
 
-  success "Terminal profile configured"
+  success "Terminal profile configured and set as default"
   info "Profile: $PROFILE_NAME"
-  info "Restart Terminal.app to see changes"
+  info "Open Terminal.app to see changes"
 
   return 0
 }
