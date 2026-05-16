@@ -1,0 +1,23 @@
+# =============================================================================
+# .gitignore — Files not to commit to git
+# =============================================================================
+
+# ── Sensitive files ──────────────────────────────────────────────────────────
+*.local                 # Machine-specific configs (e.g., .zshrc.local)
+*.secret                # Secret files
+.env*                   # Environment variables
+
+# ── macOS ────────────────────────────────────────────────────────────────────
+.DS_Store               # Finder metadata
+.AppleDouble
+.LSOverride
+
+# ── Backup files ─────────────────────────────────────────────────────────────
+*.backup.*              # Created by link.sh when backing up existing files
+
+# ── Editor files ─────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

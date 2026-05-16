@@ -1,0 +1,106 @@
+# =============================================================================
+# ~/.zshrc — Main Zsh configuration
+# Managed by: ~/Developer/dotfiles
+# =============================================================================
+
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+# ── Path ─────────────────────────────────────────────────────────────────────
+# Homebrew (Apple Silicon)
+[[ -f /opt/homebrew/bin/brew ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
+# Homebrew (Intel)
+[[ -f /usr/local/bin/brew ]] && eval "$(/usr/local/bin/brew shellenv)"
+
+export PATH="$HOME/.local/bin:$PATH"
+
+# ── Oh My Zsh ────────────────────────────────────────────────────────────────
+export ZSH="$HOME/.oh-my-zsh"
+
+# Theme - Powerlevel10k
+ZSH_THEME="powerlevel10k/powerlevel10k"
+
+# Plugins
+plugins=(
+  git
+  zsh-autosuggestions
+  zsh-syntax-highlighting
+)
+
+source $ZSH/oh-my-zsh.sh
+
+# ── History ──────────────────────────────────────────────────────────────────
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=50000
+SAVEHIST=50000
+setopt HIST_IGNORE_ALL_DUPS  # Don't save duplicate commands
+setopt HIST_IGNORE_SPACE     # Don't save commands starting with space
+setopt SHARE_HISTORY         # Share history between tabs
+
+# ── Aliases ──────────────────────────────────────────────────────────────────
+
+# Navigation
+alias ..="cd .."
+alias ...="cd ../.."
+alias ....="cd ../../.."
+
+# Git shortcuts
+alias g="git"
+alias gs="git status -sb"
+alias gd="git diff"
+alias ga="git add"
+alias gc="git commit"
+alias gp="git push"
+alias gl="git pull"
+alias glog="git log --oneline --graph --decorate -20"
+
+# Development
+alias dev="cd ~/Developer"
+alias dots="cd ~/Developer/dotfiles"
+
+# Misc
+alias zrc="$EDITOR ~/.zshrc"
+alias reload="source ~/.zshrc"
+
+# ── nvm (Node Version Manager) ───────────────────────────────────────────────
+export NVM_DIR="$HOME/.nvm"
+
+# Load nvm (Homebrew installation)
+if [[ -f "/opt/homebrew/opt/nvm/nvm.sh" ]]; then
+  source "/opt/homebrew/opt/nvm/nvm.sh"
+elif [[ -f "/usr/local/opt/nvm/nvm.sh" ]]; then
+  source "/usr/local/opt/nvm/nvm.sh"
+elif [[ -s "$NVM_DIR/nvm.sh" ]]; then
+  source "$NVM_DIR/nvm.sh"
+fi
+
+# Load nvm bash completion
+[[ -f "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ]] && \
+  source "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"
+
+# ── bun ──────────────────────────────────────────────────────────────────────
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
+# bun completions
+[[ -s "$BUN_INSTALL/_bun" ]] && source "$BUN_INSTALL/_bun"
+
+# ── Editor ───────────────────────────────────────────────────────────────────
+export EDITOR="code --wait"
+export VISUAL="$EDITOR"
+
+# ── Starship prompt (optional, alternative to p10k) ─────────────────────────
+# Uncomment to use starship instead of powerlevel10k
+# command -v starship &>/dev/null && eval "$(starship init zsh)"
+
+# ── Powerlevel10k ────────────────────────────────────────────────────────────
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# ── Local overrides ──────────────────────────────────────────────────────────
+# This file is NOT committed to git — use for machine-specific config
+[[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
