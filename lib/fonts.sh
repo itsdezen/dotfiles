@@ -16,14 +16,19 @@ install_fonts() {
   local new_fonts=0
   local existing_fonts=0
 
+  # Find all font files
+  local font_list
+  font_list=$(find "$DOTFILES_FONT_DIR" -type f \( -name "*.ttf" -o -name "*.otf" \) 2>/dev/null)
+
   while IFS= read -r font_file; do
     [[ -z "$font_file" ]] && continue
     ((total_fonts++))
-    local font_name="$(basename "$font_file")"
+    local font_name
+    font_name=$(basename "$font_file")
     if [[ -f "$FONT_DIR/$font_name" ]]; then
       ((existing_fonts++))
     fi
-  done < <(find "$DOTFILES_FONT_DIR" -type f \( -name "*.ttf" -o -name "*.otf" \) 2>/dev/null)
+  done <<< "$font_list"
 
   # All fonts already installed
   if [[ $existing_fonts -eq $total_fonts ]]; then
@@ -37,7 +42,8 @@ install_fonts() {
 
   while IFS= read -r font_file; do
     [[ -z "$font_file" ]] && continue
-    local font_name="$(basename "$font_file")"
+    local font_name
+    font_name=$(basename "$font_file")
 
     # Skip if already installed
     if [[ -f "$FONT_DIR/$font_name" ]]; then
@@ -49,7 +55,7 @@ install_fonts() {
       info "  + $font_name"
       ((new_fonts++))
     fi
-  done < <(find "$DOTFILES_FONT_DIR" -type f \( -name "*.ttf" -o -name "*.otf" \) 2>/dev/null)
+  done <<< "$font_list"
 
   if [[ $new_fonts -gt 0 ]]; then
     success "$new_fonts new fonts installed"
