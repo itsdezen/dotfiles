@@ -24,7 +24,8 @@ install_packages() {
     warn "Brewfile not found at: $brewfile"
     return
   fi
+
   info "Installing packages from Brewfile..."
-  brew bundle --file="$brewfile" --no-lock
+  brew bundle --file="$brewfile"
   success "Packages installed"
 }
