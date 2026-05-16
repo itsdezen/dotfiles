@@ -60,7 +60,8 @@ You can choose:
 - Package managers (pnpm, bun)
 - Oh My Zsh + Powerlevel10k
 - Dotfiles symlinks
-- Starship prompt
+- Comic Code Ligatures fonts
+- Starship prompt (optional)
 
 Or use flags to skip prompts:
 
@@ -131,6 +132,38 @@ git push
 | `dots` | cd to dotfiles directory |
 | `zrc` | Open ~/.zshrc in editor |
 | `dev` | cd to ~/Developer |
+
+## Fonts
+
+Comic Code Ligatures with Nerd Font icons is recommended for the best terminal experience.
+
+### Install Fonts
+
+**Option 1: During installation**
+```bash
+./install.sh
+# Select Y when prompted for font installation
+```
+
+**Option 2: Copy from system**
+```bash
+bash scripts/copy-fonts.sh
+```
+
+**Option 3: Manual installation**
+1. Place font files in `fonts/` directory
+2. Run `./install.sh` and select font installation
+
+Or copy directly to system:
+```bash
+cp fonts/*.{ttf,otf} ~/Library/Fonts/
+```
+
+### Font Files
+
+- Place `.ttf` or `.otf` files in the `fonts/` directory
+- See `fonts/README.md` for details
+- Download Nerd Fonts: https://github.com/ryanoasis/nerd-fonts
 
 ## Tips
 

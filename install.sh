@@ -82,7 +82,14 @@ if [[ "$SKIP_BREW" == false ]]; then
   fi
 fi
 
-# ── 2. Oh My Zsh + Powerlevel10k ─────────────────────────────────────────────
+# ── 2. Fonts ─────────────────────────────────────────────────────────────────
+header "Fonts"
+source "$DOTFILES_DIR/lib/fonts.sh"
+
+info "Installing fonts before shell setup (required for Nerd Font icons)..."
+install_fonts || warn "Some fonts may not have been installed"
+
+# ── 3. Oh My Zsh + Powerlevel10k ─────────────────────────────────────────────
 if [[ "$SKIP_SHELL" == false ]]; then
   header "Shell Setup"
   source "$DOTFILES_DIR/lib/omz.sh"
@@ -99,7 +106,22 @@ if [[ "$SKIP_SHELL" == false ]]; then
   fi
 fi
 
-# ── 3. Node.js via nvm ───────────────────────────────────────────────────────
+# ── 4. Terminal Profile ──────────────────────────────────────────────────────
+header "Terminal Configuration"
+source "$DOTFILES_DIR/lib/terminal.sh"
+
+if [[ "$INSTALL_ALL" == true ]]; then
+  setup_terminal_profile || info "Terminal profile setup skipped"
+else
+  read -r -p "  Apply Terminal.app profile (with Nerd Font)? [Y/n] " response
+  if [[ ! "$response" =~ ^[Nn]$ ]]; then
+    setup_terminal_profile || info "Terminal profile setup skipped"
+  else
+    info "Skipping terminal configuration"
+  fi
+fi
+
+# ── 5. Node.js via nvm ───────────────────────────────────────────────────────
 if [[ "$SKIP_NODE" == false ]]; then
   header "Node.js"
   source "$DOTFILES_DIR/lib/node.sh"
@@ -128,7 +150,7 @@ if [[ "$SKIP_NODE" == false ]]; then
   fi
 fi
 
-# ── 4. Symlinks ──────────────────────────────────────────────────────────────
+# ── 6. Symlinks ──────────────────────────────────────────────────────────────
 header "Dotfiles symlinks"
 source "$DOTFILES_DIR/lib/link.sh"
 
