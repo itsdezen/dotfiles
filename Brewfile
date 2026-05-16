@@ -10,9 +10,6 @@
 # ║    brew bundle dump --force                ║
 # ╚════════════════════════════════════════════╝
 
-# ── Taps ──────────────────────────────────────────────────────────────────────
-tap "homebrew/cask-fonts"
-
 # ── Essential Development Tools ──────────────────────────────────────────────
 
 # Node.js version manager
