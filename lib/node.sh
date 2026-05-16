@@ -36,9 +36,17 @@ install_node() {
   # Get default Node version from .node-version or use LTS
   local node_version
   if [[ -f "$DOTFILES_DIR/.node-version" ]]; then
-    node_version="$(cat "$DOTFILES_DIR/.node-version")"
-    info "Installing Node.js $node_version via nvm..."
-    nvm install "$node_version"
+    node_version="$(cat "$DOTFILES_DIR/.node-version" | tr -d '[:space:]')"
+
+    # If .node-version contains "lts", use --lts flag
+    if [[ "$node_version" == "lts" ]]; then
+      info "Installing Node.js LTS via nvm..."
+      nvm install --lts
+      node_version="$(nvm current)"
+    else
+      info "Installing Node.js $node_version via nvm..."
+      nvm install "$node_version"
+    fi
   else
     info "Installing Node.js LTS via nvm..."
     nvm install --lts
