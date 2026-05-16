@@ -16,13 +16,14 @@ install_fonts() {
   local new_fonts=0
   local existing_fonts=0
 
-  while IFS= read -r -d '' font_file; do
+  while IFS= read -r font_file; do
+    [[ -z "$font_file" ]] && continue
     ((total_fonts++))
     local font_name="$(basename "$font_file")"
     if [[ -f "$FONT_DIR/$font_name" ]]; then
       ((existing_fonts++))
     fi
-  done < <(find "$DOTFILES_FONT_DIR" -type f \( -name "*.ttf" -o -name "*.otf" \) -print0)
+  done < <(find "$DOTFILES_FONT_DIR" -type f \( -name "*.ttf" -o -name "*.otf" \) 2>/dev/null)
 
   # All fonts already installed
   if [[ $existing_fonts -eq $total_fonts ]]; then
@@ -34,7 +35,8 @@ install_fonts() {
   info "Installing Comic Code Ligatures fonts..."
   info "Found: $total_fonts fonts, Already installed: $existing_fonts"
 
-  while IFS= read -r -d '' font_file; do
+  while IFS= read -r font_file; do
+    [[ -z "$font_file" ]] && continue
     local font_name="$(basename "$font_file")"
 
     # Skip if already installed
@@ -47,7 +49,7 @@ install_fonts() {
       info "  + $font_name"
       ((new_fonts++))
     fi
-  done < <(find "$DOTFILES_FONT_DIR" -type f \( -name "*.ttf" -o -name "*.otf" \) -print0)
+  done < <(find "$DOTFILES_FONT_DIR" -type f \( -name "*.ttf" -o -name "*.otf" \) 2>/dev/null)
 
   if [[ $new_fonts -gt 0 ]]; then
     success "$new_fonts new fonts installed"
