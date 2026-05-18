@@ -10,22 +10,25 @@ cd ~/Developer/dotfiles
 ./install.sh
 ```
 
-The installer will prompt you to choose which components to install.
+The installer features an **interactive checklist UI** that:
+- 🔍 Auto-detects what's already installed
+- ✓ Pre-selects missing components
+- ⌨️ Arrow keys to navigate, SPACE to toggle, ENTER to confirm
+- 🎨 Beautiful ASCII art interface by **onepercman**
 
 ## Structure
 
 ```
 dotfiles/
 ├── install.sh              ← Entry point, run this
-├── Brewfile                ← Homebrew packages (nvm, mole)
+├── Brewfile                ← Homebrew packages (mise, mole, fonts)
 ├── npm-globals.txt         ← Global npm packages
 ├── .node-version           ← Default Node version (lts)
 │
 ├── zsh/
 │   ├── zshrc               → ~/.zshrc
 │   ├── zshenv              → ~/.zshenv
-│   ├── zprofile            → ~/.zprofile
-│   └── p10k.zsh            → ~/.p10k.zsh
+│   └── zprofile            → ~/.zprofile
 │
 ├── git/
 │   ├── gitconfig           → ~/.gitconfig
@@ -41,32 +44,47 @@ dotfiles/
 │
 └── lib/
     ├── brew.sh             ← Homebrew installation logic
-    ├── node.sh             ← Node.js via nvm + pnpm + bun
+    ├── node.sh             ← Node.js via mise + pnpm + bun
     ├── link.sh             ← Create symlinks
-    └── omz.sh              ← Oh My Zsh + Powerlevel10k setup
+    └── omz.sh              ← Oh My Zsh setup
 ```
 
 ## Interactive Installation
 
-The installer will ask you what to install:
+### 🎮 Interactive Mode (Recommended)
+
+Run the installer to see the interactive checklist:
 
 ```bash
 ./install.sh
 ```
 
-You can choose:
-- Homebrew packages (nvm, mole)
-- Node.js setup (nvm + default version)
-- Package managers (pnpm, bun)
-- Oh My Zsh + Powerlevel10k
-- Dotfiles symlinks
-- Comic Code Ligatures fonts
-- Starship prompt (optional)
+**How it works:**
+1. **Auto-detection** - Scans your system for installed tools
+2. **Smart defaults** - Pre-selects missing components
+3. **Interactive selection**:
+   - Use `↑` `↓` arrow keys to navigate
+   - Press `SPACE` to toggle checkboxes
+   - Press `ENTER` to start installation
+4. **Installation** - Installs only selected components
+5. **Completion screen** - Shows next steps
 
-Or use flags to skip prompts:
+**Available components:**
+- ☑ Homebrew & Essential Tools (mise, mole, starship)
+- ☑ JetBrains Mono Nerd Font
+- ☑ Oh My Zsh + Plugins
+- ☑ Starship Prompt
+- ☑ Node.js (via mise)
+- ☑ pnpm Package Manager
+- ☑ bun Runtime
+- ☑ Create Symlinks (.zshrc, .gitconfig, etc.)
+
+### ⚡ Non-Interactive Mode
+
+For automated installations or CI/CD:
 
 ```bash
-./install.sh --all              # Install everything
+./install.sh --all              # Install everything without prompts
 ./install.sh --skip-brew        # Skip Homebrew
 ./install.sh --skip-node        # Skip Node.js
 ./install.sh --skip-shell       # Skip shell setup
@@ -118,9 +136,8 @@ git push
 ## Shell Features
 
 - **Oh My Zsh** — Framework for managing zsh configuration
-- **Powerlevel10k** — Fast and customizable prompt
-- **Starship** — Alternative cross-shell prompt (optional)
-- **nvm** — Node version manager
+- **Starship** — Fast, minimal, and highly customizable cross-shell prompt
+- **mise** — Polyglot version manager (Node, Python, Ruby, etc.)
 - **pnpm** — Fast, disk space efficient package manager
 - **bun** — All-in-one JavaScript runtime & toolkit
 
@@ -135,38 +152,27 @@ git push
 
 ## Fonts
 
-Comic Code Ligatures with Nerd Font icons is recommended for the best terminal experience.
+JetBrains Mono Nerd Font is installed automatically via Homebrew for the best terminal experience with icon support.
 
-### Install Fonts
+### Install Font
 
-**Option 1: During installation**
+The font is included in the Brewfile and will be installed automatically:
 ```bash
-./install.sh
-# Select Y when prompted for font installation
+brew bundle  # Installs font-jetbrains-mono-nerd-font
 ```
 
-**Option 2: Copy from system**
+Or manually:
 ```bash
-bash scripts/copy-fonts.sh
+brew install --cask font-jetbrains-mono-nerd-font
 ```
 
-**Option 3: Manual installation**
-1. Place font files in `fonts/` directory
-2. Run `./install.sh` and select font installation
-
-Or copy directly to system:
-```bash
-cp fonts/*.{ttf,otf} ~/Library/Fonts/
-```
-
-### Font Files
-
-- Place `.ttf` or `.otf` files in the `fonts/` directory
-- See `fonts/README.md` for details
-- Download Nerd Fonts: https://github.com/ryanoasis/nerd-fonts
+After installation, set the font in your terminal:
+- **Terminal.app**: Preferences → Profiles → Font
+- **iTerm2**: Preferences → Profiles → Text → Font
+- **VS Code**: Settings → Terminal › Integrated: Font Family
 
 ## Tips
 
-- Use `p10k configure` to customize your prompt
-- Starship can be used instead of/alongside p10k
+- Customize Starship prompt by editing `~/.config/starship/starship.toml`
+- Run `starship config` to see all available options
 - Local overrides go in `~/.zshrc.local` (not tracked in git)

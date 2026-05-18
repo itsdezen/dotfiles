@@ -73,7 +73,7 @@ setup_terminal_profile() {
 
 update_terminal_font() {
   local PROFILE_NAME="${1:-Clear Dark}"
-  local FONT_NAME="ComicCodeLigatures Nerd Font"
+  local FONT_NAME="JetBrainsMono Nerd Font"
   local FONT_SIZE="14"
 
   info "Updating Terminal font to: $FONT_NAME $FONT_SIZE"

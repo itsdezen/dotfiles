@@ -21,3 +21,6 @@
 *.swp
 *.swo
 *~
+
+# ── Fonts ────────────────────────────────────────────────────────────────────
+fonts/                  # Fonts installed via Homebrew, not committed

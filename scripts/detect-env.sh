@@ -64,19 +64,19 @@ detect_homebrew() {
 detect_node() {
   header "Node.js Environment"
 
-  # Check nvm
-  export NVM_DIR="$HOME/.nvm"
-  if [[ -s "$NVM_DIR/nvm.sh" ]]; then
-    success "nvm installed"
-    source "$NVM_DIR/nvm.sh"
-    info "Current Node: $(node --version 2>/dev/null || echo 'none')"
-    info "Default Node: $(nvm version default 2>/dev/null || echo 'none')"
-  elif [[ -f "/opt/homebrew/opt/nvm/nvm.sh" ]]; then
-    success "nvm installed (via Homebrew)"
-    source "/opt/homebrew/opt/nvm/nvm.sh"
-    info "Current Node: $(node --version 2>/dev/null || echo 'none')"
+  # Check mise
+  if command -v mise &>/dev/null; then
+    success "mise installed: $(mise --version)"
+    if mise which node &>/dev/null; then
+      info "Current Node: $(node --version 2>/dev/null || echo 'none')"
+      info "mise global: $(mise current node 2>/dev/null || echo 'none')"
+    else
+      warn "Node.js not installed via mise"
+      info "Install with: mise install node@lts && mise use -g node@lts"
+    fi
   else
-    warn "nvm not installed"
+    warn "mise not installed"
+    info "Install with: brew install mise"
   fi
 
   # Check pnpm
@@ -106,12 +106,12 @@ detect_shell() {
     warn "Oh My Zsh not installed"
   fi
 
-  # Check Powerlevel10k
-  local P10K_DIR="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
-  if [[ -d "$P10K_DIR" ]]; then
-    success "Powerlevel10k installed"
+  # Check Starship
+  if command -v starship &>/dev/null; then
+    success "Starship installed: $(starship --version | head -1)"
   else
-    warn "Powerlevel10k not installed"
+    warn "Starship not installed"
+    info "Install with: brew install starship"
   fi
 
   # Check zsh plugins
@@ -128,13 +128,6 @@ detect_shell() {
   else
     warn "zsh-syntax-highlighting not installed"
   fi
-
-  # Check starship (optional)
-  if command -v starship &>/dev/null; then
-    info "starship installed: $(starship --version | head -1)"
-  else
-    info "starship not installed (optional)"
-  fi
 }
 
 detect_dotfiles() {
@@ -144,9 +137,9 @@ detect_dotfiles() {
     ".zshrc:$HOME/.zshrc"
     ".zshenv:$HOME/.zshenv"
     ".zprofile:$HOME/.zprofile"
-    ".p10k.zsh:$HOME/.p10k.zsh"
     ".gitconfig:$HOME/.gitconfig"
     ".gitignore_global:$HOME/.gitignore_global"
+    "starship.toml:$HOME/.config/starship/starship.toml"
   )
 
   for file_pair in "${files[@]}"; do
@@ -171,13 +164,13 @@ detect_dotfiles() {
 detect_fonts() {
   header "Fonts"
 
-  local font_dir="$HOME/Library/Fonts"
+  local font_file="$HOME/Library/Fonts/JetBrainsMonoNerdFont-Regular.ttf"
 
-  if ls "$font_dir"/*Comic*Code* &>/dev/null; then
-    success "Comic Code Ligatures fonts found in ~/Library/Fonts"
+  if [[ -f "$font_file" ]]; then
+    success "JetBrains Mono Nerd Font installed"
   else
-    warn "Comic Code Ligatures fonts not found"
-    info "Install manually to: ~/Library/Fonts/"
+    warn "JetBrains Mono Nerd Font not found"
+    info "Install with: brew install --cask font-jetbrains-mono-nerd-font"
   fi
 }
 

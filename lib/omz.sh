@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# lib/omz.sh — Install and setup Oh My Zsh + Powerlevel10k
+# lib/omz.sh — Install and setup Oh My Zsh (with Starship prompt)
 
 install_oh_my_zsh() {
   local ZSH_DIR="$HOME/.oh-my-zsh"
@@ -22,31 +22,6 @@ install_oh_my_zsh() {
   fi
 }
 
-install_powerlevel10k() {
-  local ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
-  local P10K_DIR="$ZSH_CUSTOM/themes/powerlevel10k"
-
-  if [[ -d "$P10K_DIR" ]]; then
-    success "Powerlevel10k already installed"
-    return 0
-  fi
-
-  if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
-    warn "Oh My Zsh not installed, installing it first..."
-    install_oh_my_zsh || return 1
-  fi
-
-  info "Installing Powerlevel10k theme..."
-  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$P10K_DIR"
-
-  if [[ -d "$P10K_DIR" ]]; then
-    success "Powerlevel10k installed"
-    info "Run 'p10k configure' to customize your prompt"
-  else
-    error "Failed to install Powerlevel10k"
-    return 1
-  fi
-}
 
 install_zsh_plugins() {
   local ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
@@ -74,6 +49,5 @@ install_zsh_plugins() {
 
 setup_shell() {
   install_oh_my_zsh
-  install_powerlevel10k
   install_zsh_plugins
 }

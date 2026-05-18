@@ -12,18 +12,16 @@
 
 # ── Essential Development Tools ──────────────────────────────────────────────
 
-# Node.js version manager
-brew "nvm"
+# mise - Polyglot version manager (Node, Python, Ruby, etc.)
+brew "mise"
+
+# Starship - Cross-shell prompt
+brew "starship"
 
 # Mole - Mac cleanup and maintenance terminal tool
 brew "mole"
 
 # ── Fonts ─────────────────────────────────────────────────────────────────────
 
-# Comic Code Ligatures - Main coding font
-# Note: Install manually if not available via homebrew
-# Download from: https://github.com/ryanoasis/nerd-fonts
-
-# Comic Code Ligatures Nerd - Terminal font with icon support
-# Note: Install manually if not available via homebrew
-# You can add custom fonts to: ~/Library/Fonts/
+# JetBrains Mono Nerd Font - Main coding font with icon support
+cask "font-jetbrains-mono-nerd-font"

@@ -67,7 +67,7 @@ chezmoi apply ~/.zshrc
 dotfiles/
 ├── zsh/zshrc         → ~/.zshrc
 ├── git/gitconfig     → ~/.gitconfig
-└── zsh/p10k.zsh      → ~/.p10k.zsh
+└── config/starship/starship.toml → ~/.config/starship/starship.toml
 ```
 
 ### After Chezmoi Migration
@@ -76,7 +76,9 @@ dotfiles/
 ~/.local/share/chezmoi/
 ├── dot_zshrc
 ├── dot_gitconfig.tmpl
-├── dot_p10k.zsh
+├── dot_config/
+│   └── starship/
+│       └── starship.toml
 ├── .chezmoi.toml.tmpl
 └── run_once_install.sh
 ```
@@ -108,7 +110,7 @@ mkdir -p .chezmoi
 | `zsh/zshrc` | `dot_zshrc` | Main zsh config |
 | `zsh/zshenv` | `dot_zshenv` | Zsh environment |
 | `zsh/zprofile` | `dot_zprofile` | Zsh profile |
-| `zsh/p10k.zsh` | `dot_p10k.zsh` | Powerlevel10k config |
+| `config/starship/starship.toml` | `dot_config/starship/starship.toml` | Starship prompt config |
 | `git/gitconfig` | `dot_gitconfig.tmpl` | Git config (template) |
 | `git/gitignore_global` | `dot_gitignore_global` | Global gitignore |
 | `install.sh` | `run_once_install.sh` | Installation script |

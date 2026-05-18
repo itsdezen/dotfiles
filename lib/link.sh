@@ -27,18 +27,13 @@ create_symlinks() {
   link_file "$dotfiles_dir/zsh/zshenv"   "$HOME/.zshenv"
   link_file "$dotfiles_dir/zsh/zprofile" "$HOME/.zprofile"
 
-  # p10k
-  if [[ -f "$dotfiles_dir/zsh/p10k.zsh" ]]; then
-    link_file "$dotfiles_dir/zsh/p10k.zsh" "$HOME/.p10k.zsh"
-  fi
-
   # git
   link_file "$dotfiles_dir/git/gitconfig"        "$HOME/.gitconfig"
   link_file "$dotfiles_dir/git/gitignore_global" "$HOME/.gitignore_global"
 
-  # starship (optional)
+  # starship
   if [[ -f "$dotfiles_dir/config/starship/starship.toml" ]]; then
     link_file "$dotfiles_dir/config/starship/starship.toml" \
-              "$HOME/.config/starship.toml"
+              "$HOME/.config/starship/starship.toml"
   fi
 }

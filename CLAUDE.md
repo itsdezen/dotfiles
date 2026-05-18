@@ -25,9 +25,9 @@ This document provides comprehensive information about this dotfiles repository 
 
 This dotfiles repository provides a complete development environment setup for macOS, focusing on:
 
-- **Minimal dependencies**: Only essential tools (nvm, mole)
+- **Minimal dependencies**: Only essential tools (mise, mole)
 - **Modern shell**: zsh + Oh My Zsh + Powerlevel10k
-- **Node.js ecosystem**: nvm + pnpm + bun
+- **Node.js ecosystem**: mise + pnpm + bun
 - **Interactive installation**: Choose what to install
 - **Environment detection**: Scan and sync existing configs
 
@@ -50,12 +50,12 @@ install.sh (main entry point)
     ↓
 ├── Check macOS
 ├── Create ~/Developer directory
-├── Install Homebrew + packages (nvm, mole)
+├── Install Homebrew + packages (mise, mole, starship, fonts)
 │   └── lib/brew.sh
-├── Setup shell (Oh My Zsh + Powerlevel10k)
+├── Setup shell (Oh My Zsh + Starship)
 │   └── lib/omz.sh
 ├── Install Node.js + package managers
-│   └── lib/node.sh (nvm, pnpm, bun)
+│   └── lib/node.sh (mise, pnpm, bun)
 └── Create symlinks
     └── lib/link.sh
 ```
@@ -66,8 +66,8 @@ install.sh (main entry point)
 |--------|---------|
 | `install.sh` | Main orchestrator with interactive prompts |
 | `lib/brew.sh` | Homebrew installation and package management |
-| `lib/omz.sh` | Oh My Zsh + Powerlevel10k + plugins setup |
-| `lib/node.sh` | Node.js via nvm, pnpm, and bun installation |
+| `lib/omz.sh` | Oh My Zsh + plugins setup (Starship as prompt) |
+| `lib/node.sh` | Node.js via mise, pnpm, and bun installation |
 | `lib/link.sh` | Create symlinks from dotfiles to $HOME |
 | `scripts/detect-env.sh` | Scan current environment |
 | `scripts/dump-brew.sh` | Export Brewfile from current system |
@@ -83,15 +83,14 @@ dotfiles/
 ├── CLAUDE.md              # Developer documentation (this file)
 ├── CHEZMOI.md             # Chezmoi installation guide
 ├── .gitignore             # Git ignore rules
-├── Brewfile               # Homebrew packages (nvm, mole)
+├── Brewfile               # Homebrew packages (mise, mole, starship, fonts)
 ├── .node-version          # Default Node.js version
 ├── npm-globals.txt        # Global npm packages
 │
 ├── zsh/                   # Zsh configuration
-│   ├── zshrc              # Main zsh config (Oh My Zsh + p10k + nvm + bun)
+│   ├── zshrc              # Main zsh config (Oh My Zsh + Starship + mise + bun)
 │   ├── zshenv             # Environment variables
-│   ├── zprofile           # Login shell config
-│   └── p10k.zsh           # Powerlevel10k configuration
+│   └── zprofile           # Login shell config
 │
 ├── git/                   # Git configuration
 │   ├── gitconfig          # Git user config
@@ -168,28 +167,29 @@ See [CHEZMOI.md](CHEZMOI.md) for detailed guide.
 ### Shell Configuration (zsh/)
 
 **zshrc** - Main configuration file featuring:
-- Powerlevel10k instant prompt
 - Oh My Zsh framework
+- Starship prompt (cross-shell compatible)
 - Plugins: git, zsh-autosuggestions, zsh-syntax-highlighting
-- nvm integration (Homebrew installation)
+- mise integration (automatic version management)
 - bun integration
 - Custom aliases
 - Support for machine-specific `.zshrc.local`
 
-**p10k.zsh** - Powerlevel10k configuration:
-- Copied from user's existing setup
-- Customized prompt with lean style
+**Starship** - Cross-shell prompt:
+- Fast, minimal, and highly customizable
 - Git status integration
 - Command execution time
-- Background jobs indicator
+- Directory path truncation
+- Configurable via `~/.config/starship/starship.toml`
 
 ### Node.js Environment (lib/node.sh)
 
-**nvm setup:**
-- Supports both Homebrew and manual installation
-- Loads from multiple possible locations
-- Auto-installs default Node version from `.node-version`
-- Bash completion support
+**mise setup:**
+- Polyglot version manager (Node, Python, Ruby, etc.)
+- Auto-switches versions based on `.node-version` files
+- Installed via Homebrew
+- Simpler and faster than nvm
+- Supports global and local versions
 
 **pnpm:**
 - Fast, disk-efficient package manager
@@ -203,9 +203,10 @@ See [CHEZMOI.md](CHEZMOI.md) for detailed guide.
 ### Homebrew Packages (Brewfile)
 
 Minimal essential packages:
-- `nvm` - Node version manager
+- `mise` - Polyglot version manager
 - `mole` - SSH tunneling tool
-- `font-*` - Development fonts (commented, manual install)
+- `starship` - Cross-shell prompt
+- `font-jetbrains-mono-nerd-font` - Development font with icon support
 
 ### Git Configuration (git/)
 
@@ -293,10 +294,12 @@ bash scripts/dump-brew.sh
 
 **Manually edit to keep only essentials:**
 ```ruby
-brew "nvm"
+brew "mise"
 brew "mole"
+brew "starship"
 # Add new package
 brew "newtool"
+cask "font-jetbrains-mono-nerd-font"
 ```
 
 ### Testing Changes
@@ -336,7 +339,7 @@ Chezmoi provides:
 |---------------|---------------------|
 | `zsh/zshrc` | `.chezmoitemplates/zshrc` or `dot_zshrc` |
 | `git/gitconfig` | `dot_gitconfig.tmpl` |
-| `zsh/p10k.zsh` | `dot_p10k.zsh` |
+| `config/starship/starship.toml` | `dot_config/starship/starship.toml` |
 
 ### Template Variables
 
@@ -364,11 +367,14 @@ See [CHEZMOI.md](CHEZMOI.md) for full guide.
 
 ### Common Issues
 
-**1. nvm not loading:**
+**1. mise not loading:**
 ```bash
-# Check nvm installation
-echo $NVM_DIR
-ls -la $NVM_DIR/nvm.sh
+# Check mise installation
+which mise
+mise --version
+
+# Verify activation
+mise doctor
 
 # Reload shell
 source ~/.zshrc
@@ -392,7 +398,20 @@ ls -la ~/.zshrc
 bash lib/link.sh
 ```
 
-**4. Homebrew packages not found:**
+**4. Starship prompt not loading:**
+```bash
+# Check Starship installation
+which starship
+starship --version
+
+# Test configuration
+starship config
+
+# Reload shell
+source ~/.zshrc
+```
+
+**5. Homebrew packages not found:**
 ```bash
 # Verify Homebrew
 brew doctor
@@ -499,9 +518,10 @@ git log --oneline --decorate
 
 ### Documentation
 - [Oh My Zsh](https://github.com/ohmyzsh/ohmyzsh)
-- [Powerlevel10k](https://github.com/romkatv/powerlevel10k)
+- [Starship](https://starship.rs/)
+- [mise](https://mise.jdx.dev/)
 - [Chezmoi](https://www.chezmoi.io/)
-- [nvm](https://github.com/nvm-sh/nvm)
+- [JetBrains Mono](https://www.jetbrains.com/lp/mono/)
 
 ### Similar Projects
 - [holman/dotfiles](https://github.com/holman/dotfiles)

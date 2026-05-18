@@ -1,35 +1,10 @@
 #!/usr/bin/env bash
-# lib/node.sh — Install Node.js via nvm + pnpm + bun
+# lib/node.sh — Install Node.js via mise + pnpm + bun
 
 install_node() {
-  # nvm should already be installed via Brewfile
-  export NVM_DIR="$HOME/.nvm"
-
-  # Check if nvm is installed
-  if [[ ! -d "$NVM_DIR" ]]; then
-    warn "nvm not found — installing manually..."
-    if command -v brew &>/dev/null && brew list nvm &>/dev/null; then
-      # nvm installed via brew, set it up
-      if [[ -f "/opt/homebrew/opt/nvm/nvm.sh" ]]; then
-        source "/opt/homebrew/opt/nvm/nvm.sh"
-      elif [[ -f "/usr/local/opt/nvm/nvm.sh" ]]; then
-        source "/usr/local/opt/nvm/nvm.sh"
-      fi
-    else
-      error "Cannot find nvm. Please install: brew install nvm"
-      return 1
-    fi
-  fi
-
-  # Load nvm into current shell
-  if [[ -s "$NVM_DIR/nvm.sh" ]]; then
-    source "$NVM_DIR/nvm.sh"
-  elif [[ -f "/opt/homebrew/opt/nvm/nvm.sh" ]]; then
-    source "/opt/homebrew/opt/nvm/nvm.sh"
-  elif [[ -f "/usr/local/opt/nvm/nvm.sh" ]]; then
-    source "/usr/local/opt/nvm/nvm.sh"
-  else
-    error "Cannot load nvm. Please check installation."
+  # mise should already be installed via Brewfile
+  if ! command -v mise &>/dev/null; then
+    error "mise not found. Please install: brew install mise"
     return 1
   fi
 
@@ -37,26 +12,24 @@ install_node() {
   local node_version
   if [[ -f "$DOTFILES_DIR/.node-version" ]]; then
     node_version="$(cat "$DOTFILES_DIR/.node-version" | tr -d '[:space:]')"
-
-    # If .node-version contains "lts", use --lts flag
-    if [[ "$node_version" == "lts" ]]; then
-      info "Installing Node.js LTS via nvm..."
-      nvm install --lts
-      node_version="$(nvm current)"
-    else
-      info "Installing Node.js $node_version via nvm..."
-      nvm install "$node_version"
-    fi
   else
-    info "Installing Node.js LTS via nvm..."
-    nvm install --lts
-    node_version="$(nvm current)"
+    node_version="lts"
   fi
 
-  nvm use "$node_version"
-  nvm alias default "$node_version"
+  # Install Node.js via mise
+  info "Installing Node.js $node_version via mise..."
+  mise install "node@$node_version"
+  mise use -g "node@$node_version"
 
-  success "Node.js $(node --version) is ready"
+  # Activate mise for current session
+  eval "$(mise activate bash)"
+
+  if command -v node &>/dev/null; then
+    success "Node.js $(node --version) is ready"
+  else
+    error "Node.js installation failed. Please check mise configuration."
+    return 1
+  fi
 
   # Install global npm packages
   if [[ -f "$DOTFILES_DIR/npm-globals.txt" ]]; then
