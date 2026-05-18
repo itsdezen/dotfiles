@@ -42,11 +42,23 @@ zinit light zdharma-continuum/fast-syntax-highlighting
 # Load zsh colors module
 autoload -U colors && colors
 
-# BSD ls colors (macOS)
-export LSCOLORS="Gxfxcxdxbxegedabagacad"
+# BSD ls colors (macOS) - Full warm color scheme (no cyan/blue)
+# Format: dir symlink socket pipe exec block char setuid setgid sticky other-writable
+export LSCOLORS="DxFxFxDxCxHxHxCbDdDbDd"
+#                ││││││││││└┴─ other-writable: yellow bg, brown fg
+#                │││││││││└─── sticky: yellow bg, red fg
+#                ││││││││└──── setgid: yellow bg, brown fg
+#                │││││││└───── setuid: red bg, cyan fg
+#                ││││││└────── char device: bold light grey
+#                │││││└─────── block device: bold light grey
+#                ││││└──────── executable: bold red
+#                │││└───────── pipe: bold yellow
+#                ││└────────── socket: bold magenta
+#                │└─────────── symlink: bold magenta
+#                └──────────── directory: bold yellow/amber
 
-# GNU ls colors (if using gls from coreutils)
-export LS_COLORS="di=1;36:ln=35:so=32:pi=33:ex=31:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43"
+# GNU ls colors (if using gls from coreutils) - Full warm theme
+export LS_COLORS="di=1;33:ln=1;35:so=1;35:pi=1;33:ex=1;31:bd=1;37:cd=1;37:su=1;41:sg=1;43:tw=1;43:ow=1;33"
 
 # Auto-alias ls with colors for macOS
 if ls -G /dev/null &>/dev/null; then
