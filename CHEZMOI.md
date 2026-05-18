@@ -167,17 +167,18 @@ fi
 # Install packages
 brew bundle --file="${HOME}/.local/share/chezmoi/Brewfile"
 
-# Setup Oh My Zsh
-if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
-    echo "Installing Oh My Zsh..."
-    RUNZSH=no CHSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+# Setup zinit
+ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
+if [[ ! -d "$ZINIT_HOME" ]]; then
+    echo "Installing zinit..."
+    mkdir -p "$(dirname "$ZINIT_HOME")"
+    git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
 fi
 
-# Setup Powerlevel10k
-ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
-if [[ ! -d "$ZSH_CUSTOM/themes/powerlevel10k" ]]; then
-    echo "Installing Powerlevel10k..."
-    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$ZSH_CUSTOM/themes/powerlevel10k"
+# Cleanup old Oh My Zsh if exists
+if [[ -d "$HOME/.oh-my-zsh" ]]; then
+    echo "Found old Oh My Zsh installation, backing up..."
+    mv "$HOME/.oh-my-zsh" "$HOME/.oh-my-zsh.backup.$(date +%Y%m%d)"
 fi
 
 echo "Setup complete!"

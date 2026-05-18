@@ -39,7 +39,7 @@ for arg in "$@"; do
       echo "  --all           Install everything without interactive prompt"
       echo "  --skip-brew     Skip Homebrew installation"
       echo "  --skip-node     Skip Node.js installation"
-      echo "  --skip-shell    Skip shell setup (Oh My Zsh, Starship)"
+      echo "  --skip-shell    Skip shell setup (zinit, Starship)"
       echo "  --help, -h      Show this help message"
       exit 0
       ;;
@@ -65,8 +65,8 @@ check_starship() {
   command -v starship &>/dev/null && return 0 || return 1
 }
 
-check_oh_my_zsh() {
-  [[ -d "$HOME/.oh-my-zsh" ]] && return 0 || return 1
+check_zinit() {
+  [[ -d "${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git" ]] && return 0 || return 1
 }
 
 check_node() {
@@ -119,7 +119,7 @@ EOF
   local -a OPTIONS
   OPTIONS[0]="Homebrew & Essential Tools (mise, mole, starship)"
   OPTIONS[1]="JetBrains Mono Nerd Font"
-  OPTIONS[2]="Oh My Zsh + Plugins"
+  OPTIONS[2]="zinit (Plugin Manager) + Plugins"
   OPTIONS[3]="Starship Prompt"
   OPTIONS[4]="Node.js (via mise)"
   OPTIONS[5]="pnpm Package Manager"
@@ -131,7 +131,7 @@ EOF
   local -a SELECTED
   check_homebrew || SELECTED[0]=1
   check_font || SELECTED[1]=1
-  check_oh_my_zsh || SELECTED[2]=1
+  check_zinit || SELECTED[2]=1
   check_starship || SELECTED[3]=1
   check_node || SELECTED[4]=1
   check_pnpm || SELECTED[5]=1
@@ -184,7 +184,7 @@ EOF
     case $1 in
       0) check_homebrew ;;
       1) check_font ;;
-      2) check_oh_my_zsh ;;
+      2) check_zinit ;;
       3) check_starship ;;
       4) check_node ;;
       5) check_pnpm ;;
@@ -239,7 +239,7 @@ EOF
   # Export selections
   export INSTALL_BREW=${SELECTED[0]:-0}
   export INSTALL_FONT=${SELECTED[1]:-0}
-  export INSTALL_OMZ=${SELECTED[2]:-0}
+  export INSTALL_ZINIT=${SELECTED[2]:-0}
   export INSTALL_STARSHIP=${SELECTED[3]:-0}
   export INSTALL_NODE=${SELECTED[4]:-0}
   export INSTALL_PNPM=${SELECTED[5]:-0}
@@ -265,7 +265,7 @@ fi
 if [[ "$INSTALL_ALL" == true ]]; then
   INSTALL_BREW=1
   INSTALL_FONT=1
-  INSTALL_OMZ=1
+  INSTALL_ZINIT=1
   INSTALL_STARSHIP=1
   INSTALL_NODE=1
   INSTALL_PNPM=1
@@ -284,13 +284,12 @@ if [[ $INSTALL_BREW -eq 1 ]] && [[ "$SKIP_BREW" == false ]]; then
   install_packages "$DOTFILES_DIR/Brewfile"
 fi
 
-# ── 2. Oh My Zsh + Starship ──────────────────────────────────────────────────
+# ── 2. zinit (Plugin Manager) ───────────────────────────────────────────────
 if [[ "$SKIP_SHELL" == false ]]; then
-  if [[ $INSTALL_OMZ -eq 1 ]]; then
-    header "Oh My Zsh"
-    source "$DOTFILES_DIR/lib/omz.sh"
-    install_oh_my_zsh
-    install_zsh_plugins
+  if [[ $INSTALL_ZINIT -eq 1 ]]; then
+    header "zinit Plugin Manager"
+    source "$DOTFILES_DIR/lib/zinit.sh"
+    setup_shell
   fi
 fi
 
@@ -336,6 +335,12 @@ show_cleanup_recommendations() {
     cleanup_items+=("nvm")
   fi
 
+  # Check for Oh My Zsh
+  if [[ -d "$HOME/.oh-my-zsh" ]]; then
+    needs_cleanup=true
+    cleanup_items+=("oh-my-zsh")
+  fi
+
   # Check for Powerlevel10k
   if [[ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k" ]] || [[ -f "$HOME/.p10k.zsh" ]]; then
     needs_cleanup=true
@@ -369,6 +374,13 @@ show_cleanup_recommendations() {
           fi
           echo -e "    ${CYAN}# Remove from shell config (if added manually)${RESET}"
           echo -e "    ${DIM}# Edit ~/.zshrc and remove nvm-related lines${RESET}"
+          echo ""
+          ;;
+        oh-my-zsh)
+          echo -e "  ${YELLOW}•${RESET} ${BOLD}Oh My Zsh${RESET} ${DIM}(replaced by zinit)${RESET}"
+          echo -e "    ${CYAN}# Backup and remove Oh My Zsh${RESET}"
+          echo -e "    ${DIM}mv ~/.oh-my-zsh ~/.oh-my-zsh.backup.\$(date +%Y%m%d)${RESET}"
+          echo -e "    ${DIM}# zinit will manage plugins directly${RESET}"
           echo ""
           ;;
         powerlevel10k)

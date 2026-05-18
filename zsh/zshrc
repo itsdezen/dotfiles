@@ -11,20 +11,33 @@
 
 export PATH="$HOME/.local/bin:$PATH"
 
-# ── Oh My Zsh ────────────────────────────────────────────────────────────────
-export ZSH="$HOME/.oh-my-zsh"
+# ── zinit (Plugin Manager) ──────────────────────────────────────────────────
+# Modern, fast, and flexible zsh plugin manager
+ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 
-# Theme - Disable Oh My Zsh theme (using Starship instead)
-ZSH_THEME=""
+# Load zinit
+if [[ ! -d "$ZINIT_HOME" ]]; then
+  mkdir -p "$(dirname $ZINIT_HOME)"
+  git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+fi
 
-# Plugins
-plugins=(
-  git
-  zsh-autosuggestions
-  zsh-syntax-highlighting
-)
+source "${ZINIT_HOME}/zinit.zsh"
 
-source $ZSH/oh-my-zsh.sh
+# ── Plugins ──────────────────────────────────────────────────────────────────
+
+# Load OMZ git library for git aliases and completion
+zinit snippet OMZ::lib/git.zsh
+
+# Load git plugin for enhanced git integration
+zinit snippet OMZ::plugins/git/git.plugin.zsh
+
+# Fish-like autosuggestions
+zinit ice wait lucid atload'_zsh_autosuggest_start'
+zinit light zsh-users/zsh-autosuggestions
+
+# Syntax highlighting (must be loaded last)
+zinit ice wait lucid atinit'zpcompinit; zpcdreplay'
+zinit light zsh-users/zsh-syntax-highlighting
 
 # ── History ──────────────────────────────────────────────────────────────────
 HISTFILE="$HOME/.zsh_history"

@@ -25,8 +25,8 @@ This document provides comprehensive information about this dotfiles repository 
 
 This dotfiles repository provides a complete development environment setup for macOS, focusing on:
 
-- **Minimal dependencies**: Only essential tools (mise, mole)
-- **Modern shell**: zsh + Oh My Zsh + Powerlevel10k
+- **Minimal dependencies**: Only essential tools (mise, mole, starship)
+- **Modern shell**: zsh + zinit + Starship
 - **Node.js ecosystem**: mise + pnpm + bun
 - **Interactive installation**: Choose what to install
 - **Environment detection**: Scan and sync existing configs
@@ -52,8 +52,8 @@ install.sh (main entry point)
 ├── Create ~/Developer directory
 ├── Install Homebrew + packages (mise, mole, starship, fonts)
 │   └── lib/brew.sh
-├── Setup shell (Oh My Zsh + Starship)
-│   └── lib/omz.sh
+├── Setup shell (zinit + Starship)
+│   └── lib/zinit.sh
 ├── Install Node.js + package managers
 │   └── lib/node.sh (mise, pnpm, bun)
 └── Create symlinks
@@ -66,7 +66,7 @@ install.sh (main entry point)
 |--------|---------|
 | `install.sh` | Main orchestrator with interactive prompts |
 | `lib/brew.sh` | Homebrew installation and package management |
-| `lib/omz.sh` | Oh My Zsh + plugins setup (Starship as prompt) |
+| `lib/zinit.sh` | zinit plugin manager setup (with cleanup for old OMZ) |
 | `lib/node.sh` | Node.js via mise, pnpm, and bun installation |
 | `lib/link.sh` | Create symlinks from dotfiles to $HOME |
 | `scripts/detect-env.sh` | Scan current environment |
@@ -88,7 +88,7 @@ dotfiles/
 ├── npm-globals.txt        # Global npm packages
 │
 ├── zsh/                   # Zsh configuration
-│   ├── zshrc              # Main zsh config (Oh My Zsh + Starship + mise + bun)
+│   ├── zshrc              # Main zsh config (zinit + Starship + mise + bun)
 │   ├── zshenv             # Environment variables
 │   └── zprofile           # Login shell config
 │
@@ -102,7 +102,7 @@ dotfiles/
 │
 ├── lib/                   # Installation modules
 │   ├── brew.sh            # Homebrew logic
-│   ├── omz.sh             # Oh My Zsh logic
+│   ├── zinit.sh           # zinit plugin manager logic
 │   ├── node.sh            # Node.js logic
 │   └── link.sh            # Symlink logic
 │
@@ -167,13 +167,22 @@ See [CHEZMOI.md](CHEZMOI.md) for detailed guide.
 ### Shell Configuration (zsh/)
 
 **zshrc** - Main configuration file featuring:
-- Oh My Zsh framework
-- Starship prompt (cross-shell compatible)
-- Plugins: git, zsh-autosuggestions, zsh-syntax-highlighting
-- mise integration (automatic version management)
-- bun integration
-- Custom aliases
-- Support for machine-specific `.zshrc.local`
+- **zinit** - Modern, fast plugin manager with turbo mode for lazy loading
+- **Starship prompt** - Cross-shell compatible, minimal and fast
+- **Plugins** (managed by zinit):
+  - `git` - Git completion and aliases from OMZ library
+  - `zsh-autosuggestions` - Fish-like command suggestions
+  - `zsh-syntax-highlighting` - Real-time syntax highlighting
+- **mise integration** - Automatic version management
+- **bun integration** - JavaScript runtime
+- **Custom aliases** - Git, navigation, development shortcuts
+- **Support for machine-specific** `.zshrc.local`
+
+**zinit** - Plugin manager features:
+- Fast startup with turbo mode (lazy loading)
+- Can load OMZ snippets without full OMZ installation
+- Automatic git clone and updates for plugins
+- Minimal footprint (~300KB vs ~1MB for OMZ)
 
 **Starship** - Cross-shell prompt:
 - Fast, minimal, and highly customizable
@@ -380,13 +389,19 @@ mise doctor
 source ~/.zshrc
 ```
 
-**2. Oh My Zsh plugins not working:**
+**2. zinit plugins not loading:**
 ```bash
-# Check plugin installation
-ls -la ~/.oh-my-zsh/custom/plugins/
+# Check zinit installation
+ls -la ~/.local/share/zinit/zinit.git
 
-# Reinstall plugins
-bash lib/omz.sh
+# Check plugins directory
+ls -la ~/.local/share/zinit/plugins/
+
+# Reload zinit and plugins
+source ~/.zshrc
+
+# Debug zinit
+zinit times  # Show plugin loading times
 ```
 
 **3. Symlinks broken:**
@@ -492,7 +507,7 @@ bash scripts/detect-env.sh
 
 **Weekly:**
 - [ ] Update Brewfile from current system
-- [ ] Check for Oh My Zsh updates
+- [ ] Check for zinit and plugin updates (`zinit update --all`)
 - [ ] Test installation on clean system
 
 **Monthly:**
@@ -517,11 +532,13 @@ git log --oneline --decorate
 ## Resources
 
 ### Documentation
-- [Oh My Zsh](https://github.com/ohmyzsh/ohmyzsh)
+- [zinit](https://github.com/zdharma-continuum/zinit)
 - [Starship](https://starship.rs/)
 - [mise](https://mise.jdx.dev/)
 - [Chezmoi](https://www.chezmoi.io/)
 - [JetBrains Mono](https://www.jetbrains.com/lp/mono/)
+- [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)
+- [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting)
 
 ### Similar Projects
 - [holman/dotfiles](https://github.com/holman/dotfiles)

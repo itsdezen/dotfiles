@@ -99,11 +99,20 @@ detect_node() {
 detect_shell() {
   header "Shell Configuration"
 
-  # Check Oh My Zsh
-  if [[ -d "$HOME/.oh-my-zsh" ]]; then
-    success "Oh My Zsh installed"
+  # Check zinit
+  local ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
+  if [[ -d "$ZINIT_HOME" ]]; then
+    success "zinit installed"
+
+    # Check if plugins are managed by zinit
+    local ZINIT_PLUGINS="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/plugins"
+    if [[ -d "$ZINIT_PLUGINS" ]]; then
+      local plugin_count=$(find "$ZINIT_PLUGINS" -maxdepth 1 -type d | wc -l)
+      info "zinit plugins: $((plugin_count - 1))"
+    fi
   else
-    warn "Oh My Zsh not installed"
+    warn "zinit not installed"
+    info "Install with: ./install.sh (select zinit option)"
   fi
 
   # Check Starship
@@ -114,19 +123,10 @@ detect_shell() {
     info "Install with: brew install starship"
   fi
 
-  # Check zsh plugins
-  local PLUGIN_DIR="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins"
-
-  if [[ -d "$PLUGIN_DIR/zsh-autosuggestions" ]]; then
-    success "zsh-autosuggestions installed"
-  else
-    warn "zsh-autosuggestions not installed"
-  fi
-
-  if [[ -d "$PLUGIN_DIR/zsh-syntax-highlighting" ]]; then
-    success "zsh-syntax-highlighting installed"
-  else
-    warn "zsh-syntax-highlighting not installed"
+  # Check for old Oh My Zsh installation
+  if [[ -d "$HOME/.oh-my-zsh" ]]; then
+    warn "Oh My Zsh found (now replaced by zinit)"
+    info "Consider removing: mv ~/.oh-my-zsh ~/.oh-my-zsh.backup.$(date +%Y%m%d)"
   fi
 }
 

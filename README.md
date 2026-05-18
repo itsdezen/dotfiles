@@ -46,7 +46,7 @@ dotfiles/
     ├── brew.sh             ← Homebrew installation logic
     ├── node.sh             ← Node.js via mise + pnpm + bun
     ├── link.sh             ← Create symlinks
-    └── omz.sh              ← Oh My Zsh setup
+    └── zinit.sh            ← zinit plugin manager setup
 ```
 
 ## Interactive Installation
@@ -72,11 +72,12 @@ Run the installer to see the interactive checklist:
 **Available components:**
 - ☑ Homebrew & Essential Tools (mise, mole, starship)
 - ☑ JetBrains Mono Nerd Font
-- ☑ Oh My Zsh + Plugins
+- ☑ zinit (Plugin Manager) + Plugins
 - ☑ Starship Prompt
 - ☑ Node.js (via mise)
 - ☑ pnpm Package Manager
 - ☑ bun Runtime
+- ☑ Terminal.app Profile (Clear Dark with JetBrains Mono)
 - ☑ Create Symlinks (.zshrc, .gitconfig, etc.)
 
 ### ⚡ Non-Interactive Mode
@@ -135,11 +136,17 @@ git push
 
 ## Shell Features
 
-- **Oh My Zsh** — Framework for managing zsh configuration
+- **zinit** — Modern, fast, and flexible zsh plugin manager with turbo mode
 - **Starship** — Fast, minimal, and highly customizable cross-shell prompt
 - **mise** — Polyglot version manager (Node, Python, Ruby, etc.)
 - **pnpm** — Fast, disk space efficient package manager
 - **bun** — All-in-one JavaScript runtime & toolkit
+
+### Plugins (managed by zinit)
+
+- **git** — Git aliases and completion from OMZ library
+- **zsh-autosuggestions** — Fish-like command suggestions
+- **zsh-syntax-highlighting** — Real-time syntax highlighting
 
 ## Aliases
 
