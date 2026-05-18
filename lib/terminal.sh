@@ -15,58 +15,51 @@ setup_terminal_profile() {
     return 1
   fi
 
-  # Close Terminal.app if running (required for profile update)
-  if pgrep -x "Terminal" > /dev/null; then
-    warn "Terminal.app is running and will be closed to apply settings"
-    read -r -p "  Close Terminal.app now? [Y/n] " response
-    if [[ ! "$response" =~ ^[Nn]$ ]]; then
-      osascript -e 'quit app "Terminal"' 2>/dev/null || killall Terminal 2>/dev/null
-      sleep 1
-    else
-      info "Skipping Terminal profile update (Terminal is running)"
-      return 0
-    fi
-  fi
-
   # Backup current preferences
   if [[ -f ~/Library/Preferences/com.apple.Terminal.plist ]]; then
-    cp ~/Library/Preferences/com.apple.Terminal.plist \
-       ~/Library/Preferences/com.apple.Terminal.plist.backup 2>/dev/null
-    info "Backed up current Terminal preferences"
+    local backup_file="$HOME/Library/Preferences/com.apple.Terminal.plist.backup.$(date +%Y%m%d_%H%M%S)"
+    cp ~/Library/Preferences/com.apple.Terminal.plist "$backup_file" 2>/dev/null
+    info "Backed up to: ${backup_file##*/}"
   fi
 
-  # Extract profile data from .terminal file
+  # Convert profile to XML for processing
   local TEMP_PROFILE="/tmp/terminal_profile_$$.plist"
-  plutil -extract 0 xml1 -o "$TEMP_PROFILE" "$PROFILE_FILE" 2>/dev/null || {
-    # If extraction fails, the file is already in the right format
-    cp "$PROFILE_FILE" "$TEMP_PROFILE"
+  plutil -convert xml1 "$PROFILE_FILE" -o "$TEMP_PROFILE" 2>/dev/null || {
+    warn "Could not convert profile file"
+    return 1
   }
 
-  # Import profile into preferences (overwrite if exists)
+  # Remove existing profile if present
   /usr/libexec/PlistBuddy -c "Delete :'Window Settings':'$PROFILE_NAME'" \
     ~/Library/Preferences/com.apple.Terminal.plist 2>/dev/null || true
 
+  # Add new profile
   /usr/libexec/PlistBuddy -c "Add :'Window Settings':'$PROFILE_NAME' dict" \
     ~/Library/Preferences/com.apple.Terminal.plist 2>/dev/null || true
 
   # Merge profile data
   /usr/libexec/PlistBuddy -c "Merge '$TEMP_PROFILE' :'Window Settings':'$PROFILE_NAME'" \
     ~/Library/Preferences/com.apple.Terminal.plist 2>/dev/null || {
-    warn "Could not merge profile automatically, trying import method..."
+    warn "Could not merge profile, trying direct import..."
+    # Fallback: use open command
     open "$PROFILE_FILE"
     sleep 2
   }
 
-  # Clean up
+  # Clean up temp file
   rm -f "$TEMP_PROFILE"
 
-  # Set as default profile
+  # Force set as default profile (regardless of current profile)
   defaults write com.apple.Terminal "Default Window Settings" -string "$PROFILE_NAME"
   defaults write com.apple.Terminal "Startup Window Settings" -string "$PROFILE_NAME"
 
-  success "Terminal profile configured and set as default"
+  # Reload Terminal preferences
+  killall cfprefsd 2>/dev/null || true
+
+  success "Terminal profile applied successfully!"
   info "Profile: $PROFILE_NAME"
-  info "Open Terminal.app to see changes"
+  info "Font: JetBrainsMono Nerd Font (14pt)"
+  info "Restart Terminal.app to see changes"
 
   return 0
 }
