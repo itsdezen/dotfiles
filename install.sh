@@ -124,7 +124,8 @@ EOF
   OPTIONS[4]="Node.js (via mise)"
   OPTIONS[5]="pnpm Package Manager"
   OPTIONS[6]="bun Runtime"
-  OPTIONS[7]="Create Symlinks (.zshrc, .gitconfig, etc.)"
+  OPTIONS[7]="Terminal.app Profile (Clear Dark with JetBrains Mono)"
+  OPTIONS[8]="Create Symlinks (.zshrc, .gitconfig, etc.)"
 
   # Auto-detect what's already installed
   local -a SELECTED
@@ -135,10 +136,11 @@ EOF
   check_node || SELECTED[4]=1
   check_pnpm || SELECTED[5]=1
   check_bun || SELECTED[6]=1
-  check_symlinks || SELECTED[7]=1
+  SELECTED[7]=1  # Always suggest terminal profile setup
+  check_symlinks || SELECTED[8]=1
 
   local current=0
-  local total=7
+  local total=8
 
   # Function to draw menu
   draw_menu() {
@@ -187,7 +189,8 @@ EOF
       4) check_node ;;
       5) check_pnpm ;;
       6) check_bun ;;
-      7) check_symlinks ;;
+      7) return 1 ;;  # Terminal profile - always show as not installed
+      8) check_symlinks ;;
     esac
   }
 
@@ -241,7 +244,8 @@ EOF
   export INSTALL_NODE=${SELECTED[4]:-0}
   export INSTALL_PNPM=${SELECTED[5]:-0}
   export INSTALL_BUN=${SELECTED[6]:-0}
-  export INSTALL_SYMLINKS=${SELECTED[7]:-0}
+  export INSTALL_TERMINAL=${SELECTED[7]:-0}
+  export INSTALL_SYMLINKS=${SELECTED[8]:-0}
 }
 
 # ── Main Installation Flow ───────────────────────────────────────────────────
@@ -266,6 +270,7 @@ if [[ "$INSTALL_ALL" == true ]]; then
   INSTALL_NODE=1
   INSTALL_PNPM=1
   INSTALL_BUN=1
+  INSTALL_TERMINAL=1
   INSTALL_SYMLINKS=1
 else
   show_interactive_menu
@@ -306,7 +311,14 @@ if [[ "$SKIP_NODE" == false ]]; then
   fi
 fi
 
-# ── 4. Symlinks ──────────────────────────────────────────────────────────────
+# ── 4. Terminal.app Profile ─────────────────────────────────────────────────
+if [[ $INSTALL_TERMINAL -eq 1 ]]; then
+  header "Terminal.app Profile"
+  source "$DOTFILES_DIR/lib/terminal.sh"
+  setup_terminal_profile
+fi
+
+# ── 5. Symlinks ──────────────────────────────────────────────────────────────
 if [[ $INSTALL_SYMLINKS -eq 1 ]]; then
   header "Dotfiles Symlinks"
   source "$DOTFILES_DIR/lib/link.sh"
@@ -413,12 +425,23 @@ echo ""
 echo "  1. ${BOLD}Restart your terminal${RESET} or run:"
 echo "     ${CYAN}source ~/.zshrc${RESET}"
 echo ""
-echo "  2. ${BOLD}Set terminal font${RESET} to:"
-echo "     ${CYAN}JetBrainsMono Nerd Font${RESET}"
-echo "     • Terminal.app: Preferences → Profiles → Font"
-echo "     • iTerm2: Preferences → Profiles → Text → Font"
-echo ""
-echo "  3. ${BOLD}Customize Starship prompt${RESET}:"
+
+# Show terminal profile note if it was installed
+if [[ $INSTALL_TERMINAL -eq 1 ]]; then
+  echo "  2. ${BOLD}Terminal profile applied!${RESET}"
+  echo "     ${GREEN}✓${RESET} Profile: Clear Dark"
+  echo "     ${GREEN}✓${RESET} Font: JetBrainsMono Nerd Font (14pt)"
+  echo "     Open a new terminal window to see changes"
+  echo ""
+  echo "  3. ${BOLD}Customize Starship prompt${RESET}:"
+else
+  echo "  2. ${BOLD}Set terminal font${RESET} to:"
+  echo "     ${CYAN}JetBrainsMono Nerd Font${RESET}"
+  echo "     • Terminal.app: Preferences → Profiles → Font"
+  echo "     • iTerm2: Preferences → Profiles → Text → Font"
+  echo ""
+  echo "  3. ${BOLD}Customize Starship prompt${RESET}:"
+fi
 echo "     ${CYAN}edit ~/.config/starship/starship.toml${RESET}"
 echo ""
 echo "  4. ${BOLD}Update git config${RESET} with your info:"
