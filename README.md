@@ -144,9 +144,9 @@ git push
 
 ### Plugins (managed by zinit)
 
-- **git** — Git aliases and completion from OMZ library
+- **git** — Git aliases for common commands
 - **zsh-autosuggestions** — Fish-like command suggestions
-- **zsh-syntax-highlighting** — Real-time syntax highlighting
+- **fast-syntax-highlighting** — Real-time syntax highlighting with better performance
 
 ## Aliases
 

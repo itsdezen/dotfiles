@@ -25,19 +25,38 @@ source "${ZINIT_HOME}/zinit.zsh"
 
 # ── Plugins ──────────────────────────────────────────────────────────────────
 
-# Load OMZ git library for git aliases and completion
-zinit snippet OMZ::lib/git.zsh
-
-# Load git plugin for enhanced git integration
-zinit snippet OMZ::plugins/git/git.plugin.zsh
+# Git aliases
+zinit ice wait lucid
+zinit snippet https://github.com/ohmyzsh/ohmyzsh/raw/master/plugins/git/git.plugin.zsh
 
 # Fish-like autosuggestions
 zinit ice wait lucid atload'_zsh_autosuggest_start'
 zinit light zsh-users/zsh-autosuggestions
 
-# Syntax highlighting (must be loaded last)
-zinit ice wait lucid atinit'zpcompinit; zpcdreplay'
-zinit light zsh-users/zsh-syntax-highlighting
+# Fast syntax highlighting (better performance)
+# Must be loaded last for proper functionality
+zinit ice wait lucid atinit'zicompinit; zicdreplay'
+zinit light zdharma-continuum/fast-syntax-highlighting
+
+# ── Colors ───────────────────────────────────────────────────────────────────
+# Load zsh colors module
+autoload -U colors && colors
+
+# BSD ls colors (macOS)
+export LSCOLORS="Gxfxcxdxbxegedabagacad"
+
+# GNU ls colors (if using gls from coreutils)
+export LS_COLORS="di=1;36:ln=35:so=32:pi=33:ex=31:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43"
+
+# Auto-alias ls with colors for macOS
+if ls -G /dev/null &>/dev/null; then
+  alias ls='ls -G'
+fi
+
+# Color for diff command
+if diff --color /dev/null{,} &>/dev/null 2>&1; then
+  alias diff='diff --color'
+fi
 
 # ── History ──────────────────────────────────────────────────────────────────
 HISTFILE="$HOME/.zsh_history"
@@ -49,20 +68,21 @@ setopt SHARE_HISTORY         # Share history between tabs
 
 # ── Aliases ──────────────────────────────────────────────────────────────────
 
+# ls shortcuts (color already enabled above)
+alias ll="ls -lh"
+alias la="ls -lah"
+
 # Navigation
 alias ..="cd .."
 alias ...="cd ../.."
 alias ....="cd ../../.."
 
 # Git shortcuts
+# Note: Git plugin provides many aliases like:
+# - gst (git status), gd (git diff), ga (git add), gc (git commit)
+# - gp (git push), gl (git pull), gco (git checkout), gcb (git checkout -b)
+# - glog (git log --oneline --decorate --graph)
 alias g="git"
-alias gs="git status -sb"
-alias gd="git diff"
-alias ga="git add"
-alias gc="git commit"
-alias gp="git push"
-alias gl="git pull"
-alias glog="git log --oneline --graph --decorate -20"
 
 # Development
 alias dev="cd ~/Developer"

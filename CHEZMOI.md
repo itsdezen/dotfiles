@@ -175,12 +175,6 @@ if [[ ! -d "$ZINIT_HOME" ]]; then
     git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
 fi
 
-# Cleanup old Oh My Zsh if exists
-if [[ -d "$HOME/.oh-my-zsh" ]]; then
-    echo "Found old Oh My Zsh installation, backing up..."
-    mv "$HOME/.oh-my-zsh" "$HOME/.oh-my-zsh.backup.$(date +%Y%m%d)"
-fi
-
 echo "Setup complete!"
 ```
 

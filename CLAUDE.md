@@ -66,7 +66,7 @@ install.sh (main entry point)
 |--------|---------|
 | `install.sh` | Main orchestrator with interactive prompts |
 | `lib/brew.sh` | Homebrew installation and package management |
-| `lib/zinit.sh` | zinit plugin manager setup (with cleanup for old OMZ) |
+| `lib/zinit.sh` | zinit plugin manager setup |
 | `lib/node.sh` | Node.js via mise, pnpm, and bun installation |
 | `lib/link.sh` | Create symlinks from dotfiles to $HOME |
 | `scripts/detect-env.sh` | Scan current environment |
@@ -170,9 +170,10 @@ See [CHEZMOI.md](CHEZMOI.md) for detailed guide.
 - **zinit** - Modern, fast plugin manager with turbo mode for lazy loading
 - **Starship prompt** - Cross-shell compatible, minimal and fast
 - **Plugins** (managed by zinit):
-  - `git` - Git completion and aliases from OMZ library
+  - `git` - Git aliases for common commands
   - `zsh-autosuggestions` - Fish-like command suggestions
-  - `zsh-syntax-highlighting` - Real-time syntax highlighting
+  - `fast-syntax-highlighting` - Real-time syntax highlighting with better performance
+- **Colors** - Auto-configured for ls and diff commands
 - **mise integration** - Automatic version management
 - **bun integration** - JavaScript runtime
 - **Custom aliases** - Git, navigation, development shortcuts
@@ -180,9 +181,9 @@ See [CHEZMOI.md](CHEZMOI.md) for detailed guide.
 
 **zinit** - Plugin manager features:
 - Fast startup with turbo mode (lazy loading)
-- Can load OMZ snippets without full OMZ installation
+- Load plugins directly from GitHub
 - Automatic git clone and updates for plugins
-- Minimal footprint (~300KB vs ~1MB for OMZ)
+- Minimal footprint (~300KB)
 
 **Starship** - Cross-shell prompt:
 - Fast, minimal, and highly customizable

@@ -122,12 +122,6 @@ detect_shell() {
     warn "Starship not installed"
     info "Install with: brew install starship"
   fi
-
-  # Check for old Oh My Zsh installation
-  if [[ -d "$HOME/.oh-my-zsh" ]]; then
-    warn "Oh My Zsh found (now replaced by zinit)"
-    info "Consider removing: mv ~/.oh-my-zsh ~/.oh-my-zsh.backup.$(date +%Y%m%d)"
-  fi
 }
 
 detect_dotfiles() {
