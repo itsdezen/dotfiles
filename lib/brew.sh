@@ -29,3 +29,21 @@ install_packages() {
   brew bundle --file="$brewfile"
   success "Packages installed"
 }
+
+install_font() {
+  local font_name="font-monofur-nerd-font"
+
+  if brew list --cask "$font_name" &>/dev/null; then
+    success "$font_name already installed"
+    return 0
+  fi
+
+  info "Installing $font_name..."
+  if brew install --cask "$font_name"; then
+    success "Font installed successfully"
+    info "Font location: ~/Library/Fonts/"
+  else
+    warn "Failed to install font"
+    return 1
+  fi
+}

@@ -71,13 +71,13 @@ Run the installer to see the interactive checklist:
 
 **Available components:**
 - ☑ Homebrew & Essential Tools (mise, mole, starship)
-- ☑ JetBrains Mono Nerd Font
+- ☑ Monofur Nerd Font
 - ☑ zinit (Plugin Manager) + Plugins
 - ☑ Starship Prompt
 - ☑ Node.js (via mise)
 - ☑ pnpm Package Manager
 - ☑ bun Runtime
-- ☑ Terminal.app Profile (Clear Dark with JetBrains Mono)
+- ☑ Terminal.app Profile (Clear Dark with Monofur)
 - ☑ Create Symlinks (.zshrc, .gitconfig, etc.)
 
 ### ⚡ Non-Interactive Mode
@@ -159,18 +159,18 @@ git push
 
 ## Fonts
 
-JetBrains Mono Nerd Font is installed automatically via Homebrew for the best terminal experience with icon support.
+Monofur Nerd Font is installed via Homebrew for the best terminal experience with icon support.
 
 ### Install Font
 
-The font is included in the Brewfile and will be installed automatically:
+The font can be installed through the interactive installer or manually:
 ```bash
-brew bundle  # Installs font-jetbrains-mono-nerd-font
+./install.sh  # Select "Monofur Nerd Font" option
 ```
 
 Or manually:
 ```bash
-brew install --cask font-jetbrains-mono-nerd-font
+brew install --cask font-monofur-nerd-font
 ```
 
 After installation, set the font in your terminal:

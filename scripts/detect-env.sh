@@ -158,13 +158,13 @@ detect_dotfiles() {
 detect_fonts() {
   header "Fonts"
 
-  local font_file="$HOME/Library/Fonts/JetBrainsMonoNerdFont-Regular.ttf"
+  local font_file="$HOME/Library/Fonts/MonofurNerdFont-Regular.ttf"
 
   if [[ -f "$font_file" ]]; then
-    success "JetBrains Mono Nerd Font installed"
+    success "Monofur Nerd Font installed"
   else
-    warn "JetBrains Mono Nerd Font not found"
-    info "Install with: brew install --cask font-jetbrains-mono-nerd-font"
+    warn "Monofur Nerd Font not found"
+    info "Install with: brew install --cask font-monofur-nerd-font"
   fi
 }
 

@@ -58,7 +58,7 @@ setup_terminal_profile() {
 
   success "Terminal profile applied successfully!"
   info "Profile: $PROFILE_NAME"
-  info "Font: JetBrainsMono Nerd Font (14pt)"
+  info "Font: Monofur Nerd Font (14pt)"
   info "Restart Terminal.app to see changes"
 
   return 0
@@ -66,7 +66,7 @@ setup_terminal_profile() {
 
 update_terminal_font() {
   local PROFILE_NAME="${1:-Clear Dark}"
-  local FONT_NAME="JetBrainsMono Nerd Font"
+  local FONT_NAME="Monofur Nerd Font"
   local FONT_SIZE="14"
 
   info "Updating Terminal font to: $FONT_NAME $FONT_SIZE"

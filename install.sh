@@ -86,7 +86,7 @@ check_symlinks() {
 }
 
 check_font() {
-  [[ -f "$HOME/Library/Fonts/JetBrainsMonoNerdFont-Regular.ttf" ]] && return 0 || return 1
+  [[ -f "$HOME/Library/Fonts/MonofurNerdFont-Regular.ttf" ]] && return 0 || return 1
 }
 
 # ── Interactive Checklist ────────────────────────────────────────────────────
@@ -118,13 +118,13 @@ EOF
   # Define all installation options (using arrays compatible with bash 3.2)
   local -a OPTIONS
   OPTIONS[0]="Homebrew & Essential Tools (mise, mole, starship)"
-  OPTIONS[1]="JetBrains Mono Nerd Font"
+  OPTIONS[1]="Monofur Nerd Font"
   OPTIONS[2]="zinit (Plugin Manager) + Plugins"
   OPTIONS[3]="Starship Prompt"
   OPTIONS[4]="Node.js (via mise)"
   OPTIONS[5]="pnpm Package Manager"
   OPTIONS[6]="bun Runtime"
-  OPTIONS[7]="Terminal.app Profile (Clear Dark with JetBrains Mono)"
+  OPTIONS[7]="Terminal.app Profile (Clear Dark with Monofur)"
   OPTIONS[8]="Create Symlinks (.zshrc, .gitconfig, etc.)"
 
   # Auto-detect what's already installed
@@ -284,7 +284,15 @@ if [[ $INSTALL_BREW -eq 1 ]] && [[ "$SKIP_BREW" == false ]]; then
   install_packages "$DOTFILES_DIR/Brewfile"
 fi
 
-# ── 2. zinit (Plugin Manager) ───────────────────────────────────────────────
+# ── 2. Font ──────────────────────────────────────────────────────────────────
+if [[ $INSTALL_FONT -eq 1 ]] && [[ "$SKIP_BREW" == false ]]; then
+  header "Monofur Nerd Font"
+  # Source brew.sh if not already sourced
+  [[ $(type -t install_font) != function ]] && source "$DOTFILES_DIR/lib/brew.sh"
+  install_font
+fi
+
+# ── 3. zinit (Plugin Manager) ───────────────────────────────────────────────
 if [[ "$SKIP_SHELL" == false ]]; then
   if [[ $INSTALL_ZINIT -eq 1 ]]; then
     header "zinit Plugin Manager"
@@ -293,7 +301,7 @@ if [[ "$SKIP_SHELL" == false ]]; then
   fi
 fi
 
-# ── 3. Node.js via mise ──────────────────────────────────────────────────────
+# ── 4. Node.js via mise ──────────────────────────────────────────────────────
 if [[ "$SKIP_NODE" == false ]]; then
   if [[ $INSTALL_NODE -eq 1 ]]; then
     header "Node.js"
@@ -310,14 +318,14 @@ if [[ "$SKIP_NODE" == false ]]; then
   fi
 fi
 
-# ── 4. Terminal.app Profile ─────────────────────────────────────────────────
+# ── 5. Terminal.app Profile ─────────────────────────────────────────────────
 if [[ $INSTALL_TERMINAL -eq 1 ]]; then
   header "Terminal.app Profile"
   source "$DOTFILES_DIR/lib/terminal.sh"
   setup_terminal_profile
 fi
 
-# ── 5. Symlinks ──────────────────────────────────────────────────────────────
+# ── 6. Symlinks ──────────────────────────────────────────────────────────────
 if [[ $INSTALL_SYMLINKS -eq 1 ]]; then
   header "Dotfiles Symlinks"
   source "$DOTFILES_DIR/lib/link.sh"
@@ -442,13 +450,13 @@ echo ""
 if [[ $INSTALL_TERMINAL -eq 1 ]]; then
   echo "  2. ${BOLD}Terminal profile applied!${RESET}"
   echo "     ${GREEN}✓${RESET} Profile: Clear Dark"
-  echo "     ${GREEN}✓${RESET} Font: JetBrainsMono Nerd Font (14pt)"
+  echo "     ${GREEN}✓${RESET} Font: Monofur Nerd Font (14pt)"
   echo "     Open a new terminal window to see changes"
   echo ""
   echo "  3. ${BOLD}Customize Starship prompt${RESET}:"
 else
   echo "  2. ${BOLD}Set terminal font${RESET} to:"
-  echo "     ${CYAN}JetBrainsMono Nerd Font${RESET}"
+  echo "     ${CYAN}Monofur Nerd Font${RESET}"
   echo "     • Terminal.app: Preferences → Profiles → Font"
   echo "     • iTerm2: Preferences → Profiles → Text → Font"
   echo ""

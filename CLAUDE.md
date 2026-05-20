@@ -50,8 +50,10 @@ install.sh (main entry point)
     ↓
 ├── Check macOS
 ├── Create ~/Developer directory
-├── Install Homebrew + packages (mise, mole, starship, fonts)
+├── Install Homebrew + packages (mise, mole, starship)
 │   └── lib/brew.sh
+├── Install Font (Monofur Nerd Font) - optional
+│   └── lib/brew.sh::install_font()
 ├── Setup shell (zinit + Starship)
 │   └── lib/zinit.sh
 ├── Install Node.js + package managers
@@ -65,7 +67,7 @@ install.sh (main entry point)
 | Module | Purpose |
 |--------|---------|
 | `install.sh` | Main orchestrator with interactive prompts |
-| `lib/brew.sh` | Homebrew installation and package management |
+| `lib/brew.sh` | Homebrew installation, package management, and font installation |
 | `lib/zinit.sh` | zinit plugin manager setup |
 | `lib/node.sh` | Node.js via mise, pnpm, and bun installation |
 | `lib/link.sh` | Create symlinks from dotfiles to $HOME |
@@ -83,7 +85,7 @@ dotfiles/
 ├── CLAUDE.md              # Developer documentation (this file)
 ├── CHEZMOI.md             # Chezmoi installation guide
 ├── .gitignore             # Git ignore rules
-├── Brewfile               # Homebrew packages (mise, mole, starship, fonts)
+├── Brewfile               # Homebrew packages (mise, mole, starship)
 ├── .node-version          # Default Node.js version
 ├── npm-globals.txt        # Global npm packages
 │
@@ -216,7 +218,9 @@ Minimal essential packages:
 - `mise` - Polyglot version manager
 - `mole` - SSH tunneling tool
 - `starship` - Cross-shell prompt
-- `font-jetbrains-mono-nerd-font` - Development font with icon support
+
+Font (installed separately via `install_font()` function):
+- `font-monofur-nerd-font` - Development font with icon support
 
 ### Git Configuration (git/)
 
@@ -309,7 +313,8 @@ brew "mole"
 brew "starship"
 # Add new package
 brew "newtool"
-cask "font-jetbrains-mono-nerd-font"
+
+# Note: Fonts are installed separately via install_font() function
 ```
 
 ### Testing Changes
@@ -537,7 +542,7 @@ git log --oneline --decorate
 - [Starship](https://starship.rs/)
 - [mise](https://mise.jdx.dev/)
 - [Chezmoi](https://www.chezmoi.io/)
-- [JetBrains Mono](https://www.jetbrains.com/lp/mono/)
+- [Monofur Nerd Font](https://www.nerdfonts.com/)
 - [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)
 - [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting)
 

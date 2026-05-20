@@ -22,6 +22,6 @@ brew "starship"
 brew "mole"
 
 # ── Fonts ─────────────────────────────────────────────────────────────────────
-
-# JetBrains Mono Nerd Font - Main coding font with icon support
-cask "font-jetbrains-mono-nerd-font"
+# Note: Fonts are now installed separately via install_font() function
+# This allows users to choose whether to install fonts via interactive menu
+# To install font manually: brew install --cask font-monofur-nerd-font
