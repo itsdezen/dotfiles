@@ -71,13 +71,13 @@ Run the installer to see the interactive checklist:
 
 **Available components:**
 - ☑ Homebrew & Essential Tools (mise, mole, starship)
-- ☑ Monofur Nerd Font
+- ☑ Maple Mono Nerd Font
 - ☑ zinit (Plugin Manager) + Plugins
 - ☑ Starship Prompt
 - ☑ Node.js (via mise)
 - ☑ pnpm Package Manager
 - ☑ bun Runtime
-- ☑ Terminal.app Profile (Clear Dark with Monofur)
+- ☑ Terminal.app Profile (Clear Dark with Maple Mono)
 - ☑ Create Symlinks (.zshrc, .gitconfig, etc.)
 
 ### ⚡ Non-Interactive Mode
@@ -159,18 +159,18 @@ git push
 
 ## Fonts
 
-Monofur Nerd Font is installed via Homebrew for the best terminal experience with icon support.
+Maple Mono NF is installed via Homebrew for the best terminal experience with icon support.
 
 ### Install Font
 
 The font can be installed through the interactive installer or manually:
 ```bash
-./install.sh  # Select "Monofur Nerd Font" option
+./install.sh  # Select "Maple Mono Nerd Font" option
 ```
 
 Or manually:
 ```bash
-brew install --cask font-monofur-nerd-font
+brew install --cask font-maple-mono-nf
 ```
 
 After installation, set the font in your terminal:

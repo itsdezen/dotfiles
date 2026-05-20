@@ -24,4 +24,4 @@ brew "mole"
 # ── Fonts ─────────────────────────────────────────────────────────────────────
 # Note: Fonts are now installed separately via install_font() function
 # This allows users to choose whether to install fonts via interactive menu
-# To install font manually: brew install --cask font-monofur-nerd-font
+# To install font manually: brew install --cask font-maple-mono-nf

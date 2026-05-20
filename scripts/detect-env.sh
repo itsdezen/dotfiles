@@ -158,13 +158,13 @@ detect_dotfiles() {
 detect_fonts() {
   header "Fonts"
 
-  local font_file="$HOME/Library/Fonts/MonofurNerdFont-Regular.ttf"
+  local font_file="$HOME/Library/Fonts/MapleMonoNF-Regular.ttf"
 
   if [[ -f "$font_file" ]]; then
-    success "Monofur Nerd Font installed"
+    success "Maple Mono NF installed"
   else
-    warn "Monofur Nerd Font not found"
-    info "Install with: brew install --cask font-monofur-nerd-font"
+    warn "Maple Mono NF not found"
+    info "Install with: brew install --cask font-maple-mono-nf"
   fi
 }
 

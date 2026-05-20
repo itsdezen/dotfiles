@@ -52,7 +52,7 @@ install.sh (main entry point)
 ├── Create ~/Developer directory
 ├── Install Homebrew + packages (mise, mole, starship)
 │   └── lib/brew.sh
-├── Install Font (Monofur Nerd Font) - optional
+├── Install Font (Maple Mono NF) - optional
 │   └── lib/brew.sh::install_font()
 ├── Setup shell (zinit + Starship)
 │   └── lib/zinit.sh
@@ -220,7 +220,7 @@ Minimal essential packages:
 - `starship` - Cross-shell prompt
 
 Font (installed separately via `install_font()` function):
-- `font-monofur-nerd-font` - Development font with icon support
+- `font-maple-mono-nf` - Development font with icon support
 
 ### Git Configuration (git/)
 
@@ -542,7 +542,7 @@ git log --oneline --decorate
 - [Starship](https://starship.rs/)
 - [mise](https://mise.jdx.dev/)
 - [Chezmoi](https://www.chezmoi.io/)
-- [Monofur Nerd Font](https://www.nerdfonts.com/)
+- [Maple Mono NF](https://www.nerdfonts.com/)
 - [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)
 - [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting)
 

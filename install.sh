@@ -86,7 +86,7 @@ check_symlinks() {
 }
 
 check_font() {
-  [[ -f "$HOME/Library/Fonts/MonofurNerdFont-Regular.ttf" ]] && return 0 || return 1
+  [[ -f "$HOME/Library/Fonts/MapleMonoNF-Regular.ttf" ]] && return 0 || return 1
 }
 
 # ── Interactive Checklist ────────────────────────────────────────────────────
@@ -118,13 +118,13 @@ EOF
   # Define all installation options (using arrays compatible with bash 3.2)
   local -a OPTIONS
   OPTIONS[0]="Homebrew & Essential Tools (mise, mole, starship)"
-  OPTIONS[1]="Monofur Nerd Font"
+  OPTIONS[1]="Maple Mono Nerd Font"
   OPTIONS[2]="zinit (Plugin Manager) + Plugins"
   OPTIONS[3]="Starship Prompt"
   OPTIONS[4]="Node.js (via mise)"
   OPTIONS[5]="pnpm Package Manager"
   OPTIONS[6]="bun Runtime"
-  OPTIONS[7]="Terminal.app Profile (Clear Dark with Monofur)"
+  OPTIONS[7]="Terminal.app Profile (Clear Dark with Maple Mono)"
   OPTIONS[8]="Create Symlinks (.zshrc, .gitconfig, etc.)"
 
   # Auto-detect what's already installed
@@ -286,7 +286,7 @@ fi
 
 # ── 2. Font ──────────────────────────────────────────────────────────────────
 if [[ $INSTALL_FONT -eq 1 ]] && [[ "$SKIP_BREW" == false ]]; then
-  header "Monofur Nerd Font"
+  header "Maple Mono Nerd Font"
   # Source brew.sh if not already sourced
   [[ $(type -t install_font) != function ]] && source "$DOTFILES_DIR/lib/brew.sh"
   install_font
@@ -450,13 +450,13 @@ echo ""
 if [[ $INSTALL_TERMINAL -eq 1 ]]; then
   echo "  2. ${BOLD}Terminal profile applied!${RESET}"
   echo "     ${GREEN}✓${RESET} Profile: Clear Dark"
-  echo "     ${GREEN}✓${RESET} Font: Monofur Nerd Font (14pt)"
+  echo "     ${GREEN}✓${RESET} Font: Maple Mono NF (14pt)"
   echo "     Open a new terminal window to see changes"
   echo ""
   echo "  3. ${BOLD}Customize Starship prompt${RESET}:"
 else
   echo "  2. ${BOLD}Set terminal font${RESET} to:"
-  echo "     ${CYAN}Monofur Nerd Font${RESET}"
+  echo "     ${CYAN}Maple Mono NF${RESET}"
   echo "     • Terminal.app: Preferences → Profiles → Font"
   echo "     • iTerm2: Preferences → Profiles → Text → Font"
   echo ""

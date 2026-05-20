@@ -31,7 +31,7 @@ install_packages() {
 }
 
 install_font() {
-  local font_name="font-monofur-nerd-font"
+  local font_name="font-maple-mono-nf"
 
   if brew list --cask "$font_name" &>/dev/null; then
     success "$font_name already installed"
