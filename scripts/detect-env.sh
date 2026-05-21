@@ -158,13 +158,13 @@ detect_dotfiles() {
 detect_fonts() {
   header "Fonts"
 
-  local font_file="$HOME/Library/Fonts/MapleMonoNF-Regular.ttf"
+  local font_file="$HOME/Library/Fonts/FantasqueSansMNerdFont-Regular.ttf"
 
   if [[ -f "$font_file" ]]; then
-    success "Maple Mono NF installed"
+    success "Fantasque Sans Mono Nerd Font installed"
   else
-    warn "Maple Mono NF not found"
-    info "Install with: brew install --cask font-maple-mono-nf"
+    warn "Fantasque Sans Mono Nerd Font not found"
+    info "Install with: brew install --cask font-fantasque-sans-mono-nerd-font"
   fi
 }
 

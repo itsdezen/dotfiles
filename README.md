@@ -71,13 +71,13 @@ Run the installer to see the interactive checklist:
 
 **Available components:**
 - ☑ Homebrew & Essential Tools (mise, mole, starship)
-- ☑ Maple Mono Nerd Font
+- ☑ Fantasque Sans Mono Nerd Font
 - ☑ zinit (Plugin Manager) + Plugins
 - ☑ Starship Prompt
 - ☑ Node.js (via mise)
 - ☑ pnpm Package Manager
 - ☑ bun Runtime
-- ☑ Terminal.app Profile (Clear Dark with Maple Mono)
+- ☑ Terminal.app Profile (Clear Dark with Fantasque Sans Mono)
 - ☑ Create Symlinks (.zshrc, .gitconfig, etc.)
 
 ### ⚡ Non-Interactive Mode
@@ -159,18 +159,18 @@ git push
 
 ## Fonts
 
-Maple Mono NF is installed via Homebrew for the best terminal experience with icon support.
+Fantasque Sans Mono Nerd Font is installed via Homebrew for the best terminal experience with icon support.
 
 ### Install Font
 
 The font can be installed through the interactive installer or manually:
 ```bash
-./install.sh  # Select "Maple Mono Nerd Font" option
+./install.sh  # Select "Fantasque Sans Mono Nerd Font" option
 ```
 
 Or manually:
 ```bash
-brew install --cask font-maple-mono-nf
+brew install --cask font-fantasque-sans-mono-nerd-font
 ```
 
 After installation, set the font in your terminal:
