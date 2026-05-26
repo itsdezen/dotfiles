@@ -1,592 +1,581 @@
 # CLAUDE.md
 
-**Developer Documentation for Dotfiles Management**
+**Context and Instructions for AI Assistants**
 
-This document provides comprehensive information about this dotfiles repository structure, design decisions, and how to work with it effectively.
-
----
-
-## 📋 Table of Contents
-
-- [Overview](#overview)
-- [Architecture](#architecture)
-- [File Structure](#file-structure)
-- [Installation Methods](#installation-methods)
-- [Key Components](#key-components)
-- [Development Guide](#development-guide)
-- [Chezmoi Integration](#chezmoi-integration)
-- [Troubleshooting](#troubleshooting)
+This file contains comprehensive information about the dotfiles repository structure, design decisions, and usage patterns. Use this as your primary reference when helping users with this repository.
 
 ---
 
-## Overview
+## 📋 Repository Overview
 
 ### Purpose
 
-This dotfiles repository provides a complete development environment setup for macOS, focusing on:
+This is a **Stow-based dotfiles repository** for macOS, providing a minimal, modular development environment with:
 
-- **Minimal dependencies**: Only essential tools (mise, mole, starship)
-- **Modern shell**: zsh + zinit + Starship
+- **GNU Stow** for symlink management (no custom install scripts)
+- **Homebrew** for package management
+- **Modern shell**: zsh + zinit + Starship prompt
 - **Node.js ecosystem**: mise + pnpm + bun
-- **Interactive installation**: Choose what to install
-- **Environment detection**: Scan and sync existing configs
+- **Text editor**: Neovim with LSP and modern plugins
+- **Window manager**: AeroSpace (i3-like tiling for macOS)
+- **Standalone scripts**: All setup scripts can be run independently
 
 ### Design Philosophy
 
-1. **Clean and modular**: Each component is separated into logical modules
-2. **Non-invasive**: Always backs up existing files before overwriting
-3. **Flexible**: Support both manual install and Chezmoi
-4. **Interactive**: Prompt for user choices, not automatic installation
-5. **Self-documenting**: Clear comments and structure
+1. **Simple**: Use standard tools (Stow) instead of custom installers
+2. **Modular**: Each package is self-contained
+3. **Flexible**: Run individual scripts as needed
+4. **Non-invasive**: Stow handles backups and conflicts
+5. **Minimal**: Only essential tools and configurations
 
 ---
 
-## Architecture
-
-### Installation Flow
-
-```
-install.sh (main entry point)
-    ↓
-├── Check macOS
-├── Create ~/Developer directory
-├── Install Homebrew + packages (mise, mole, starship)
-│   └── lib/brew.sh
-├── Install Font (Fantasque Sans Mono Nerd Font) - optional
-│   └── lib/brew.sh::install_font()
-├── Setup shell (zinit + Starship)
-│   └── lib/zinit.sh
-├── Install Node.js + package managers
-│   └── lib/node.sh (mise, pnpm, bun)
-└── Create symlinks
-    └── lib/link.sh
-```
-
-### Module Responsibilities
-
-| Module | Purpose |
-|--------|---------|
-| `install.sh` | Main orchestrator with interactive prompts |
-| `lib/brew.sh` | Homebrew installation, package management, and font installation |
-| `lib/zinit.sh` | zinit plugin manager setup |
-| `lib/node.sh` | Node.js via mise, pnpm, and bun installation |
-| `lib/link.sh` | Create symlinks from dotfiles to $HOME |
-| `scripts/detect-env.sh` | Scan current environment |
-| `scripts/dump-brew.sh` | Export Brewfile from current system |
-
----
-
-## File Structure
+## 📁 Directory Structure
 
 ```
 dotfiles/
-├── install.sh              # Main installation script
-├── README.md               # User-facing documentation
-├── CLAUDE.md              # Developer documentation (this file)
-├── CHEZMOI.md             # Chezmoi installation guide
-├── .gitignore             # Git ignore rules
-├── Brewfile               # Homebrew packages (mise, mole, starship)
-├── .node-version          # Default Node.js version
-├── npm-globals.txt        # Global npm packages
+├── setup.sh              # Quick setup (runs all scripts)
+├── brew-install.sh       # Install Homebrew + packages
+├── node-setup.sh         # Setup Node.js ecosystem
+├── zinit-setup.sh        # Install zinit plugin manager
+├── stow-install.sh       # Stow/unstow dotfiles
+├── Brewfile              # Homebrew packages
+├── .node-version         # Default Node.js version
+├── npm-globals.txt       # Global npm packages (optional)
+├── .gitignore            # Git ignore rules
 │
-├── zsh/                   # Zsh configuration
-│   ├── zshrc              # Main zsh config (zinit + Starship + mise + bun)
-│   ├── zshenv             # Environment variables
-│   └── zprofile           # Login shell config
+├── zsh/                  # Zsh package
+│   ├── .zshrc            # Main zsh config
+│   ├── .zshenv           # Environment variables
+│   └── .zprofile         # Login shell config
 │
-├── git/                   # Git configuration
-│   ├── gitconfig          # Git user config
-│   └── gitignore_global   # Global gitignore
+├── git/                  # Git package
+│   ├── .gitconfig        # Git configuration
+│   └── .gitignore_global # Global gitignore
 │
-├── config/                # Additional configs
-│   └── starship/
-│       └── starship.toml  # Starship prompt (alternative to p10k)
+├── nvim/                 # Neovim package
+│   └── .config/
+│       └── nvim/
+│           └── init.lua  # Neovim configuration
 │
-├── lib/                   # Installation modules
-│   ├── brew.sh            # Homebrew logic
-│   ├── zinit.sh           # zinit plugin manager logic
-│   ├── node.sh            # Node.js logic
-│   └── link.sh            # Symlink logic
+├── aerospace/            # AeroSpace package
+│   └── .config/
+│       └── aerospace/
+│           └── aerospace.toml
 │
-└── scripts/               # Utility scripts
-    ├── detect-env.sh      # Environment detection
-    └── dump-brew.sh       # Brewfile export
+└── starship/             # Starship package
+    └── .config/
+        └── starship/
+            └── starship.toml
+```
+
+### Stow Package Structure
+
+Each directory (zsh, git, nvim, etc.) is a **Stow package**. Stow creates symlinks from package files to `$HOME`:
+
+```
+dotfiles/zsh/.zshrc → ~/.zshrc
+dotfiles/git/.gitconfig → ~/.gitconfig
+dotfiles/nvim/.config/nvim/init.lua → ~/.config/nvim/init.lua
 ```
 
 ---
 
-## Installation Methods
+## 🚀 Installation & Usage
 
-### Method 1: Direct Installation (Recommended for first-time setup)
+### Quick Start (Full Setup)
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/dotfiles.git ~/Developer/dotfiles
 cd ~/Developer/dotfiles
-./install.sh
+./setup.sh
 ```
 
-**Pros:**
-- Simple and straightforward
-- Interactive prompts
-- Good for learning the setup
+This runs all setup scripts in order:
+1. Install Homebrew + packages
+2. Install GNU Stow
+3. Stow dotfiles
+4. Setup zinit
+5. Setup Node.js ecosystem
 
-**Cons:**
-- Manual symlink management
-- Harder to sync across multiple machines
+### Individual Scripts
 
-### Method 2: Chezmoi (Recommended for ongoing management)
+Run scripts independently as needed:
 
 ```bash
-# Install chezmoi
-brew install chezmoi
+# Install Homebrew and packages only
+./brew-install.sh
 
-# Initialize from repository
-chezmoi init https://github.com/YOUR_USERNAME/dotfiles.git
+# Install Node.js ecosystem only
+./node-setup.sh
 
-# Preview changes
-chezmoi diff
+# Setup zinit only
+./zinit-setup.sh
 
-# Apply dotfiles
-chezmoi apply -v
+# Stow dotfiles only
+./stow-install.sh
 ```
 
-See [CHEZMOI.md](CHEZMOI.md) for detailed guide.
+### Stow Commands
 
-**Pros:**
-- Automatic symlink management
-- Easy to sync across machines
-- Supports templating for machine-specific configs
-- Can track and merge changes
+```bash
+# Install all packages
+./stow-install.sh install
 
-**Cons:**
-- Additional tool to learn
-- More complex setup
+# Reinstall (update symlinks)
+./stow-install.sh restow
+
+# Remove all packages
+./stow-install.sh remove
+
+# List available packages
+./stow-install.sh list
+
+# Manual Stow usage
+cd ~/Developer/dotfiles
+
+# Install single package
+stow zsh
+
+# Remove single package
+stow -D nvim
+
+# Reinstall (useful after updates)
+stow -R git
+
+# Dry run (preview changes)
+stow -n zsh
+
+# Adopt existing files (merge conflicts)
+stow --adopt zsh
+```
 
 ---
 
-## Key Components
+## 📦 Package Details
 
-### Shell Configuration (zsh/)
+### zsh Package
 
-**zshrc** - Main configuration file featuring:
-- **zinit** - Modern, fast plugin manager with turbo mode for lazy loading
-- **Starship prompt** - Cross-shell compatible, minimal and fast
-- **Plugins** (managed by zinit):
-  - `git` - Git aliases for common commands
-  - `zsh-autosuggestions` - Fish-like command suggestions
-  - `fast-syntax-highlighting` - Real-time syntax highlighting with better performance
-- **Colors** - Auto-configured for ls and diff commands
+**Files:**
+- `.zshrc` - Main configuration with zinit, Starship, mise, bun
+- `.zshenv` - Environment variables
+- `.zprofile` - Login shell config
+
+**Features:**
+- **zinit** - Fast plugin manager with turbo mode
+- **Starship** - Cross-shell prompt
+- **Plugins**: git, zsh-autosuggestions, fast-syntax-highlighting
 - **mise integration** - Automatic version management
 - **bun integration** - JavaScript runtime
-- **Custom aliases** - Git, navigation, development shortcuts
-- **Support for machine-specific** `.zshrc.local`
 
-**zinit** - Plugin manager features:
-- Fast startup with turbo mode (lazy loading)
-- Load plugins directly from GitHub
-- Automatic git clone and updates for plugins
-- Minimal footprint (~300KB)
+### git Package
 
-**Starship** - Cross-shell prompt:
-- Fast, minimal, and highly customizable
+**Files:**
+- `.gitconfig` - User config, aliases, diff/merge tools
+- `.gitignore_global` - System files, editor files, build artifacts
+
+### nvim Package
+
+**Files:**
+- `.config/nvim/init.lua` - Complete Neovim configuration
+
+**Features:**
+- **lazy.nvim** - Plugin manager
+- **Tokyo Night** colorscheme
+- **nvim-tree** - File explorer
+- **Telescope** - Fuzzy finder
+- **Treesitter** - Syntax highlighting
+- **LSP**: Lua, TypeScript, HTML, CSS, Tailwind
+- **nvim-cmp** - Autocompletion
+- **Gitsigns** - Git integration
+- **lualine** - Status line
+
+**Key mappings:**
+- `<leader>` = Space
+- `<leader>ee` - Toggle file explorer
+- `<leader>ff` - Find files
+- `<leader>fg` - Live grep
+- `gd` - Go to definition
+- `K` - Hover documentation
+
+### aerospace Package
+
+**Files:**
+- `.config/aerospace/aerospace.toml` - Window manager config
+
+**Features:**
+- i3-like tiling for macOS
+- Alt+hjkl navigation
+- Alt+1-9 workspace switching
+- Alt+Shift+hjkl move windows
+- Configurable gaps and layouts
+
+### starship Package
+
+**Files:**
+- `.config/starship/starship.toml` - Prompt configuration
+
+**Features:**
+- Fast, minimal prompt
 - Git status integration
 - Command execution time
-- Directory path truncation
-- Configurable via `~/.config/starship/starship.toml`
-
-### Node.js Environment (lib/node.sh)
-
-**mise setup:**
-- Polyglot version manager (Node, Python, Ruby, etc.)
-- Auto-switches versions based on `.node-version` files
-- Installed via Homebrew
-- Simpler and faster than nvm
-- Supports global and local versions
-
-**pnpm:**
-- Fast, disk-efficient package manager
-- Installed globally via npm
-
-**bun:**
-- All-in-one JavaScript runtime
-- Installed via official installer script
-- Adds to PATH automatically
-
-### Homebrew Packages (Brewfile)
-
-Minimal essential packages:
-- `mise` - Polyglot version manager
-- `mole` - SSH tunneling tool
-- `starship` - Cross-shell prompt
-
-Font (installed separately via `install_font()` function):
-- `font-fantasque-sans-mono-nerd-font` - Development font with icon support
-
-### Git Configuration (git/)
-
-**gitconfig:**
-- User info (name, email) - to be filled by user
-- Aliases for common commands
-- Diff and merge tools
-
-**gitignore_global:**
-- macOS system files
-- Editor files
-- Build artifacts
-- Environment files
+- Directory truncation
 
 ---
 
-## Development Guide
+## 🛠️ Brewfile Packages
 
-### Adding a New Component
+Essential packages installed via Homebrew:
 
-1. **Create module in `lib/`:**
-```bash
-touch lib/myfeature.sh
-chmod +x lib/myfeature.sh
-```
-
-2. **Add installation function:**
-```bash
-#!/usr/bin/env bash
-# lib/myfeature.sh — Description
-
-install_myfeature() {
-  if command -v myapp &>/dev/null; then
-    success "myapp already installed"
-    return 0
-  fi
-
-  info "Installing myapp..."
-  # Installation logic here
-  success "myapp installed"
-}
-```
-
-3. **Integrate in `install.sh`:**
-```bash
-if [[ "$SKIP_MYFEATURE" == false ]]; then
-  header "My Feature"
-  source "$DOTFILES_DIR/lib/myfeature.sh"
-
-  read -r -p "  Install myfeature? [Y/n] " response
-  [[ ! "$response" =~ ^[Nn]$ ]] && install_myfeature
-fi
-```
-
-### Adding New Dotfiles
-
-1. **Add file to appropriate directory:**
-```bash
-# For config files
-touch config/myapp/config.conf
-
-# For shell configs
-touch zsh/my-aliases.zsh
-```
-
-2. **Update `lib/link.sh`:**
-```bash
-# In create_symlinks() function
-link_file "$dotfiles_dir/config/myapp/config.conf" \
-          "$HOME/.config/myapp/config.conf"
-```
-
-3. **Test the symlink:**
-```bash
-./install.sh --skip-brew --skip-node --skip-shell
-ls -la ~/.config/myapp/config.conf
-```
-
-### Updating Brewfile
-
-**From your current system:**
-```bash
-bash scripts/dump-brew.sh
-```
-
-**Manually edit to keep only essentials:**
 ```ruby
-brew "mise"
-brew "mole"
-brew "starship"
-# Add new package
-brew "newtool"
+brew "mise"        # Polyglot version manager
+brew "starship"    # Cross-shell prompt
+brew "mole"        # SSH tunneling tool
+brew "neovim"      # Text editor
 
-# Note: Fonts are installed separately via install_font() function
+cask "nikitabobko/tap/aerospace"  # Window manager
+
+# Font (optional, prompted during install)
+cask "font-fantasque-sans-mono-nerd-font"
 ```
 
-### Testing Changes
+### Adding Packages
 
-1. **Create test environment:**
-```bash
-# Use Docker or VM for clean testing
-docker run -it --rm -v $(pwd):/dotfiles macOS/ventura bash
+Edit `Brewfile` and add:
+
+```ruby
+brew "package-name"
+# or
+cask "cask-name"
 ```
 
-2. **Test installation:**
+Then run:
 ```bash
-cd /dotfiles
-./install.sh --all
+brew bundle --file=Brewfile
 ```
 
-3. **Verify:**
+### Exporting Current Packages
+
 ```bash
-bash scripts/detect-env.sh
+brew bundle dump --force
+# Then manually edit to keep only essentials
 ```
 
 ---
 
-## Chezmoi Integration
+## 🔧 Customization
 
-### Why Chezmoi?
+### Machine-Specific Configs
 
-Chezmoi provides:
-- **Version control**: Track all dotfiles in git
-- **Templating**: Machine-specific configurations
-- **Encryption**: For sensitive files
-- **Cross-platform**: Works on macOS, Linux, Windows
+Create local configs that won't be tracked:
 
-### Structure Mapping
-
-| Dotfiles Path | Chezmoi Source Path |
-|---------------|---------------------|
-| `zsh/zshrc` | `.chezmoitemplates/zshrc` or `dot_zshrc` |
-| `git/gitconfig` | `dot_gitconfig.tmpl` |
-| `config/starship/starship.toml` | `dot_config/starship/starship.toml` |
-
-### Template Variables
-
-Use in `.chezmoi.toml.tmpl`:
-```toml
-[data]
-    email = "{{ .email }}"
-    name = "{{ .name }}"
-    editor = "{{ .editor }}"
-```
-
-Then in files:
 ```bash
-# gitconfig
+# ~/.zshrc.local (sourced by .zshrc)
+export WORK_API_KEY="secret"
+alias work="cd ~/Work/project"
+
+# ~/.gitconfig.local (included by .gitconfig)
 [user]
-    name = {{ .name }}
-    email = {{ .email }}
+    name = Work Name
+    email = work@email.com
 ```
 
-See [CHEZMOI.md](CHEZMOI.md) for full guide.
+### Adding New Packages
+
+1. **Create package directory:**
+```bash
+mkdir -p newpackage/.config/newapp
+```
+
+2. **Add configuration files:**
+```bash
+# Files in newpackage/ will be symlinked to ~/
+touch newpackage/.config/newapp/config.conf
+```
+
+3. **Stow the package:**
+```bash
+stow newpackage
+```
+
+4. **Update stow-install.sh** (optional):
+```bash
+# Add to install section:
+stow_package "newpackage"
+```
+
+### Updating Dotfiles
+
+```bash
+cd ~/Developer/dotfiles
+
+# Edit files
+nvim zsh/.zshrc
+
+# Commit changes
+git add .
+git commit -m "Update zsh config"
+git push
+
+# On another machine
+git pull
+./stow-install.sh restow  # Update symlinks
+```
 
 ---
 
-## Troubleshooting
+## 🐛 Troubleshooting
 
-### Common Issues
+### Stow Conflicts
 
-**1. mise not loading:**
+**Problem:** "Existing file conflicts with Stow"
+
+**Solutions:**
+
+```bash
+# Option 1: Adopt existing files (merge into dotfiles)
+stow --adopt zsh
+git diff  # Review changes
+git restore .  # Discard if unwanted
+
+# Option 2: Remove existing files
+rm ~/.zshrc
+stow zsh
+
+# Option 3: Backup existing files
+mv ~/.zshrc ~/.zshrc.backup
+stow zsh
+```
+
+### mise Not Loading
+
 ```bash
 # Check mise installation
 which mise
 mise --version
 
-# Verify activation
-mise doctor
+# Verify activation in .zshrc
+grep 'mise activate' ~/.zshrc
 
-# Reload shell
-source ~/.zshrc
+# Manual activation
+eval "$(mise activate zsh)"
+
+# Check configuration
+mise doctor
 ```
 
-**2. zinit plugins not loading:**
+### zinit Plugins Not Loading
+
 ```bash
 # Check zinit installation
 ls -la ~/.local/share/zinit/zinit.git
 
-# Check plugins directory
+# Check plugins
 ls -la ~/.local/share/zinit/plugins/
 
-# Reload zinit and plugins
+# Reload zinit
 source ~/.zshrc
 
-# Debug zinit
-zinit times  # Show plugin loading times
+# Show plugin loading times
+zinit times
+
+# Reinstall zinit
+rm -rf ~/.local/share/zinit
+./zinit-setup.sh
 ```
 
-**3. Symlinks broken:**
-```bash
-# Check symlink status
-ls -la ~/.zshrc
+### Neovim Issues
 
-# Recreate symlinks
-bash lib/link.sh
+```bash
+# Check Neovim version (needs 0.9+)
+nvim --version
+
+# Check plugin installation
+nvim +Lazy
+
+# Update plugins
+nvim +Lazy sync
+
+# Check LSP
+nvim +LspInfo
+
+# Install missing LSP servers
+nvim +Mason
 ```
 
-**4. Starship prompt not loading:**
+### AeroSpace Not Starting
+
 ```bash
-# Check Starship installation
-which starship
-starship --version
+# Check installation
+aerospace --version
 
-# Test configuration
-starship config
+# Check config syntax
+aerospace validate-config
 
-# Reload shell
-source ~/.zshrc
-```
+# Restart AeroSpace
+aerospace reload-config
 
-**5. Homebrew packages not found:**
-```bash
-# Verify Homebrew
-brew doctor
-
-# Reinstall packages
-brew bundle --file=Brewfile
-```
-
-### Debug Mode
-
-Run with verbose output:
-```bash
-bash -x install.sh --all 2>&1 | tee install.log
-```
-
-### Environment Detection
-
-Check current state:
-```bash
-bash scripts/detect-env.sh
+# Check logs
+log show --predicate 'process == "AeroSpace"' --last 5m
 ```
 
 ---
 
-## Best Practices
+## 📝 Common Tasks
 
-### For Users
+### Update Everything
 
-1. **Always review before applying:**
-   ```bash
-   chezmoi diff  # or preview install.sh changes
-   ```
-
-2. **Use machine-specific configs:**
-   ```bash
-   # In ~/.zshrc.local (not tracked in git)
-   export WORK_API_KEY="secret"
-   ```
-
-3. **Keep Brewfile minimal:**
-   - Only add essential tools
-   - Document why each package is needed
-
-4. **Backup before major changes:**
-   ```bash
-   cp ~/.zshrc ~/.zshrc.backup.$(date +%Y%m%d)
-   ```
-
-### For Developers
-
-1. **Comment extensively:**
-   - Explain WHY, not just WHAT
-   - Use section headers (# ── Section ──)
-
-2. **Test on clean system:**
-   - Use VM or Docker
-   - Test with different installation orders
-
-3. **Handle errors gracefully:**
-   ```bash
-   set -euo pipefail  # At start of scripts
-   command || { error "Failed"; return 1; }
-   ```
-
-4. **Provide feedback:**
-   ```bash
-   info "Doing something..."
-   success "Done!"
-   warn "Issue found"
-   error "Failed!"
-   ```
-
----
-
-## Maintenance
-
-### Regular Tasks
-
-**Weekly:**
-- [ ] Update Brewfile from current system
-- [ ] Check for zinit and plugin updates (`zinit update --all`)
-- [ ] Test installation on clean system
-
-**Monthly:**
-- [ ] Review and update documentation
-- [ ] Check for deprecated packages
-- [ ] Update Node.js version in `.node-version`
-
-**Quarterly:**
-- [ ] Major refactoring if needed
-- [ ] Update to new tool versions
-- [ ] Review and clean up unused configs
-
-### Version History
-
-Track major changes in git:
 ```bash
-git log --oneline --decorate
+cd ~/Developer/dotfiles
+
+# Update from git
+git pull
+
+# Update Homebrew packages
+brew update && brew upgrade
+
+# Update Stow symlinks
+./stow-install.sh restow
+
+# Update Node.js
+mise install node@latest
+mise use -g node@latest
+
+# Update npm globals
+npm update -g
+
+# Update Neovim plugins
+nvim +Lazy sync +qa
+```
+
+### Sync to New Machine
+
+```bash
+# Clone repository
+git clone https://github.com/YOUR_USERNAME/dotfiles.git ~/Developer/dotfiles
+
+# Run full setup
+cd ~/Developer/dotfiles
+./setup.sh
+
+# Or install selectively
+./brew-install.sh
+./stow-install.sh
+./zinit-setup.sh
+./node-setup.sh
+```
+
+### Backup Before Changes
+
+```bash
+# Backup current configs
+tar -czf ~/dotfiles-backup-$(date +%Y%m%d).tar.gz \
+  ~/.zshrc ~/.gitconfig ~/.config/nvim ~/.config/aerospace
+```
+
+### Uninstall Dotfiles
+
+```bash
+cd ~/Developer/dotfiles
+
+# Remove all symlinks
+./stow-install.sh remove
+
+# Or remove individual packages
+stow -D zsh
+stow -D git
+stow -D nvim
 ```
 
 ---
 
-## Resources
+## 🤖 AI Assistant Instructions
 
-### Documentation
+When helping users with this repository:
+
+### 1. Always Use Stow
+
+- **DO NOT** create custom symlink scripts
+- **DO NOT** suggest copying files manually
+- **USE** Stow commands for all symlink operations
+
+### 2. Respect Package Structure
+
+- Each package must follow Stow conventions
+- Files in `package/` map to `~/`
+- Use `.config/` subdirectories for XDG configs
+
+### 3. Keep Scripts Independent
+
+- Each script should be runnable standalone
+- Include all necessary functions in the script
+- Don't create lib/ directories
+
+### 4. Follow Conventions
+
+**File naming:**
+- Stow packages: lowercase directories (zsh, git, nvim)
+- Scripts: kebab-case with .sh extension
+- Dotfiles: start with . (`.zshrc`, `.gitconfig`)
+
+**Script structure:**
+```bash
+#!/usr/bin/env bash
+set -e  # Exit on error
+
+# Colors and helper functions
+# Main functionality
+# main() function
+# Call main with "$@"
+```
+
+### 5. Documentation
+
+- Update README.md for users
+- Update this CLAUDE.md for context
+- Add comments in configs
+- Keep documentation concise
+
+### 6. When Adding Features
+
+1. Create/update Stow package
+2. Add to Brewfile if needed
+3. Create/update script if needed
+4. Update stow-install.sh if needed
+5. Update documentation
+
+### 7. Testing Changes
+
+```bash
+# Always test in order:
+1. Stow dry run: stow -n package
+2. Actual stow: stow package
+3. Verify symlinks: ls -la ~/
+4. Test functionality
+5. Unstow: stow -D package
+```
+
+---
+
+## 📚 Resources
+
+- [GNU Stow Manual](https://www.gnu.org/software/stow/manual/)
+- [Homebrew](https://brew.sh/)
 - [zinit](https://github.com/zdharma-continuum/zinit)
 - [Starship](https://starship.rs/)
 - [mise](https://mise.jdx.dev/)
-- [Chezmoi](https://www.chezmoi.io/)
-- [Fantasque Sans Mono Nerd Font](https://www.nerdfonts.com/)
-- [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)
-- [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting)
-
-### Similar Projects
-- [holman/dotfiles](https://github.com/holman/dotfiles)
-- [mathiasbynens/dotfiles](https://github.com/mathiasbynens/dotfiles)
-- [thoughtbot/dotfiles](https://github.com/thoughtbot/dotfiles)
+- [Neovim](https://neovim.io/)
+- [lazy.nvim](https://github.com/folke/lazy.nvim)
+- [AeroSpace](https://github.com/nikitabobko/AeroSpace)
 
 ---
 
-## Contributing
+## 📄 License
 
-### Workflow
-
-1. **Create feature branch:**
-   ```bash
-   git checkout -b feature/my-improvement
-   ```
-
-2. **Make changes:**
-   - Update code
-   - Update documentation
-   - Test thoroughly
-
-3. **Commit with conventional commits:**
-   ```bash
-   git commit -m "feat: add new feature"
-   git commit -m "fix: resolve issue"
-   git commit -m "docs: update readme"
-   ```
-
-4. **Push and create PR:**
-   ```bash
-   git push origin feature/my-improvement
-   ```
+MIT License - Free to use and modify.
 
 ---
 
-## License
-
-MIT License - Feel free to use and modify for your own needs.
-
----
-
-**Last Updated:** 2026-05-16
+**Last Updated:** 2026-05-26
 **Maintained By:** @onepercman
-**Generated With:** Claude Code Assistant
+**Repository:** https://github.com/onepercman/dotfiles

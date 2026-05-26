@@ -21,6 +21,14 @@ brew "starship"
 # Mole - Mac cleanup and maintenance terminal tool
 brew "mole"
 
+# Neovim - Hyperextensible Vim-based text editor
+brew "neovim"
+
+# ── Window Management ─────────────────────────────────────────────────────────
+
+# Aerospace - i3-like tiling window manager for macOS
+cask "nikitabobko/tap/aerospace"
+
 # ── Fonts ─────────────────────────────────────────────────────────────────────
 # Note: Fonts are now installed separately via install_font() function
 # This allows users to choose whether to install fonts via interactive menu

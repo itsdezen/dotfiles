@@ -1,185 +1,237 @@
-# dotfiles 🏠
+# dotfiles
 
-Personal macOS development environment — setup a new machine with **one command**.
+Personal macOS development environment using **GNU Stow** for dotfiles management.
 
-## Quick Install (New Machine)
+## Features
+
+- 🔗 **GNU Stow** - Simple symlink management
+- 🍺 **Homebrew** - Package management
+- 🐚 **zsh + zinit + Starship** - Modern shell with fast plugin manager
+- 📦 **mise + pnpm + bun** - Node.js ecosystem
+- ✏️  **Neovim** - LSP-powered text editor
+- 🪟 **AeroSpace** - i3-like tiling window manager for macOS
+
+## Quick Start
 
 ```bash
+# Clone repository
 git clone https://github.com/YOUR_USERNAME/dotfiles.git ~/Developer/dotfiles
 cd ~/Developer/dotfiles
-./install.sh
+
+# Run full setup (installs everything)
+./setup.sh
 ```
 
-The installer features an **interactive checklist UI** that:
-- 🔍 Auto-detects what's already installed
-- ✓ Pre-selects missing components
-- ⌨️ Arrow keys to navigate, SPACE to toggle, ENTER to confirm
-- 🎨 Beautiful ASCII art interface by **onepercman**
+## Manual Installation
 
-## Structure
+Install components individually:
+
+```bash
+# Install Homebrew and packages
+./brew-install.sh
+
+# Install GNU Stow (if not already installed)
+brew install stow
+
+# Install dotfiles with Stow
+./stow-install.sh
+
+# Configure git user
+./git-config.sh
+
+# Setup shell (zinit plugin manager)
+./zinit-setup.sh
+
+# Setup Node.js ecosystem
+./node-setup.sh
+```
+
+## Available Scripts
+
+| Script | Description |
+|--------|-------------|
+| `./setup.sh` | Full automatic setup (runs all scripts) |
+| `./brew-install.sh` | Install Homebrew + packages |
+| `./stow-install.sh` | Manage dotfiles with Stow |
+| `./git-config.sh` | Configure git user info |
+| `./zinit-setup.sh` | Install zinit plugin manager |
+| `./node-setup.sh` | Setup Node.js ecosystem |
+| `./update-all.sh` | Update everything (git, brew, stow, node, plugins) |
+| `./uninstall.sh` | Uninstall dotfiles and packages |
+
+## Stow Usage
+
+```bash
+# Install all packages
+./stow-install.sh install
+
+# Update symlinks
+./stow-install.sh restow
+
+# Remove all packages
+./stow-install.sh remove
+
+# Manual usage
+stow zsh          # Install zsh package
+stow -D git       # Remove git package
+stow -R nvim      # Reinstall nvim package
+```
+
+## Directory Structure
 
 ```
 dotfiles/
-├── install.sh              ← Entry point, run this
-├── Brewfile                ← Homebrew packages (mise, mole, fonts)
-├── npm-globals.txt         ← Global npm packages
-├── .node-version           ← Default Node version (lts)
-│
-├── zsh/
-│   ├── zshrc               → ~/.zshrc
-│   ├── zshenv              → ~/.zshenv
-│   └── zprofile            → ~/.zprofile
-│
-├── git/
-│   ├── gitconfig           → ~/.gitconfig
-│   └── gitignore_global    → ~/.gitignore_global
-│
-├── config/
-│   └── starship/
-│       └── starship.toml   → ~/.config/starship.toml
-│
-├── scripts/
-│   ├── dump-brew.sh        ← Export current Brewfile
-│   └── detect-env.sh       ← Detect current environment configs
-│
-└── lib/
-    ├── brew.sh             ← Homebrew installation logic
-    ├── node.sh             ← Node.js via mise + pnpm + bun
-    ├── link.sh             ← Create symlinks
-    └── zinit.sh            ← zinit plugin manager setup
+├── zsh/                 # Zsh configuration
+├── git/                 # Git configuration
+├── nvim/                # Neovim configuration
+├── aerospace/           # AeroSpace window manager
+├── starship/            # Starship prompt
+├── setup.sh             # Full setup script
+├── brew-install.sh      # Install Homebrew
+├── stow-install.sh      # Stow manager
+├── git-config.sh        # Git configuration
+├── zinit-setup.sh       # Install zinit
+├── node-setup.sh        # Install Node.js
+├── update-all.sh        # Update everything
+└── uninstall.sh         # Uninstall script
 ```
 
-## Interactive Installation
+## Configuration
 
-### 🎮 Interactive Mode (Recommended)
+### Git User Info
 
-Run the installer to see the interactive checklist:
+Run the configuration script (interactive):
 
 ```bash
-./install.sh
+./git-config.sh
 ```
 
-**How it works:**
-1. **Auto-detection** - Scans your system for installed tools
-2. **Smart defaults** - Pre-selects missing components
-3. **Interactive selection**:
-   - Use `↑` `↓` arrow keys to navigate
-   - Press `SPACE` to toggle checkboxes
-   - Press `ENTER` to start installation
-4. **Installation** - Installs only selected components
-5. **Completion screen** - Shows next steps
-
-**Available components:**
-- ☑ Homebrew & Essential Tools (mise, mole, starship)
-- ☑ Fantasque Sans Mono Nerd Font
-- ☑ zinit (Plugin Manager) + Plugins
-- ☑ Starship Prompt
-- ☑ Node.js (via mise)
-- ☑ pnpm Package Manager
-- ☑ bun Runtime
-- ☑ Terminal.app Profile (Clear Dark with Fantasque Sans Mono)
-- ☑ Create Symlinks (.zshrc, .gitconfig, etc.)
-
-### ⚡ Non-Interactive Mode
-
-For automated installations or CI/CD:
+Or configure manually:
 
 ```bash
-./install.sh --all              # Install everything without prompts
-./install.sh --skip-brew        # Skip Homebrew
-./install.sh --skip-node        # Skip Node.js
-./install.sh --skip-shell       # Skip shell setup
+git config --global user.name "Your Name"
+git config --global user.email "your@email.com"
 ```
 
-## Environment Detection
+### Machine-Specific Settings
 
-Scan your current environment to update dotfiles:
+Create local configs that won't be tracked:
 
 ```bash
-bash scripts/detect-env.sh
+# ~/.zshrc.local
+export WORK_API_KEY="secret"
+alias work="cd ~/Work"
+
+# ~/.gitconfig.local
+[user]
+    email = work@email.com
 ```
 
-This will check and suggest updates for:
-- Installed Homebrew packages
-- Current zsh configuration
-- Node.js version
-- Installed package managers (pnpm, bun)
+## Neovim Key Mappings
 
-## After Setup
+- `<leader>` = Space
+- `<leader>ee` - Toggle file explorer
+- `<leader>ff` - Find files
+- `<leader>fg` - Live grep
+- `gd` - Go to definition
+- `K` - Hover documentation
 
-1. **Update git config** with your personal info in [git/gitconfig](git/gitconfig):
-   ```
-   name  = Your Name
-   email = your.email@example.com
-   ```
+## AeroSpace Key Mappings
 
-2. **Update Brewfile** from current machine:
-   ```bash
-   bash ~/Developer/dotfiles/scripts/dump-brew.sh
-   git add Brewfile && git commit -m "chore: update Brewfile"
-   ```
+- `Alt+hjkl` - Navigate windows
+- `Alt+Shift+hjkl` - Move windows
+- `Alt+1-9` - Switch workspaces
+- `Alt+Shift+1-9` - Move to workspace
 
-3. **Add machine-specific config** (not committed to git):
-   ```bash
-   # ~/.zshrc.local — machine-specific aliases/env
-   echo 'export WORK_TOKEN="xxx"' >> ~/.zshrc.local
-   ```
+## Updating
 
-## Update Dotfiles
+Use the automated update script:
 
 ```bash
-dots          # cd to ~/Developer/dotfiles (alias)
-# Edit files...
-git add -A && git commit -m "feat: ..."
-git push
+./update-all.sh
 ```
 
-## Shell Features
+This will update:
+- Dotfiles repository (git pull)
+- Homebrew packages
+- Stow symlinks
+- Node.js ecosystem
+- Zinit & plugins
+- Neovim plugins
 
-- **zinit** — Modern, fast, and flexible zsh plugin manager with turbo mode
-- **Starship** — Fast, minimal, and highly customizable cross-shell prompt
-- **mise** — Polyglot version manager (Node, Python, Ruby, etc.)
-- **pnpm** — Fast, disk space efficient package manager
-- **bun** — All-in-one JavaScript runtime & toolkit
+Or update manually:
 
-### Plugins (managed by zinit)
-
-- **git** — Git aliases for common commands
-- **zsh-autosuggestions** — Fish-like command suggestions
-- **fast-syntax-highlighting** — Real-time syntax highlighting with better performance
-
-## Aliases
-
-| Command | Description |
-|---------|-------------|
-| `reload` | Reload ~/.zshrc |
-| `dots` | cd to dotfiles directory |
-| `zrc` | Open ~/.zshrc in editor |
-| `dev` | cd to ~/Developer |
-
-## Fonts
-
-Fantasque Sans Mono Nerd Font is installed via Homebrew for the best terminal experience with icon support.
-
-### Install Font
-
-The font can be installed through the interactive installer or manually:
 ```bash
-./install.sh  # Select "Fantasque Sans Mono Nerd Font" option
+cd ~/Developer/dotfiles
+git pull
+brew update && brew upgrade
+./stow-install.sh restow
+nvim +Lazy sync +qa
 ```
 
-Or manually:
+## Troubleshooting
+
+### Stow Conflicts
+
+If Stow reports conflicts with existing files:
+
 ```bash
-brew install --cask font-fantasque-sans-mono-nerd-font
+# Backup existing files
+mv ~/.zshrc ~/.zshrc.backup
+
+# Or adopt existing files into dotfiles
+stow --adopt zsh
+
+# Review changes
+git diff
 ```
 
-After installation, set the font in your terminal:
-- **Terminal.app**: Preferences → Profiles → Font
-- **iTerm2**: Preferences → Profiles → Text → Font
-- **VS Code**: Settings → Terminal › Integrated: Font Family
+### Neovim Plugin Issues
 
-## Tips
+```bash
+# Check plugin status
+nvim +Lazy
 
-- Customize Starship prompt by editing `~/.config/starship/starship.toml`
-- Run `starship config` to see all available options
-- Local overrides go in `~/.zshrc.local` (not tracked in git)
+# Update all plugins
+nvim +Lazy sync
+
+# Check LSP status
+nvim +LspInfo
+
+# Install LSP servers
+nvim +Mason
+```
+
+## Uninstall
+
+Use the automated uninstall script:
+
+```bash
+./uninstall.sh
+```
+
+This will:
+- Create backup (optional)
+- Remove Stow symlinks
+- Remove zinit (optional)
+- Remove Node.js tools (optional)
+- Remove Homebrew packages (optional)
+- Remove Neovim data (optional)
+
+Or remove manually:
+
+```bash
+cd ~/Developer/dotfiles
+./stow-install.sh remove
+```
+
+## Documentation
+
+- See [CLAUDE.md](CLAUDE.md) for detailed documentation and AI assistant context
+- [GNU Stow Manual](https://www.gnu.org/software/stow/manual/)
+- [Neovim Config](https://neovim.io/doc/)
+- [AeroSpace](https://github.com/nikitabobko/AeroSpace)
+
+## License
+
+MIT
