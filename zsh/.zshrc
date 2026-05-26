@@ -99,6 +99,7 @@ alias g="git"
 # Development
 alias dev="cd ~/Developer"
 alias dots="cd ~/Developer/dotfiles"
+alias v="nvim"
 
 # Misc
 alias zrc="$EDITOR ~/.zshrc"
