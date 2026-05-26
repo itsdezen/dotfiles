@@ -37,19 +37,42 @@ check_macos() {
   success "macOS detected"
 }
 
+# Check required dependencies
+check_dependencies() {
+  local missing=()
+
+  # Check git (required for cloning repos)
+  if ! command -v git &>/dev/null; then
+    missing+=("git")
+  fi
+
+  # Check curl (required for downloading)
+  if ! command -v curl &>/dev/null; then
+    missing+=("curl")
+  fi
+
+  if [[ ${#missing[@]} -gt 0 ]]; then
+    error "Missing required dependencies: ${missing[*]}"
+    info "Install with: xcode-select --install"
+    exit 1
+  fi
+
+  success "All dependencies found"
+}
+
 # Main
 main() {
   banner
   check_macos
+  check_dependencies
 
   echo ""
   echo "This script will install:"
   echo "  1. Homebrew + packages (mise, mole, starship, neovim, aerospace)"
   echo "  2. GNU Stow"
-  echo "  3. Dotfiles (zsh, git, nvim, aerospace, starship)"
-  echo "  4. Git user configuration"
-  echo "  5. Zinit plugin manager"
-  echo "  6. Node.js ecosystem (via mise, pnpm, bun)"
+  echo "  3. Dotfiles (zsh, nvim, aerospace, starship)"
+  echo "  4. Zinit plugin manager"
+  echo "  5. Node.js ecosystem (via mise, pnpm, bun)"
   echo ""
 
   read -r -p "Continue? [Y/n] " response
@@ -63,7 +86,7 @@ main() {
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
   echo " Step 1: Homebrew & Packages"
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-  bash "$SCRIPT_DIR/brew-install.sh"
+  bash "$SCRIPT_DIR/brew-install.sh" || { error "Homebrew installation failed"; exit 1; }
 
   # Step 2: Install GNU Stow if not installed
   echo ""
@@ -72,7 +95,7 @@ main() {
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
   if ! command -v stow &>/dev/null; then
     info "Installing GNU Stow..."
-    brew install stow
+    brew install stow || { error "GNU Stow installation failed"; exit 1; }
     success "GNU Stow installed"
   else
     success "GNU Stow already installed"
@@ -83,28 +106,21 @@ main() {
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
   echo " Step 3: Dotfiles"
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-  bash "$SCRIPT_DIR/stow-install.sh" install
+  bash "$SCRIPT_DIR/stow-install.sh" install || { error "Stow installation failed"; exit 1; }
 
-  # Step 4: Configure Git
+  # Step 4: Setup zinit
   echo ""
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-  echo " Step 4: Git Configuration"
+  echo " Step 4: Zinit Plugin Manager"
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-  bash "$SCRIPT_DIR/git-config.sh"
+  bash "$SCRIPT_DIR/zinit-setup.sh" || { error "Zinit setup failed"; exit 1; }
 
-  # Step 5: Setup zinit
+  # Step 5: Setup Node.js
   echo ""
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-  echo " Step 5: Zinit Plugin Manager"
+  echo " Step 5: Node.js Ecosystem"
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-  bash "$SCRIPT_DIR/zinit-setup.sh"
-
-  # Step 6: Setup Node.js
-  echo ""
-  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-  echo " Step 6: Node.js Ecosystem"
-  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-  bash "$SCRIPT_DIR/node-setup.sh"
+  bash "$SCRIPT_DIR/node-setup.sh" || { warn "Node.js setup had issues (non-critical)"; }
 
   # Done
   echo ""

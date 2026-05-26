@@ -49,10 +49,6 @@ dotfiles/
 │   ├── .zshenv           # Environment variables
 │   └── .zprofile         # Login shell config
 │
-├── git/                  # Git package
-│   ├── .gitconfig        # Git configuration
-│   └── .gitignore_global # Global gitignore
-│
 ├── nvim/                 # Neovim package
 │   └── .config/
 │       └── nvim/
@@ -71,12 +67,12 @@ dotfiles/
 
 ### Stow Package Structure
 
-Each directory (zsh, git, nvim, etc.) is a **Stow package**. Stow creates symlinks from package files to `$HOME`:
+Each directory (zsh, nvim, etc.) is a **Stow package**. Stow creates symlinks from package files to `$HOME`:
 
 ```
 dotfiles/zsh/.zshrc → ~/.zshrc
-dotfiles/git/.gitconfig → ~/.gitconfig
 dotfiles/nvim/.config/nvim/init.lua → ~/.config/nvim/init.lua
+dotfiles/aerospace/.config/aerospace → ~/.config/aerospace
 ```
 
 ---
@@ -167,12 +163,6 @@ stow --adopt zsh
 - **Plugins**: git, zsh-autosuggestions, fast-syntax-highlighting
 - **mise integration** - Automatic version management
 - **bun integration** - JavaScript runtime
-
-### git Package
-
-**Files:**
-- `.gitconfig` - User config, aliases, diff/merge tools
-- `.gitignore_global` - System files, editor files, build artifacts
 
 ### nvim Package
 

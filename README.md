@@ -36,9 +36,6 @@ brew install stow
 # Install dotfiles with Stow
 ./stow-install.sh
 
-# Configure git user
-./git-config.sh
-
 # Setup shell (zinit plugin manager)
 ./zinit-setup.sh
 
@@ -53,10 +50,9 @@ brew install stow
 | `./setup.sh` | Full automatic setup (runs all scripts) |
 | `./brew-install.sh` | Install Homebrew + packages |
 | `./stow-install.sh` | Manage dotfiles with Stow |
-| `./git-config.sh` | Configure git user info |
 | `./zinit-setup.sh` | Install zinit plugin manager |
 | `./node-setup.sh` | Setup Node.js ecosystem |
-| `./update-all.sh` | Update everything (git, brew, stow, node, plugins) |
+| `./update-all.sh` | Update everything (brew, stow, node, plugins) |
 | `./uninstall.sh` | Uninstall dotfiles and packages |
 
 ## Stow Usage
@@ -73,7 +69,7 @@ brew install stow
 
 # Manual usage
 stow zsh          # Install zsh package
-stow -D git       # Remove git package
+stow -D nvim      # Remove nvim package
 stow -R nvim      # Reinstall nvim package
 ```
 
@@ -82,14 +78,12 @@ stow -R nvim      # Reinstall nvim package
 ```
 dotfiles/
 ├── zsh/                 # Zsh configuration
-├── git/                 # Git configuration
 ├── nvim/                # Neovim configuration
 ├── aerospace/           # AeroSpace window manager
 ├── starship/            # Starship prompt
 ├── setup.sh             # Full setup script
 ├── brew-install.sh      # Install Homebrew
 ├── stow-install.sh      # Stow manager
-├── git-config.sh        # Git configuration
 ├── zinit-setup.sh       # Install zinit
 ├── node-setup.sh        # Install Node.js
 ├── update-all.sh        # Update everything
@@ -97,21 +91,6 @@ dotfiles/
 ```
 
 ## Configuration
-
-### Git User Info
-
-Run the configuration script (interactive):
-
-```bash
-./git-config.sh
-```
-
-Or configure manually:
-
-```bash
-git config --global user.name "Your Name"
-git config --global user.email "your@email.com"
-```
 
 ### Machine-Specific Settings
 
@@ -122,9 +101,9 @@ Create local configs that won't be tracked:
 export WORK_API_KEY="secret"
 alias work="cd ~/Work"
 
-# ~/.gitconfig.local
-[user]
-    email = work@email.com
+# Git config (manual setup)
+git config --global user.name "Your Name"
+git config --global user.email "your@email.com"
 ```
 
 ## Neovim Key Mappings
