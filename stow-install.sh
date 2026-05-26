@@ -38,7 +38,7 @@ stow_package() {
   info "Stowing $package..."
   cd "$SCRIPT_DIR"
 
-  if stow -v "$package" 2>&1; then
+  if stow -t "$HOME" -v "$package" 2>&1; then
     success "$package installed"
   else
     warn "$package may have conflicts (use --adopt to merge or -D to remove first)"
@@ -52,7 +52,7 @@ restow_package() {
   info "Restowing $package..."
   cd "$SCRIPT_DIR"
 
-  if stow -R -v "$package" 2>&1; then
+  if stow -t "$HOME" -R -v "$package" 2>&1; then
     success "$package reinstalled"
   else
     warn "$package restow failed"
@@ -66,7 +66,7 @@ remove_package() {
   info "Removing $package..."
   cd "$SCRIPT_DIR"
 
-  if stow -D -v "$package" 2>&1; then
+  if stow -t "$HOME" -D -v "$package" 2>&1; then
     success "$package removed"
   else
     warn "$package removal failed"
