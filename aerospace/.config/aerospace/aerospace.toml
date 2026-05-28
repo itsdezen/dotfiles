@@ -90,8 +90,10 @@ alt-shift-equal = 'resize smart +50'
 # ── Workspace ─────────────────────────────────────────────────────────────────
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#workspace
-alt-1 = 'workspace 1'
-alt-2 = 'workspace 2'
+# WORK  (alt-1): Zed + Terminal — auto-assigned, tiles layout
+# ENTERTAIN (alt-2): Chrome — auto-assigned, flexible
+alt-1 = 'workspace WORK'
+alt-2 = 'workspace ENTERTAIN'
 alt-3 = 'workspace 3'
 alt-4 = 'workspace 4'
 alt-5 = 'workspace 5'
@@ -103,8 +105,8 @@ alt-9 = 'workspace 9'
 # ── Move to Workspace ─────────────────────────────────────────────────────────
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#move-node-to-workspace
-alt-shift-1 = 'move-node-to-workspace 1'
-alt-shift-2 = 'move-node-to-workspace 2'
+alt-shift-1 = 'move-node-to-workspace WORK'
+alt-shift-2 = 'move-node-to-workspace ENTERTAIN'
 alt-shift-3 = 'move-node-to-workspace 3'
 alt-shift-4 = 'move-node-to-workspace 4'
 alt-shift-5 = 'move-node-to-workspace 5'
@@ -142,6 +144,17 @@ alt-shift-l = ['join-with right', 'mode main']
 # ── Callbacks ─────────────────────────────────────────────────────────────────
 
 # Callback config works in 'main' mode only
+
+# ── WORK workspace: Zed + Terminal (tiles, horizontal) ──────────────────────
+[[on-window-detected]]
+if.app-id = 'dev.zed.Zed'
+run = ['move-node-to-workspace WORK']
+
+[[on-window-detected]]
+if.app-id = 'com.apple.Terminal'
+run = ['move-node-to-workspace WORK']
+
+# ── Floating system windows ──────────────────────────────────────────────────
 [[on-window-detected]]
 if.app-id = 'com.apple.systempreferences'
 run = 'layout floating'

@@ -105,9 +105,15 @@
   "lsp": {},
   // ── Vim mode ───────────────────────────────────────────────────────────────
   "vim_mode": false,
+  // ── Extensions ─────────────────────────────────────────────────────────────
+  "auto_install_extensions": {
+    "catppuccin-blur": true,
+    "html": true,
+    "toml": true
+  },
   // ── Telemetry ──────────────────────────────────────────────────────────────
   "telemetry": {
     "diagnostics": false,
     "metrics": false
-  }
+  },
 }
