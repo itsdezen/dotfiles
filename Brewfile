@@ -24,6 +24,11 @@ brew "mole"
 # Neovim - Hyperextensible Vim-based text editor
 brew "neovim"
 
+# ── Editors ───────────────────────────────────────────────────────────────────
+
+# Zed - High-performance, multiplayer code editor
+cask "zed"
+
 # ── Window Management ─────────────────────────────────────────────────────────
 
 # Aerospace - i3-like tiling window manager for macOS
