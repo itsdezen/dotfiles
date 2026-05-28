@@ -117,7 +117,7 @@ remove_homebrew() {
     # Remove packages
     brew uninstall mise mole starship neovim 2>/dev/null || true
     brew uninstall --cask nikitabobko/tap/aerospace 2>/dev/null || true
-    brew uninstall --cask font-fantasque-sans-mono-nerd-font 2>/dev/null || true
+    brew uninstall --cask font-zed-mono-nerd-font 2>/dev/null || true
 
     success "Homebrew packages removed"
   else

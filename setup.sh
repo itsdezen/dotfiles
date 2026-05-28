@@ -68,9 +68,9 @@ main() {
 
   echo ""
   echo "This script will install:"
-  echo "  1. Homebrew + packages (mise, mole, starship, neovim, aerospace)"
+  echo "  1. Homebrew + packages (mise, mole, starship, neovim, zed, aerospace)"
   echo "  2. GNU Stow"
-  echo "  3. Dotfiles (zsh, nvim, aerospace, starship)"
+  echo "  3. Dotfiles (zsh, nvim, aerospace, starship, zed)"
   echo "  4. Zinit plugin manager"
   echo "  5. Node.js ecosystem (via mise, pnpm, bun)"
   echo ""

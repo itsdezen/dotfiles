@@ -24,9 +24,9 @@
     "light": "Catppuccin Iced Latte (Blur) [Heavy]",
     "dark": "Catppuccin Espresso (Blur)"
   },
-  "ui_font_family": "FantasqueSansM Nerd Font Propo",
+  "ui_font_family": ".ZedSans",
   "ui_font_size": 14,
-  "buffer_font_family": "FantasqueSansM Nerd Font Mono",
+  "buffer_font_family": ".ZedMono",
   "buffer_font_size": 14,
   "buffer_font_features": {
     "calt": true,
@@ -95,7 +95,7 @@
   },
   // ── Terminal ───────────────────────────────────────────────────────────────
   "terminal": {
-    "font_family": "FantasqueSansM Nerd Font Mono",
+    "font_family": "ZedMono Nerd Font",
     "font_size": 14,
     "line_height": "comfortable",
     "shell": "system",

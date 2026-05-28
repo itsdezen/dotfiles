@@ -35,6 +35,4 @@ cask "zed"
 cask "nikitabobko/tap/aerospace"
 
 # ── Fonts ─────────────────────────────────────────────────────────────────────
-# Note: Fonts are now installed separately via install_font() function
-# This allows users to choose whether to install fonts via interactive menu
-# To install font manually: brew install --cask font-fantasque-sans-mono-nerd-font
+cask "font-zed-mono-nerd-font"

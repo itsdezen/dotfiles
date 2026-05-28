@@ -9,6 +9,7 @@ Personal macOS development environment using **GNU Stow** for dotfiles managemen
 - 🐚 **zsh + zinit + Starship** - Modern shell with fast plugin manager
 - 📦 **mise + pnpm + bun** - Node.js ecosystem
 - ✏️  **Neovim** - LSP-powered text editor
+- ⚡ **Zed** - High-performance, multiplayer code editor
 - 🪟 **AeroSpace** - i3-like tiling window manager for macOS
 
 ## Quick Start
@@ -81,6 +82,7 @@ dotfiles/
 ├── nvim/                # Neovim configuration
 ├── aerospace/           # AeroSpace window manager
 ├── starship/            # Starship prompt
+├── zed/                 # Zed editor configuration
 ├── setup.sh             # Full setup script
 ├── brew-install.sh      # Install Homebrew
 ├── stow-install.sh      # Stow manager

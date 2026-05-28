@@ -59,10 +59,15 @@ dotfiles/
 │       └── aerospace/
 │           └── aerospace.toml
 │
-└── starship/             # Starship package
+├── starship/             # Starship package
+│   └── .config/
+│       └── starship/
+│           └── starship.toml
+│
+└── zed/                  # Zed editor package
     └── .config/
-        └── starship/
-            └── starship.toml
+        └── zed/
+            └── settings.json
 ```
 
 ### Stow Package Structure
@@ -223,10 +228,10 @@ brew "starship"    # Cross-shell prompt
 brew "mole"        # SSH tunneling tool
 brew "neovim"      # Text editor
 
+cask "zed"                        # Zed code editor
 cask "nikitabobko/tap/aerospace"  # Window manager
 
-# Font (optional, prompted during install)
-cask "font-fantasque-sans-mono-nerd-font"
+cask "font-zed-mono-nerd-font"        # Nerd Font
 ```
 
 ### Adding Packages

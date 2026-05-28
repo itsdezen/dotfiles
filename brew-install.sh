@@ -47,25 +47,6 @@ install_packages() {
   success "Packages installed"
 }
 
-# Install font (optional)
-install_font() {
-  local font_name="font-fantasque-sans-mono-nerd-font"
-
-  if brew list --cask "$font_name" &>/dev/null; then
-    success "$font_name already installed"
-    return 0
-  fi
-
-  info "Installing $font_name..."
-  if brew install --cask "$font_name"; then
-    success "Font installed successfully"
-    info "Font location: ~/Library/Fonts/"
-  else
-    warn "Failed to install font"
-    return 1
-  fi
-}
-
 # Main
 main() {
   echo ""
@@ -76,12 +57,6 @@ main() {
 
   install_homebrew
   install_packages "$1"
-
-  echo ""
-  read -r -p "Install Fantasque Sans Mono Nerd Font? [y/N] " response
-  if [[ "$response" =~ ^[Yy]$ ]]; then
-    install_font
-  fi
 
   echo ""
   success "Done! Packages installed successfully"
