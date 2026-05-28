@@ -35,4 +35,4 @@ cask "zed"
 cask "nikitabobko/tap/aerospace"
 
 # ── Fonts ─────────────────────────────────────────────────────────────────────
-cask "font-zed-mono-nerd-font"
+cask "font-inconsolata-nerd-font"

@@ -231,7 +231,7 @@ brew "neovim"      # Text editor
 cask "zed"                        # Zed code editor
 cask "nikitabobko/tap/aerospace"  # Window manager
 
-cask "font-zed-mono-nerd-font"        # Nerd Font
+cask "font-inconsolata-nerd-font"      # Nerd Font
 ```
 
 ### Adding Packages
