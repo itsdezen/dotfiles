@@ -74,6 +74,7 @@
     "quick_actions": false
   },
   "project_panel": {
+    "auto_fold_dirs": false,
     "dock": "right",
     "default_width": 240,
     "file_icons": true,
