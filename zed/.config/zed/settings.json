@@ -115,6 +115,7 @@
     "catppuccin-blur": true,
     "colored-zed-icons-theme": true,
     "html": true,
+    "lua": true,
     "toml": true,
   },
   // ── Telemetry ──────────────────────────────────────────────────────────────

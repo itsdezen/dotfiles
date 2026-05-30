@@ -1,0 +1,2 @@
+-- LazyVim sets sane defaults for most options.
+-- See: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
