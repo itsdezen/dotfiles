@@ -109,7 +109,7 @@
   "languages": {},
   "lsp": {},
   // ── Vim mode ───────────────────────────────────────────────────────────────
-  "vim_mode": false,
+  "vim_mode": true,
   // ── Extensions ─────────────────────────────────────────────────────────────
   "auto_install_extensions": {
     "catppuccin-blur": true,
