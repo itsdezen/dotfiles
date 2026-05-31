@@ -196,6 +196,8 @@ main() {
       stow_package "aerospace" || exit 1
       stow_package "starship" || exit 1
       stow_package "zed" || exit 1
+      stow_package "cmux" || exit 1
+      stow_package "ghostty" || exit 1
       ;;
 
     restow|update)
@@ -205,6 +207,8 @@ main() {
       restow_package "aerospace" || exit 1
       restow_package "starship" || exit 1
       restow_package "zed" || exit 1
+      restow_package "cmux" || exit 1
+      restow_package "ghostty" || exit 1
       ;;
 
     remove|uninstall)
@@ -214,6 +218,8 @@ main() {
       remove_package "aerospace"
       remove_package "starship"
       remove_package "zed"
+      remove_package "cmux"
+      remove_package "ghostty"
       ;;
 
     list)

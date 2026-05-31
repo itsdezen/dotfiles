@@ -29,6 +29,11 @@ brew "neovim"
 # Zed - High-performance, multiplayer code editor
 cask "zed"
 
+# ── Terminal ──────────────────────────────────────────────────────────────────
+
+# cmux - Ghostty-based terminal with vertical tabs and AI agent notifications
+cask "cmux"
+
 # ── Window Management ─────────────────────────────────────────────────────────
 
 # Aerospace - i3-like tiling window manager for macOS
