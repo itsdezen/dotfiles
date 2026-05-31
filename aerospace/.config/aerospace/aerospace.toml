@@ -145,13 +145,17 @@ alt-shift-l = ['join-with right', 'mode main']
 
 # Callback config works in 'main' mode only
 
-# ── WORK workspace: Zed + Terminal (tiles, horizontal) ──────────────────────
+# ── WORK workspace: Zed + Terminal + cmux (tiles, horizontal) ───────────────
 [[on-window-detected]]
 if.app-id = 'dev.zed.Zed'
 run = ['move-node-to-workspace WORK']
 
 [[on-window-detected]]
 if.app-id = 'com.apple.Terminal'
+run = ['move-node-to-workspace WORK']
+
+[[on-window-detected]]
+if.app-id = 'com.cmuxterm.app'
 run = ['move-node-to-workspace WORK']
 
 # ── Floating system windows ──────────────────────────────────────────────────
