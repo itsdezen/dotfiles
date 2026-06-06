@@ -23,5 +23,8 @@
 *.swo
 *~
 
+# ── Zed ──────────────────────────────────────────────────────────────────────
+zed/.config/zed/prompts/  # Auto-generated prompt library database
+
 # ── Fonts ────────────────────────────────────────────────────────────────────
 fonts/                  # Fonts installed via Homebrew, not committed
