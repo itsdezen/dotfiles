@@ -25,10 +25,21 @@ install_homebrew() {
     info "Installing Homebrew..."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-    # Add Homebrew to PATH (Apple Silicon)
+    # Load Homebrew into current shell session
     if [[ -f "/opt/homebrew/bin/brew" ]]; then
+      # Apple Silicon
       eval "$(/opt/homebrew/bin/brew shellenv)"
+    elif [[ -f "/usr/local/bin/brew" ]]; then
+      # Intel Mac
+      eval "$(/usr/local/bin/brew shellenv)"
     fi
+
+    # Verify brew is now available
+    if ! command -v brew &>/dev/null; then
+      error "Homebrew was installed but 'brew' command is not available in PATH"
+      exit 1
+    fi
+
     success "Homebrew installed"
   fi
 }
