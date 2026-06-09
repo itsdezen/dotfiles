@@ -90,25 +90,25 @@ alt-shift-equal = 'resize smart +50'
 # ── Workspace ─────────────────────────────────────────────────────────────────
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#workspace
-# WORK      (alt-1): Zed + Terminal + cmux — auto-assigned, tiles layout
-# ENTERTAIN (alt-2): Chrome / media — auto-assigned, flexible
+# work      (alt-w): Zed + Terminal + cmux — auto-assigned, tiles layout
+# entertain (alt-e): Chrome / media — auto-assigned, flexible
+# 1         (alt-1): backup / temporary
+# 2         (alt-2): backup / temporary
 # 3         (alt-3): backup / temporary
-# 4         (alt-4): backup / temporary
-# 5         (alt-5): backup / temporary
-alt-1 = 'workspace WORK'
-alt-2 = 'workspace ENTERTAIN'
+alt-w = 'workspace work'
+alt-e = 'workspace entertain'
+alt-1 = 'workspace 1'
+alt-2 = 'workspace 2'
 alt-3 = 'workspace 3'
-alt-4 = 'workspace 4'
-alt-5 = 'workspace 5'
 
 # ── Move to Workspace ─────────────────────────────────────────────────────────
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#move-node-to-workspace
-alt-shift-1 = 'move-node-to-workspace WORK'
-alt-shift-2 = 'move-node-to-workspace ENTERTAIN'
+alt-shift-w = 'move-node-to-workspace work'
+alt-shift-e = 'move-node-to-workspace entertain'
+alt-shift-1 = 'move-node-to-workspace 1'
+alt-shift-2 = 'move-node-to-workspace 2'
 alt-shift-3 = 'move-node-to-workspace 3'
-alt-shift-4 = 'move-node-to-workspace 4'
-alt-shift-5 = 'move-node-to-workspace 5'
 
 # ── Layout ────────────────────────────────────────────────────────────────────
 
@@ -140,18 +140,18 @@ alt-shift-l = ['join-with right', 'mode main']
 
 # Callback config works in 'main' mode only
 
-# ── WORK workspace: Zed + Terminal + cmux (tiles, horizontal) ───────────────
+# ── work workspace: Zed + Terminal + cmux (tiles, horizontal) ───────────────
 [[on-window-detected]]
 if.app-id = 'dev.zed.Zed'
-run = ['move-node-to-workspace WORK']
+run = ['move-node-to-workspace work']
 
 [[on-window-detected]]
 if.app-id = 'com.apple.Terminal'
-run = ['move-node-to-workspace WORK']
+run = ['move-node-to-workspace work']
 
 [[on-window-detected]]
 if.app-id = 'com.cmuxterm.app'
-run = ['move-node-to-workspace WORK']
+run = ['move-node-to-workspace work']
 
 # ── Floating system windows ──────────────────────────────────────────────────
 [[on-window-detected]]
