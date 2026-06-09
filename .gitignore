@@ -24,7 +24,10 @@
 *~
 
 # ── Zed ──────────────────────────────────────────────────────────────────────
-zed/.config/zed/prompts/  # Auto-generated prompt library database
+# Auto-generated prompt library database
+zed/.config/zed/prompts/
+# Auto-downloaded themes
+zed/.config/zed/themes/
 
 # ── Fonts ────────────────────────────────────────────────────────────────────
 fonts/                  # Fonts installed via Homebrew, not committed
