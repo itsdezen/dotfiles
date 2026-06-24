@@ -24,6 +24,9 @@ brew "mole"
 # Neovim - Hyperextensible Vim-based text editor
 brew "neovim"
 
+# fd - Fast and user-friendly alternative to find (used by snacks.nvim picker)
+brew "fd"
+
 # ── Editors ───────────────────────────────────────────────────────────────────
 
 # Zed - High-performance, multiplayer code editor
