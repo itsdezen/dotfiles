@@ -132,9 +132,9 @@ update_node() {
   fi
 
   # Update bun
-  if command -v bun &>/dev/null; then
+  if command -v mise &>/dev/null; then
     info "Updating bun..."
-    bun upgrade
+    mise upgrade bun
   fi
 
   success "Node.js ecosystem updated"

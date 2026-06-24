@@ -76,12 +76,12 @@ remove_node() {
   echo " Removing Node.js"
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-  # Remove bun
-  if command -v bun &>/dev/null; then
+  # Remove bun via mise
+  if command -v mise &>/dev/null && mise ls bun &>/dev/null 2>&1; then
     read -r -p "Remove bun? [y/N] " response
     if [[ "$response" =~ ^[Yy]$ ]]; then
-      info "Removing bun..."
-      rm -rf "$HOME/.bun"
+      info "Removing bun via mise..."
+      mise uninstall bun
       success "bun removed"
     fi
   fi

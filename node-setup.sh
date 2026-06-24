@@ -71,12 +71,13 @@ install_bun() {
     return 0
   fi
 
-  info "Installing bun..."
-  curl -fsSL https://bun.sh/install | bash
+  if ! command -v mise &>/dev/null; then
+    error "mise not found. Please install: brew install mise"
+    exit 1
+  fi
 
-  # Add bun to PATH for current session
-  export BUN_INSTALL="$HOME/.bun"
-  export PATH="$BUN_INSTALL/bin:$PATH"
+  info "Installing bun via mise..."
+  mise install bun
 
   if command -v bun &>/dev/null; then
     success "bun $(bun --version) installed"

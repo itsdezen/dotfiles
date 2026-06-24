@@ -199,6 +199,7 @@ main() {
       stow_package "cmux" || exit 1
       stow_package "ghostty" || exit 1
       stow_package "claude" || exit 1
+      stow_package "mise" || exit 1
       ;;
 
     restow|update)
@@ -211,6 +212,7 @@ main() {
       restow_package "cmux" || exit 1
       restow_package "ghostty" || exit 1
       restow_package "claude" || exit 1
+      restow_package "mise" || exit 1
       ;;
 
     remove|uninstall)
@@ -223,6 +225,7 @@ main() {
       remove_package "cmux"
       remove_package "ghostty"
       remove_package "claude"
+      remove_package "mise"
       ;;
 
     list)

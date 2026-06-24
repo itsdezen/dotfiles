@@ -111,13 +111,6 @@ if command -v mise &>/dev/null; then
   eval "$(mise activate zsh)"
 fi
 
-# ── bun ──────────────────────────────────────────────────────────────────────
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
-
-# bun completions
-[[ -s "$BUN_INSTALL/_bun" ]] && source "$BUN_INSTALL/_bun"
-
 # ── Editor ───────────────────────────────────────────────────────────────────
 export EDITOR="code --wait"
 export VISUAL="$EDITOR"
