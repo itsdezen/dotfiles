@@ -14,7 +14,7 @@ enable-normalization-opposite-orientation-for-nested-containers = true
 # See: https://nikitabobko.github.io/AeroSpace/guide#layouts
 # The 'accordion-padding' specifies the size of accordion padding
 # Accordion padding is only visible when there is more than one window on the workspace
-accordion-padding = 30
+accordion-padding = 32
 
 # Possible values: tiles|accordion
 default-root-container-layout = 'tiles'
