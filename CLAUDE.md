@@ -12,21 +12,21 @@ This file contains comprehensive information about the dotfiles repository struc
 
 This is a **Stow-based dotfiles repository** for macOS, providing a minimal, modular development environment with:
 
-- **GNU Stow** for symlink management (no custom install scripts)
+- **GNU Stow** for symlink management
 - **Homebrew** for package management
-- **Modern shell**: zsh + zinit + Starship prompt
-- **Node.js ecosystem**: mise + pnpm + bun
-- **Text editor**: Neovim with LSP and modern plugins
+- **Shell**: zsh + zinit + Starship prompt
+- **Runtimes**: mise manages node (lts), bun, python, rust, go
+- **JS tooling**: pnpm, bun
+- **Editor**: Neovim (LazyVim) + Zed (primary editor = VS Code via `code --wait`)
+- **Terminal**: cmux (Ghostty-based)
 - **Window manager**: AeroSpace (i3-like tiling for macOS)
-- **Standalone scripts**: All setup scripts can be run independently
 
 ### Design Philosophy
 
-1. **Simple**: Use standard tools (Stow) instead of custom installers
-2. **Modular**: Each package is self-contained
-3. **Flexible**: Run individual scripts as needed
-4. **Non-invasive**: Stow handles backups and conflicts
-5. **Minimal**: Only essential tools and configurations
+1. **One script**: `sync.sh` handles everything — install, update, repair
+2. **Modular**: each Stow package is self-contained
+3. **Dotfiles win**: conflicts resolved by removing the target, no backups created
+4. **Minimal**: only essential tools and configurations
 
 ---
 
@@ -34,54 +34,65 @@ This is a **Stow-based dotfiles repository** for macOS, providing a minimal, mod
 
 ```
 dotfiles/
-├── sync.sh               # Sync everything (install + update)
+├── sync.sh               # Sync everything (install + update, idempotent)
 ├── stow-install.sh       # Manual stow operations
 ├── uninstall.sh          # Remove dotfiles
 ├── Brewfile              # Homebrew packages
-├── .node-version         # Default Node.js version
-├── .gitignore            # Git ignore rules
+├── .node-version         # Default Node.js version for mise (lts)
+├── .gitignore
 │
-├── zsh/                  # Zsh package
-│   ├── .zshrc            # Main zsh config
-│   ├── .zshenv           # Environment variables
-│   └── .zprofile         # Login shell config
+├── zsh/
+│   ├── .zshrc            # Main config: zinit, plugins, aliases, mise, starship
+│   ├── .zshenv           # LANG, LC_ALL, XDG dirs
+│   └── .zprofile         # Login shell
 │
-├── nvim/                 # Neovim package
-│   └── .config/
-│       └── nvim/
-│           └── init.lua  # Neovim configuration
+├── nvim/                 # LazyVim-based Neovim config
+│   └── .config/nvim/
+│       ├── init.lua
+│       ├── lazyvim.json
+│       ├── lazy-lock.json
+│       └── lua/
+│           ├── config/
+│           │   ├── autocmds.lua
+│           │   ├── keymaps.lua  # Minimal — LazyVim defaults apply
+│           │   ├── lazy.lua     # Plugin spec + LazyVim extras
+│           │   └── options.lua  # Minimal — LazyVim defaults apply
+│           └── plugins/
+│               ├── colorscheme.lua    # github_dark (transparent)
+│               ├── disabled.lua       # Disable tokyonight, catppuccin
+│               ├── formatting.lua     # biome (JS/TS/CSS/JSON), stylua (Lua)
+│               ├── smear-cursor.lua   # Animated cursor
+│               └── snacks.lua         # Picker config (show hidden files)
 │
-├── aerospace/            # AeroSpace package
-│   └── .config/
-│       └── aerospace/
-│           └── aerospace.toml
+├── aerospace/
+│   └── .config/aerospace/aerospace.toml
 │
-├── starship/             # Starship package
-│   └── .config/
-│       └── starship/
-│           └── starship.toml
+├── starship/
+│   └── .config/starship.toml
 │
-├── zed/                  # Zed editor package
-│   └── .config/
-│       └── zed/
-│           └── settings.json
+├── zed/
+│   └── .config/zed/
+│       ├── settings.json
+│       └── keymap.json
 │
-├── ghostty/              # Ghostty package
-│   └── .config/
-│       └── ghostty/
-└── mise/                 # mise package
-    └── .config/
-        └── mise/
+├── cmux/
+│   └── .config/cmux/cmux.json
+│
+├── ghostty/
+│   └── .config/ghostty/config
+│
+└── mise/
+    └── .config/mise/config.toml
 ```
 
 ### Stow Package Structure
 
-Each directory (zsh, nvim, etc.) is a **Stow package**. Stow creates symlinks from package files to `$HOME`:
+Each directory is a **Stow package**. Files symlink to `$HOME`:
 
 ```
-dotfiles/zsh/.zshrc → ~/.zshrc
-dotfiles/nvim/.config/nvim/init.lua → ~/.config/nvim/init.lua
-dotfiles/aerospace/.config/aerospace → ~/.config/aerospace
+dotfiles/zsh/.zshrc                   → ~/.zshrc
+dotfiles/nvim/.config/nvim/           → ~/.config/nvim/
+dotfiles/aerospace/.config/aerospace/ → ~/.config/aerospace/
 ```
 
 ---
@@ -91,50 +102,31 @@ dotfiles/aerospace/.config/aerospace → ~/.config/aerospace
 ### Quick Start
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/dotfiles.git ~/Developer/dotfiles
-cd ~/Developer/dotfiles
-./sync.sh
+git clone https://github.com/onepercman/dotfiles.git ~/Developer/dotfiles
+cd ~/Developer/dotfiles && ./sync.sh
 ```
 
-`sync.sh` handles everything idempotently — run it on a fresh machine or to update an existing one:
-- Installs Homebrew + packages if missing
-- Stows all dotfiles (backs up conflicts automatically)
-- Installs zinit if missing
-- Installs node/bun/pnpm via mise if missing
-- Syncs Neovim plugins
+`sync.sh` is idempotent — run it on a fresh machine or to update an existing one.
+
+### What `sync.sh` does
+
+1. **system** — verifies macOS, git, curl
+2. **homebrew** — installs if missing; runs `brew trust nikitabobko/tap` (Homebrew 6.x requirement); runs `brew bundle`
+3. **dotfiles** — restows all 8 packages; conflicting real files removed via `stow -n` dry-run detection
+4. **shell** — installs zinit if missing
+5. **runtimes** — installs node/bun/pnpm via mise if missing
+6. **editor** — runs `nvim --headless "+Lazy! sync"`
 
 ### Stow Commands
 
 ```bash
-# Install all packages
-./stow-install.sh install
+# Manual stow operations
+./stow-install.sh [install|restow|remove|list]
 
-# Reinstall (update symlinks)
-./stow-install.sh restow
-
-# Remove all packages
-./stow-install.sh remove
-
-# List available packages
-./stow-install.sh list
-
-# Manual Stow usage
-cd ~/Developer/dotfiles
-
-# Install single package
-stow zsh
-
-# Remove single package
-stow -D nvim
-
-# Reinstall (useful after updates)
-stow -R git
-
-# Dry run (preview changes)
-stow -n zsh
-
-# Adopt existing files (merge conflicts)
-stow --adopt zsh
+# Single package
+stow -t "$HOME" -R zsh      # restow
+stow -t "$HOME" -D nvim     # remove
+stow -n -t "$HOME" zsh      # dry run
 ```
 
 ---
@@ -143,103 +135,128 @@ stow --adopt zsh
 
 ### zsh Package
 
-**Files:**
-- `.zshrc` - Main configuration with zinit, Starship, mise, bun
-- `.zshenv` - Environment variables
-- `.zprofile` - Login shell config
+**Files:** `.zshrc`, `.zshenv`, `.zprofile`
 
-**Features:**
-- **zinit** - Fast plugin manager with turbo mode
-- **Starship** - Cross-shell prompt
-- **Plugins**: git, zsh-autosuggestions, fast-syntax-highlighting
-- **mise integration** - Automatic version management
-- **bun integration** - JavaScript runtime
+**`.zshenv`** — loaded in every shell context:
+- `LANG`, `LC_ALL` = `en_US.UTF-8`
+- XDG dirs: `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_CACHE_HOME`
+
+**`.zshrc`** features:
+- **zinit** (plugin manager) with turbo/lazy loading
+- **Plugins**: git (oh-my-zsh), zsh-autosuggestions, fast-syntax-highlighting
+- **Aliases**: `ll`, `la`, `..`, `...`, `g`, `v` (nvim), `dev`, `dots`, `zrc`, `reload`
+- **mise** — `eval "$(mise activate zsh)"` for runtime management
+- **Starship** — `eval "$(starship init zsh)"`
+- **EDITOR** = `code --wait` (VS Code)
+- **Local overrides** — sources `~/.zshrc.local` if present
 
 ### nvim Package
 
-**Files:**
-- `.config/nvim/init.lua` - Complete Neovim configuration
+**LazyVim-based** setup. `lazy.lua` loads:
+- `LazyVim/LazyVim` base
+- `lazyvim.plugins.extras.coding.blink` — blink.cmp completion
+- `lazyvim.plugins.extras.lang.typescript` — TypeScript LSP/tools
+- `lazyvim.plugins.extras.lang.tailwind` — Tailwind CSS support
+- Custom `plugins/` directory
 
-**Features:**
-- **lazy.nvim** - Plugin manager
-- **Tokyo Night** colorscheme
-- **nvim-tree** - File explorer
-- **Telescope** - Fuzzy finder
-- **Treesitter** - Syntax highlighting
-- **LSP**: Lua, TypeScript, HTML, CSS, Tailwind
-- **nvim-cmp** - Autocompletion
-- **Gitsigns** - Git integration
-- **lualine** - Status line
+**Custom plugins:**
+- **colorscheme**: `github_dark` (transparent) via `projekt0n/github-nvim-theme`; tokyonight and catppuccin disabled
+- **formatting**: `conform.nvim` — biome for JS/TS/JSX/TSX/JSON/CSS, stylua for Lua
+- **snacks.nvim**: picker shows hidden + ignored files
+- **smear-cursor**: animated cursor movement
 
-**Key mappings:**
-- `<leader>` = Space
-- `<leader>ee` - Toggle file explorer
-- `<leader>ff` - Find files
-- `<leader>fg` - Live grep
-- `gd` - Go to definition
-- `K` - Hover documentation
+**Keymaps**: LazyVim defaults — no custom keymaps defined.
 
 ### aerospace Package
 
-**Files:**
-- `.config/aerospace/aerospace.toml` - Window manager config
+**Workspaces** (5 total):
+- `alt-w` / `alt-shift-w` → `work` — Zed, Terminal, cmux (auto-assigned)
+- `alt-e` / `alt-shift-e` → `entertain` — Chrome/media
+- `alt-1/2/3` → numbered backups
 
-**Features:**
-- i3-like tiling for macOS
-- Alt+hjkl navigation
-- Alt+1-9 workspace switching
-- Alt+Shift+hjkl move windows
-- Configurable gaps and layouts
+**Navigation:**
+- `alt-hjkl` — focus window
+- `alt-shift-hjkl` — move window
+- `alt-/` — toggle tiles layout
+- `alt-,` — toggle accordion layout
+- `alt-shift-;` → service mode (reset, flatten, float/tile toggle)
+
+**Auto-assign rules:**
+- Zed, Terminal, cmux → `work` workspace (tiled)
+- System Preferences, Activity Monitor, Calculator, Passwords → floating
+
+**Gaps:** 16px inner + outer on all sides.
 
 ### starship Package
 
-**Files:**
-- `.config/starship/starship.toml` - Prompt configuration
+Powerline-style prompt (no newline):
+- Segments: OS icon → directory (truncated to 3, icons for common dirs) → git branch + status → docker context
+- Colors: neutral grays (`#FAFAFA`, `#D4D4D4`, `#A3A3A3`, `#525252`)
+- Git indicators: staged `+`, modified `!`, untracked `?`, deleted `✘`, ahead `⇡`, behind `⇣`
 
-**Features:**
-- Fast, minimal prompt
-- Git status integration
-- Command execution time
-- Directory truncation
+### zed Package
+
+**Files:** `settings.json`, `keymap.json`
+
+**Key settings:**
+- **Theme**: Catppuccin Macchiato Blur (dark) / Iced Latte Blur (light)
+- **Font**: Inconsolata Nerd Font, size 14, ligatures enabled
+- **AI**: Claude Sonnet (anthropic), claude-acp MCP server
+- **Vim mode**: disabled
+- **Format on save**: enabled (language server)
+- **Auto-save**: 1000ms delay
+- **Project panel**: right side, 240px, git status shown
+- **Extensions**: catppuccin-blur, colored-zed-icons-theme, html, lua, toml (auto-install)
+- **Telemetry**: disabled
+
+### mise Package
+
+**File:** `.config/mise/config.toml`
+
+Manages all runtimes globally:
+```toml
+[tools]
+node = "lts"
+bun = "latest"
+python = "latest"
+rust = "latest"
+go = "latest"
+```
+
+### cmux Package
+
+Ghostty-based terminal with vertical tabs and AI agent notifications. Config at `.config/cmux/cmux.json`.
+
+### ghostty Package
+
+Ghostty terminal emulator config at `.config/ghostty/config`.
 
 ---
 
 ## 🛠️ Brewfile Packages
 
-Essential packages installed via Homebrew:
-
 ```ruby
-brew "mise"        # Polyglot version manager
-brew "starship"    # Cross-shell prompt
-brew "mole"        # SSH tunneling tool
-brew "neovim"      # Text editor
+brew "mise"       # polyglot version manager (node, bun, python, rust, go)
+brew "starship"   # cross-shell prompt
+brew "mole"       # SSH tunneling tool
+brew "neovim"     # text editor
+brew "fd"         # fast find (used by snacks.nvim picker)
 
-cask "zed"                        # Zed code editor
-cask "nikitabobko/tap/aerospace"  # Window manager
-
-cask "font-inconsolata-nerd-font"      # Nerd Font
+cask "zed"
+cask "cmux"                              # Ghostty-based terminal
+cask "nikitabobko/tap/aerospace"         # window manager (third-party tap)
+cask "font-inconsolata-nerd-font"
 ```
+
+> **Note (Homebrew 6.x):** `nikitabobko/tap` requires `brew trust nikitabobko/tap` before install. `sync.sh` handles this automatically.
 
 ### Adding Packages
 
-Edit `Brewfile` and add:
-
-```ruby
-brew "package-name"
-# or
-cask "cask-name"
-```
-
-Then run:
 ```bash
+# Edit Brewfile, then:
+./sync.sh
+# or just:
 brew bundle --file=Brewfile
-```
-
-### Exporting Current Packages
-
-```bash
-brew bundle dump --force
-# Then manually edit to keep only essentials
 ```
 
 ---
@@ -248,53 +265,34 @@ brew bundle dump --force
 
 ### Machine-Specific Configs
 
-Create local configs that won't be tracked:
-
 ```bash
-# ~/.zshrc.local (sourced by .zshrc)
+# ~/.zshrc.local — sourced by .zshrc if it exists (not committed)
 export WORK_API_KEY="secret"
 alias work="cd ~/Work/project"
-
-# ~/.gitconfig.local (included by .gitconfig)
-[user]
-    name = Work Name
-    email = work@email.com
 ```
 
-### Adding New Packages
+### Adding New Stow Packages
 
-1. **Create package directory:**
+1. Create package following Stow conventions:
 ```bash
 mkdir -p newpackage/.config/newapp
+touch newpackage/.config/newapp/config.toml
 ```
 
-2. **Add configuration files:**
+2. Add to `PACKAGES` in both `sync.sh` and `stow-install.sh`:
 ```bash
-# Files in newpackage/ will be symlinked to ~/
-touch newpackage/.config/newapp/config.conf
+PACKAGES=(zsh nvim aerospace starship zed cmux ghostty mise newpackage)
 ```
 
-3. **Stow the package:**
-```bash
-stow newpackage
-```
-
-4. **Update stow-install.sh** (optional):
-```bash
-# Add to install section:
-stow_package "newpackage"
-```
+3. Run `./sync.sh`.
 
 ### Updating Dotfiles
 
 ```bash
-cd ~/Developer/dotfiles
-
-# Edit files, commit, push
 nvim zsh/.zshrc
-git add . && git commit -m "🔧 update zsh config" && git push
+git add . && git commit -m "🔧 ..." && git push
 
-# On another machine — pull and re-sync
+# On another machine
 git pull && ./sync.sh
 ```
 
@@ -304,94 +302,49 @@ git pull && ./sync.sh
 
 ### Stow Conflicts
 
-**Problem:** "Existing file conflicts with Stow"
-
-**Solutions:**
+`sync.sh` handles automatically — uses `stow -n` dry-run to detect conflicting real files, removes them, then stows. Dotfiles always win; no backups created.
 
 ```bash
-# Option 1: Adopt existing files (merge into dotfiles)
-stow --adopt zsh
-git diff  # Review changes
-git restore .  # Discard if unwanted
-
-# Option 2: Remove existing files
-rm ~/.zshrc
-stow zsh
-
-# Option 3: Backup existing files
-mv ~/.zshrc ~/.zshrc.backup
-stow zsh
+# Manual: remove conflict and restow
+rm ~/.zshrc && stow -t "$HOME" zsh
+# Or just re-run:
+./sync.sh
 ```
 
 ### mise Not Loading
 
 ```bash
-# Check mise installation
-which mise
-mise --version
-
-# Verify activation in .zshrc
-grep 'mise activate' ~/.zshrc
-
-# Manual activation
-eval "$(mise activate zsh)"
-
-# Check configuration
+which mise && mise --version
+eval "$(mise activate zsh)"   # manual activation
 mise doctor
+mise ls                        # check installed runtimes
 ```
 
 ### zinit Plugins Not Loading
 
 ```bash
-# Check zinit installation
-ls -la ~/.local/share/zinit/zinit.git
-
-# Check plugins
-ls -la ~/.local/share/zinit/plugins/
-
-# Reload zinit
-source ~/.zshrc
-
-# Show plugin loading times
-zinit times
-
-# Reinstall zinit
-rm -rf ~/.local/share/zinit
-./zinit-setup.sh
+ls ~/.local/share/zinit/zinit.git   # verify install
+source ~/.zshrc                     # reload
+zinit times                         # show load times
+# Reinstall: rm -rf ~/.local/share/zinit && ./sync.sh
 ```
 
 ### Neovim Issues
 
 ```bash
-# Check Neovim version (needs 0.9+)
-nvim --version
-
-# Check plugin installation
-nvim +Lazy
-
-# Update plugins
-nvim +Lazy sync
-
-# Check LSP
-nvim +LspInfo
-
-# Install missing LSP servers
-nvim +Mason
+nvim --version          # needs 0.10+
+nvim +Lazy              # plugin status
+nvim +LspInfo           # LSP status
+nvim +Mason             # install LSP servers
+# Resync plugins: nvim --headless "+Lazy! sync" +qa
 ```
 
 ### AeroSpace Not Starting
 
 ```bash
-# Check installation
 aerospace --version
-
-# Check config syntax
 aerospace validate-config
-
-# Restart AeroSpace
 aerospace reload-config
-
-# Check logs
 log show --predicate 'process == "AeroSpace"' --last 5m
 ```
 
@@ -402,18 +355,17 @@ log show --predicate 'process == "AeroSpace"' --last 5m
 ### Sync / Update Everything
 
 ```bash
-cd ~/Developer/dotfiles
-git pull && ./sync.sh
+cd ~/Developer/dotfiles && git pull && ./sync.sh
 ```
 
 ### Sync to New Machine
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/dotfiles.git ~/Developer/dotfiles
+git clone https://github.com/onepercman/dotfiles.git ~/Developer/dotfiles
 cd ~/Developer/dotfiles && ./sync.sh
 ```
 
-### Uninstall Dotfiles
+### Uninstall
 
 ```bash
 cd ~/Developer/dotfiles && ./uninstall.sh
@@ -423,69 +375,31 @@ cd ~/Developer/dotfiles && ./uninstall.sh
 
 ## 🤖 AI Assistant Instructions
 
-When helping users with this repository:
-
 ### 1. Always Use Stow
 
-- **DO NOT** create custom symlink scripts
-- **DO NOT** suggest copying files manually
-- **USE** Stow commands for all symlink operations
+- **DO NOT** create custom symlink scripts or backup files
+- **USE** `stow -t "$HOME" -R package` for all symlink operations
+- Conflict resolution: detect with `stow -n`, remove conflicting files, then stow
 
-### 2. Respect Package Structure
+### 2. One Script Philosophy
 
-- Each package must follow Stow conventions
-- Files in `package/` map to `~/`
-- Use `.config/` subdirectories for XDG configs
+- `sync.sh` is the single entry point for install + update
+- When adding a package: add to `PACKAGES` array in both `sync.sh` and `stow-install.sh`
+- No standalone install scripts per-tool
 
-### 3. Keep Scripts Independent
+### 3. Follow Conventions
 
-- Each script should be runnable standalone
-- Include all necessary functions in the script
-- Don't create lib/ directories
+- Stow packages: lowercase directory names
+- Scripts: `set -euo pipefail`, minimal output helpers (ok/run/warn/abort)
+- No banners, no prompts (except destructive operations in `uninstall.sh`)
+- Commit style: emoji prefix (🚀 🐞 🔧 ♻️ 📝 🗑️ ⬆️)
 
-### 4. Follow Conventions
+### 4. When Adding Features
 
-**File naming:**
-- Stow packages: lowercase directories (zsh, git, nvim)
-- Scripts: kebab-case with .sh extension
-- Dotfiles: start with . (`.zshrc`, `.gitconfig`)
-
-**Script structure:**
-```bash
-#!/usr/bin/env bash
-set -e  # Exit on error
-
-# Colors and helper functions
-# Main functionality
-# main() function
-# Call main with "$@"
-```
-
-### 5. Documentation
-
-- Update README.md for users
-- Update this CLAUDE.md for context
-- Add comments in configs
-- Keep documentation concise
-
-### 6. When Adding Features
-
-1. Create/update Stow package
-2. Add to Brewfile if needed
-3. Create/update script if needed
-4. Update stow-install.sh if needed
-5. Update documentation
-
-### 7. Testing Changes
-
-```bash
-# Always test in order:
-1. Stow dry run: stow -n package
-2. Actual stow: stow package
-3. Verify symlinks: ls -la ~/
-4. Test functionality
-5. Unstow: stow -D package
-```
+1. Create/update Stow package directory
+2. Add package to `PACKAGES` in `sync.sh` and `stow-install.sh`
+3. Add to `Brewfile` if installable via Homebrew
+4. Update this `CLAUDE.md`
 
 ---
 
@@ -496,18 +410,12 @@ set -e  # Exit on error
 - [zinit](https://github.com/zdharma-continuum/zinit)
 - [Starship](https://starship.rs/)
 - [mise](https://mise.jdx.dev/)
-- [Neovim](https://neovim.io/)
-- [lazy.nvim](https://github.com/folke/lazy.nvim)
+- [LazyVim](https://lazyvim.org/)
 - [AeroSpace](https://github.com/nikitabobko/AeroSpace)
+- [Zed](https://zed.dev/docs)
 
 ---
 
-## 📄 License
-
-MIT License - Free to use and modify.
-
----
-
-**Last Updated:** 2026-05-26
+**Last Updated:** 2026-06-25
 **Maintained By:** @onepercman
 **Repository:** https://github.com/onepercman/dotfiles

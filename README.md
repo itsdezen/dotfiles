@@ -2,217 +2,92 @@
 
 Personal macOS development environment using **GNU Stow** for dotfiles management.
 
-## Features
+## Stack
 
-- 🔗 **GNU Stow** - Simple symlink management
-- 🍺 **Homebrew** - Package management
-- 🐚 **zsh + zinit + Starship** - Modern shell with fast plugin manager
-- 📦 **mise + pnpm + bun** - Node.js ecosystem
-- ✏️  **Neovim** - LSP-powered text editor
-- ⚡ **Zed** - High-performance, multiplayer code editor
-- 🪟 **AeroSpace** - i3-like tiling window manager for macOS
+- 🍺 **Homebrew** — package management
+- 🐚 **zsh + zinit + Starship** — shell, plugins, prompt
+- 🔧 **mise** — polyglot runtime manager (node, bun, python, rust, go)
+- 📦 **pnpm + bun** — JS package managers
+- ✏️ **Neovim (LazyVim)** — terminal editor
+- ⚡ **Zed** — primary code editor (Claude AI built-in)
+- 🖥️ **cmux** — Ghostty-based terminal
+- 🪟 **AeroSpace** — i3-like tiling window manager
 
 ## Quick Start
 
 ```bash
-# Clone repository
-git clone https://github.com/YOUR_USERNAME/dotfiles.git ~/Developer/dotfiles
-cd ~/Developer/dotfiles
-
-# Run full setup (installs everything)
-./setup.sh
+git clone https://github.com/onepercman/dotfiles.git ~/Developer/dotfiles
+cd ~/Developer/dotfiles && ./sync.sh
 ```
 
-## Manual Installation
+`sync.sh` is idempotent — run it on a fresh machine or anytime to sync/update.
 
-Install components individually:
-
-```bash
-# Install Homebrew and packages
-./brew-install.sh
-
-# Install GNU Stow (if not already installed)
-brew install stow
-
-# Install dotfiles with Stow
-./stow-install.sh
-
-# Setup shell (zinit plugin manager)
-./zinit-setup.sh
-
-# Setup Node.js ecosystem
-./node-setup.sh
-```
-
-## Available Scripts
+## Scripts
 
 | Script | Description |
 |--------|-------------|
-| `./setup.sh` | Full automatic setup (runs all scripts) |
-| `./brew-install.sh` | Install Homebrew + packages |
-| `./stow-install.sh` | Manage dotfiles with Stow |
-| `./zinit-setup.sh` | Install zinit plugin manager |
-| `./node-setup.sh` | Setup Node.js ecosystem |
-| `./update-all.sh` | Update everything (brew, stow, node, plugins) |
-| `./uninstall.sh` | Uninstall dotfiles and packages |
+| `./sync.sh` | Sync everything: Homebrew, dotfiles, runtimes, nvim plugins |
+| `./stow-install.sh [install\|restow\|remove\|list]` | Manual stow operations |
+| `./uninstall.sh` | Remove dotfiles and zinit |
 
-## Stow Usage
+## Stow Packages
+
+| Package | Symlinks to |
+|---------|-------------|
+| `zsh` | `~/.zshrc`, `~/.zshenv`, `~/.zprofile` |
+| `nvim` | `~/.config/nvim/` |
+| `aerospace` | `~/.config/aerospace/` |
+| `starship` | `~/.config/starship.toml` |
+| `zed` | `~/.config/zed/` |
+| `cmux` | `~/.config/cmux/` |
+| `ghostty` | `~/.config/ghostty/` |
+| `mise` | `~/.config/mise/config.toml` |
+
+## Runtimes (mise)
+
+```toml
+node = "lts"
+bun = "latest"
+python = "latest"
+rust = "latest"
+go = "latest"
+```
+
+## Key Bindings
+
+### AeroSpace
+
+| Key | Action |
+|-----|--------|
+| `alt-hjkl` | Focus window |
+| `alt-shift-hjkl` | Move window |
+| `alt-w/e/1/2/3` | Switch workspace |
+| `alt-shift-w/e/1/2/3` | Move to workspace |
+| `alt-/` | Toggle tiles layout |
+| `alt-,` | Toggle accordion layout |
+
+Workspaces: **work** (Zed + cmux, auto-assigned), **entertain**, **1/2/3**.
+
+### Neovim
+
+LazyVim defaults. Custom: `github_dark` colorscheme, biome formatter (JS/TS/CSS/JSON), snacks.nvim picker.
+
+## Workflow
 
 ```bash
-# Install all packages
-./stow-install.sh install
+# Edit → commit → push
+nvim zsh/.zshrc
+git add . && git commit -m "🔧 ..." && git push
 
-# Update symlinks
-./stow-install.sh restow
-
-# Remove all packages
-./stow-install.sh remove
-
-# Manual usage
-stow zsh          # Install zsh package
-stow -D nvim      # Remove nvim package
-stow -R nvim      # Reinstall nvim package
-```
-
-## Directory Structure
-
-```
-dotfiles/
-├── zsh/                 # Zsh configuration
-├── nvim/                # Neovim configuration
-├── aerospace/           # AeroSpace window manager
-├── starship/            # Starship prompt
-├── zed/                 # Zed editor configuration
-├── setup.sh             # Full setup script
-├── brew-install.sh      # Install Homebrew
-├── stow-install.sh      # Stow manager
-├── zinit-setup.sh       # Install zinit
-├── node-setup.sh        # Install Node.js
-├── update-all.sh        # Update everything
-└── uninstall.sh         # Uninstall script
-```
-
-## Configuration
-
-### Machine-Specific Settings
-
-Create local configs that won't be tracked:
-
-```bash
-# ~/.zshrc.local
-export WORK_API_KEY="secret"
-alias work="cd ~/Work"
-
-# Git config (manual setup)
-git config --global user.name "Your Name"
-git config --global user.email "your@email.com"
-```
-
-## Neovim Key Mappings
-
-- `<leader>` = Space
-- `<leader>ee` - Toggle file explorer
-- `<leader>ff` - Find files
-- `<leader>fg` - Live grep
-- `gd` - Go to definition
-- `K` - Hover documentation
-
-## AeroSpace Key Mappings
-
-- `Alt+hjkl` - Navigate windows
-- `Alt+Shift+hjkl` - Move windows
-- `Alt+1-9` - Switch workspaces
-- `Alt+Shift+1-9` - Move to workspace
-
-## Updating
-
-Use the automated update script:
-
-```bash
-./update-all.sh
-```
-
-This will update:
-- Dotfiles repository (git pull)
-- Homebrew packages
-- Stow symlinks
-- Node.js ecosystem
-- Zinit & plugins
-- Neovim plugins
-
-Or update manually:
-
-```bash
-cd ~/Developer/dotfiles
-git pull
-brew update && brew upgrade
-./stow-install.sh restow
-nvim +Lazy sync +qa
+# Pull and sync on another machine
+git pull && ./sync.sh
 ```
 
 ## Troubleshooting
 
-### Stow Conflicts
-
-If Stow reports conflicts with existing files:
+**Stow conflict** — `sync.sh` resolves automatically (dotfiles win, no backups).
 
 ```bash
-# Backup existing files
-mv ~/.zshrc ~/.zshrc.backup
-
-# Or adopt existing files into dotfiles
-stow --adopt zsh
-
-# Review changes
-git diff
+./sync.sh        # re-run to fix
+./stow-install.sh restow   # or restow manually
 ```
-
-### Neovim Plugin Issues
-
-```bash
-# Check plugin status
-nvim +Lazy
-
-# Update all plugins
-nvim +Lazy sync
-
-# Check LSP status
-nvim +LspInfo
-
-# Install LSP servers
-nvim +Mason
-```
-
-## Uninstall
-
-Use the automated uninstall script:
-
-```bash
-./uninstall.sh
-```
-
-This will:
-- Create backup (optional)
-- Remove Stow symlinks
-- Remove zinit (optional)
-- Remove Node.js tools (optional)
-- Remove Homebrew packages (optional)
-- Remove Neovim data (optional)
-
-Or remove manually:
-
-```bash
-cd ~/Developer/dotfiles
-./stow-install.sh remove
-```
-
-## Documentation
-
-- See [CLAUDE.md](CLAUDE.md) for detailed documentation and AI assistant context
-- [GNU Stow Manual](https://www.gnu.org/software/stow/manual/)
-- [Neovim Config](https://neovim.io/doc/)
-- [AeroSpace](https://github.com/nikitabobko/AeroSpace)
-
-## License
-
-MIT
