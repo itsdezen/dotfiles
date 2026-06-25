@@ -1,2 +1,4 @@
 font-family = Inconsolata Nerd Font
 font-size = 16
+background-opacity = 0.85
+background-blur = true
