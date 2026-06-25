@@ -34,14 +34,11 @@ This is a **Stow-based dotfiles repository** for macOS, providing a minimal, mod
 
 ```
 dotfiles/
-├── setup.sh              # Quick setup (runs all scripts)
-├── brew-install.sh       # Install Homebrew + packages
-├── node-setup.sh         # Setup Node.js ecosystem
-├── zinit-setup.sh        # Install zinit plugin manager
-├── stow-install.sh       # Stow/unstow dotfiles
+├── sync.sh               # Sync everything (install + update)
+├── stow-install.sh       # Manual stow operations
+├── uninstall.sh          # Remove dotfiles
 ├── Brewfile              # Homebrew packages
 ├── .node-version         # Default Node.js version
-├── npm-globals.txt       # Global npm packages (optional)
 ├── .gitignore            # Git ignore rules
 │
 ├── zsh/                  # Zsh package
@@ -64,10 +61,17 @@ dotfiles/
 │       └── starship/
 │           └── starship.toml
 │
-└── zed/                  # Zed editor package
+├── zed/                  # Zed editor package
+│   └── .config/
+│       └── zed/
+│           └── settings.json
+│
+├── ghostty/              # Ghostty package
+│   └── .config/
+│       └── ghostty/
+└── mise/                 # mise package
     └── .config/
-        └── zed/
-            └── settings.json
+        └── mise/
 ```
 
 ### Stow Package Structure
@@ -84,38 +88,20 @@ dotfiles/aerospace/.config/aerospace → ~/.config/aerospace
 
 ## 🚀 Installation & Usage
 
-### Quick Start (Full Setup)
+### Quick Start
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/dotfiles.git ~/Developer/dotfiles
 cd ~/Developer/dotfiles
-./setup.sh
+./sync.sh
 ```
 
-This runs all setup scripts in order:
-1. Install Homebrew + packages
-2. Install GNU Stow
-3. Stow dotfiles
-4. Setup zinit
-5. Setup Node.js ecosystem
-
-### Individual Scripts
-
-Run scripts independently as needed:
-
-```bash
-# Install Homebrew and packages only
-./brew-install.sh
-
-# Install Node.js ecosystem only
-./node-setup.sh
-
-# Setup zinit only
-./zinit-setup.sh
-
-# Stow dotfiles only
-./stow-install.sh
-```
+`sync.sh` handles everything idempotently — run it on a fresh machine or to update an existing one:
+- Installs Homebrew + packages if missing
+- Stows all dotfiles (backs up conflicts automatically)
+- Installs zinit if missing
+- Installs node/bun/pnpm via mise if missing
+- Syncs Neovim plugins
 
 ### Stow Commands
 
@@ -304,17 +290,12 @@ stow_package "newpackage"
 ```bash
 cd ~/Developer/dotfiles
 
-# Edit files
+# Edit files, commit, push
 nvim zsh/.zshrc
+git add . && git commit -m "🔧 update zsh config" && git push
 
-# Commit changes
-git add .
-git commit -m "Update zsh config"
-git push
-
-# On another machine
-git pull
-./stow-install.sh restow  # Update symlinks
+# On another machine — pull and re-sync
+git pull && ./sync.sh
 ```
 
 ---
@@ -418,68 +399,24 @@ log show --predicate 'process == "AeroSpace"' --last 5m
 
 ## 📝 Common Tasks
 
-### Update Everything
+### Sync / Update Everything
 
 ```bash
 cd ~/Developer/dotfiles
-
-# Update from git
-git pull
-
-# Update Homebrew packages
-brew update && brew upgrade
-
-# Update Stow symlinks
-./stow-install.sh restow
-
-# Update Node.js
-mise install node@latest
-mise use -g node@latest
-
-# Update npm globals
-npm update -g
-
-# Update Neovim plugins
-nvim +Lazy sync +qa
+git pull && ./sync.sh
 ```
 
 ### Sync to New Machine
 
 ```bash
-# Clone repository
 git clone https://github.com/YOUR_USERNAME/dotfiles.git ~/Developer/dotfiles
-
-# Run full setup
-cd ~/Developer/dotfiles
-./setup.sh
-
-# Or install selectively
-./brew-install.sh
-./stow-install.sh
-./zinit-setup.sh
-./node-setup.sh
-```
-
-### Backup Before Changes
-
-```bash
-# Backup current configs
-tar -czf ~/dotfiles-backup-$(date +%Y%m%d).tar.gz \
-  ~/.zshrc ~/.gitconfig ~/.config/nvim ~/.config/aerospace
+cd ~/Developer/dotfiles && ./sync.sh
 ```
 
 ### Uninstall Dotfiles
 
 ```bash
-cd ~/Developer/dotfiles
-
-# Remove all symlinks
-./stow-install.sh remove
-
-# Or remove individual packages
-stow -D zsh
-stow -D git
-stow -D nvim
+cd ~/Developer/dotfiles && ./uninstall.sh
 ```
 
 ---
