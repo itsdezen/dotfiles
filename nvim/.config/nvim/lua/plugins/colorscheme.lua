@@ -1,18 +1,17 @@
 return {
 	{
-		"projekt0n/github-nvim-theme",
-		name = "github-theme",
+		"navarasu/onedark.nvim",
+		name = "onedark",
 		priority = 1000,
 		opts = {
-			options = {
-				transparent = true,
-			},
+			style = "warmer",
+			transparent = true,
 		},
 	},
 	{
 		"LazyVim/LazyVim",
 		opts = {
-			colorscheme = "github_dark_default",
+			colorscheme = "onedark",
 		},
 	},
 }
