@@ -24,9 +24,9 @@
     "light": "Catppuccin Iced Latte (Blur) [Heavy]",
     "dark": "Catppuccin Macchiato (Blur) [Light]"
   },
-  "ui_font_family": "Inconsolata Nerd Font",
+  "ui_font_family": "Iosevka Nerd Font",
   "ui_font_size": 14,
-  "buffer_font_family": "Inconsolata Nerd Font",
+  "buffer_font_family": "Iosevka Nerd Font",
   "buffer_font_size": 14,
   "buffer_font_features": {
     "calt": true,
@@ -95,7 +95,7 @@
   },
   // ── Terminal ───────────────────────────────────────────────────────────────
   "terminal": {
-    "font_family": "Inconsolata Nerd Font",
+    "font_family": "Iosevka Nerd Font",
     "font_size": 14,
     "line_height": "comfortable",
     "shell": "system",
