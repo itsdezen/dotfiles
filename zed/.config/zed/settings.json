@@ -3,7 +3,7 @@
 {
   // ── Agent ──────────────────────────────────────────────────────────────────
   "icon_theme": {
-    "mode": "system",
+    "mode": "dark",
     "dark": "Colored Zed Icons Theme Dark",
     "light": "Colored Zed Icons Theme Light",
   },
@@ -20,9 +20,9 @@
   },
   // ── Appearance ─────────────────────────────────────────────────────────────
   "theme": {
-    "mode": "system",
+    "mode": "dark",
     "light": "Catppuccin Iced Latte (Blur) [Heavy]",
-    "dark": "Catppuccin Macchiato (Blur) [Light]"
+    "dark": "Catppuccin Espresso (Blur) [Heavy]"
   },
   "ui_font_family": "Iosevka Nerd Font",
   "ui_font_size": 14,
