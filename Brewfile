@@ -43,4 +43,4 @@ cask "cmux"
 cask "nikitabobko/tap/aerospace"
 
 # ── Fonts ─────────────────────────────────────────────────────────────────────
-cask "font-iosevka-nerd-font"
+cask "font-jetbrains-mono-nerd-font"
