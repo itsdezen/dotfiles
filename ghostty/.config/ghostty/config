@@ -2,5 +2,6 @@ font-family = MapleMono NF
 font-size = 12
 background-opacity = 0.7
 background-blur = true
-
+font-thicken = true
+macos-titlebar-style = transparent
 theme = TokyoNight
