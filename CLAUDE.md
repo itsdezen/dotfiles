@@ -200,7 +200,7 @@ Powerline-style prompt (no newline):
 
 **Key settings:**
 - **Theme**: Catppuccin Macchiato Blur (dark) / Iced Latte Blur (light)
-- **Font**: JetBrains Mono Nerd Font, size 14, ligatures enabled
+- **Font**: MapleMono NF, size 14, ligatures enabled
 - **AI**: Claude Sonnet (anthropic), claude-acp MCP server
 - **Vim mode**: disabled
 - **Format on save**: enabled (language server)
@@ -245,7 +245,7 @@ brew "fd"         # fast find (used by snacks.nvim picker)
 cask "zed"
 cask "cmux"                              # Ghostty-based terminal
 cask "nikitabobko/tap/aerospace"         # window manager (third-party tap)
-cask "font-jetbrains-mono-nerd-font"
+cask "font-maple-mono-nf"
 ```
 
 > **Note (Homebrew 6.x):** `nikitabobko/tap` requires `brew trust nikitabobko/tap` before install. `sync.sh` handles this automatically.

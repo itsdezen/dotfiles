@@ -24,9 +24,9 @@
     "light": "Catppuccin Iced Latte (Blur) [Heavy]",
     "dark": "Catppuccin Espresso (Blur) [Heavy]"
   },
-  "ui_font_family": "JetBrains Mono Nerd Font",
+  "ui_font_family": "MapleMono NF",
   "ui_font_size": 14,
-  "buffer_font_family": "JetBrains Mono Nerd Font",
+  "buffer_font_family": "MapleMono NF",
   "buffer_font_size": 14,
   "buffer_font_features": {
     "calt": true,
@@ -95,7 +95,7 @@
   },
   // ── Terminal ───────────────────────────────────────────────────────────────
   "terminal": {
-    "font_family": "JetBrains Mono Nerd Font",
+    "font_family": "MapleMono NF",
     "font_size": 14,
     "line_height": "comfortable",
     "shell": "system",
