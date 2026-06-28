@@ -47,6 +47,7 @@ return {
           explorer = {
             hidden = true,
             ignored = true,
+            layout = { preview = "main", layout = { preset = "ivy_split" } },
           },
 
           files = {
