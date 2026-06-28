@@ -1,5 +1,6 @@
 font-family = MapleMono NF
 font-size = 12
+theme = Ayu
 background = #000000
 background-opacity = 0.7
 background-blur = true
