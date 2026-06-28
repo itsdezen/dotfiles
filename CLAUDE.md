@@ -58,7 +58,7 @@ dotfiles/
 │           │   ├── lazy.lua     # Plugin spec + LazyVim extras
 │           │   └── options.lua  # Minimal — LazyVim defaults apply
 │           └── plugins/
-│               ├── colorscheme.lua    # github_dark (transparent)
+│               ├── colorscheme.lua    # onedark (warmer, transparent)
 │               ├── disabled.lua       # Disable tokyonight, catppuccin
 │               ├── formatting.lua     # biome (JS/TS/CSS/JSON), stylua (Lua)
 │               ├── smear-cursor.lua   # Animated cursor
@@ -160,7 +160,7 @@ stow -n -t "$HOME" zsh      # dry run
 - Custom `plugins/` directory
 
 **Custom plugins:**
-- **colorscheme**: `github_dark` (transparent) via `projekt0n/github-nvim-theme`; tokyonight and catppuccin disabled
+- **colorscheme**: `onedark` (warmer, transparent) via `navarasu/onedark.nvim`; tokyonight and catppuccin disabled
 - **formatting**: `conform.nvim` — biome for JS/TS/JSX/TSX/JSON/CSS, stylua for Lua
 - **snacks.nvim**: picker shows hidden + ignored files
 - **smear-cursor**: animated cursor movement
@@ -416,6 +416,6 @@ cd ~/Developer/dotfiles && ./uninstall.sh
 
 ---
 
-**Last Updated:** 2026-06-25
+**Last Updated:** 2026-06-28
 **Maintained By:** @onepercman
 **Repository:** https://github.com/onepercman/dotfiles
