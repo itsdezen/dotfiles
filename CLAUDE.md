@@ -31,36 +31,6 @@ dotfiles/
 
 ---
 
-## Key Config Details
-
-### nvim (`nvim/.config/nvim/lua/`)
-
-- **Colorscheme**: `onedark` warmer + transparent (`plugins/colorscheme.lua`)
-- **LazyVim extras**: `coding.blink`, `lang.typescript`, `lang.tailwind`
-- **Formatting**: `conform.nvim` — biome (JS/TS/JSX/TSX/JSON/CSS), stylua (Lua)
-- **UI**: lualine (powerline separators), bufferline (slant), snacks.indent (chunk scope), noice.nvim (default on), nvim-colorizer
-- **Disabled**: tokyonight, catppuccin (`plugins/disabled.lua`)
-
-### zed (`zed/.config/zed/`)
-
-- **Theme**: Catppuccin Espresso Blur (dark) / Iced Latte Blur (light)
-- **Font**: MapleMono NF, size 14, ligatures on
-- **AI**: Claude Sonnet via anthropic provider, claude-acp MCP server
-
-### ghostty (`ghostty/.config/ghostty/config`)
-
-- **Font**: MapleMono NF, size 12
-- **Background**: `#000000`, opacity 0.7, blur on
-
-### zsh (`zsh/.zshrc`)
-
-- Plugin manager: zinit (turbo/lazy)
-- Plugins: git (oh-my-zsh), zsh-autosuggestions, fast-syntax-highlighting
-- `EDITOR` = `code --wait`
-- Sources `~/.zshrc.local` if present (machine-specific overrides, not committed)
-
----
-
 ## AI Assistant Rules
 
 ### 1. Always use Stow
@@ -94,7 +64,7 @@ Whenever a dotfiles change affects something documented in `README.md` or `CLAUD
 
 - Stack or tool changes → `README.md` Stack section
 - New/removed Stow packages → `README.md` Stow Packages table + Directory Structure above
-- Font, theme, or key config changes → `CLAUDE.md` Key Config Details
+- Font, theme, or key config changes → `README.md` Key Config Details
 - New scripts or changed script behavior → `README.md` Scripts table
 - New AI rules or conventions → `CLAUDE.md` AI Assistant Rules
 
