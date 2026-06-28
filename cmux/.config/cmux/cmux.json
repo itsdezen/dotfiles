@@ -14,7 +14,7 @@
     "sendAnonymousTelemetry": true,
     "warnBeforeClosingTab": true,
     "keepWorkspaceOpenWhenClosingLastSurface": false,
-    "menuBarOnly": true,
+    "menuBarOnly": false,
     "commandPaletteSearchesAllSurfaces": false,
     "openMarkdownInCmuxViewer": false,
     "workspaceInheritWorkingDirectory": true,
