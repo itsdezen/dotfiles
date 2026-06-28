@@ -1,6 +1,14 @@
 -- LazyVim sets sane autocmds by default.
 -- See: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua
 
+-- LazyVim enables spell for text filetypes (markdown, gitcommit, etc.) — disable it
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "markdown", "mdx" },
+  callback = function()
+    vim.opt_local.spell = false
+  end,
+})
+
 -- Prevent "save Untitled?" prompt caused by snacks dashboard/image marking nofile buffers modified
 vim.api.nvim_create_autocmd("QuitPre", {
   callback = function()
