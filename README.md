@@ -70,7 +70,7 @@ Workspaces: **work** (Zed + cmux, auto-assigned), **entertain**, **1/2/3**.
 
 ### Neovim
 
-LazyVim defaults. Custom: `github_dark` colorscheme, biome formatter (JS/TS/CSS/JSON), snacks.nvim picker.
+LazyVim defaults. Custom: `onedark` colorscheme (warmer, transparent), biome formatter (JS/TS/CSS/JSON), snacks.nvim picker.
 
 ## Workflow
 
