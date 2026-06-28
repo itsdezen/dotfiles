@@ -14,6 +14,13 @@ return {
         },
       },
       picker = {
+        icons = {
+          tree = {
+            vertical = "│ ",
+            middle   = "├╴",
+            last     = "╰╴",
+          },
+        },
         sources = {
           explorer = {
             hidden = true,
