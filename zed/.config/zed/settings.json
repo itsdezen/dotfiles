@@ -21,8 +21,8 @@
   // ── Appearance ─────────────────────────────────────────────────────────────
   "theme": {
     "mode": "dark",
-    "light": "Catppuccin Iced Latte (Blur) [Heavy]",
-    "dark": "Catppuccin Espresso (Blur) [Heavy]"
+    "light": "Tokyo Night Day",
+    "dark": "Tokyo Night"
   },
   "ui_font_family": "MapleMono NF",
   "ui_font_size": 14,
@@ -112,7 +112,7 @@
   "vim_mode": false,
   // ── Extensions ─────────────────────────────────────────────────────────────
   "auto_install_extensions": {
-    "catppuccin-blur": true,
+    "tokyonight": true,
     "colored-zed-icons-theme": true,
     "html": true,
     "lua": true,

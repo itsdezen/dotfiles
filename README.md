@@ -70,28 +70,28 @@ Workspaces: **work** (Zed + cmux, auto-assigned), **entertain**, **1/2/3**.
 
 ### Neovim
 
-LazyVim defaults. Custom: `cyberdream` colorscheme (transparent), biome formatter (JS/TS/CSS/JSON), snacks.nvim picker.
+LazyVim defaults. Custom: `tokyonight` colorscheme (transparent), biome formatter (JS/TS/CSS/JSON), snacks.nvim picker.
 
 ## Key Config Details
 
 ### nvim (`nvim/.config/nvim/lua/`)
 
-- **Colorscheme**: `cyberdream` + transparent (`plugins/colorscheme.lua`)
+- **Colorscheme**: `tokyonight` + transparent (`plugins/colorscheme.lua`)
 - **LazyVim extras**: `coding.blink`, `lang.typescript`, `lang.tailwind`
 - **Formatting**: `conform.nvim` — biome (JS/TS/JSX/TSX/JSON/CSS), stylua (Lua)
 - **UI**: lualine (powerline separators), bufferline (slant), snacks.indent (chunk scope), noice.nvim (default on), nvim-colorizer
-- **Disabled**: tokyonight, catppuccin (`plugins/disabled.lua`)
+- **Disabled**: catppuccin (`plugins/disabled.lua`)
 
 ### zed (`zed/.config/zed/`)
 
-- **Theme**: Catppuccin Espresso Blur (dark) / Iced Latte Blur (light)
+- **Theme**: Tokyo Night (dark) / Tokyo Night Day (light)
 - **Font**: MapleMono NF, size 14, ligatures on
 - **AI**: Claude Sonnet via anthropic provider, claude-acp MCP server
 
 ### ghostty (`ghostty/.config/ghostty/config`)
 
 - **Font**: MapleMono NF, size 12
-- **Theme**: cyberdream (inline palette, `background = #16181a`), opacity 0.7, blur on
+- **Theme**: `TokyoNight` (built-in), opacity 0.7, blur on
 
 ### zsh (`zsh/.zshrc`)
 

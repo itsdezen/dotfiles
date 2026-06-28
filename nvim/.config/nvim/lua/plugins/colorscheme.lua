@@ -1,7 +1,7 @@
 return {
 	{
-		"scottmckendry/cyberdream.nvim",
-		name = "cyberdream",
+		"folke/tokyonight.nvim",
+		name = "tokyonight",
 		priority = 1000,
 		opts = {
 			transparent = true,
@@ -10,7 +10,7 @@ return {
 	{
 		"LazyVim/LazyVim",
 		opts = {
-			colorscheme = "cyberdream",
+			colorscheme = "tokyonight",
 		},
 	},
 }
