@@ -13,6 +13,23 @@ return {
 ╚═════╝ ╚══════╝╚══════╝╚══════╝╚═╝  ╚═══╝]],
         },
       },
+      indent = {
+        scope = { enabled = true },
+        chunk = {
+          enabled = true,
+          char = {
+            corner_top    = "╭",
+            corner_bottom = "╰",
+            horizontal    = "─",
+            vertical      = "│",
+            arrow         = "›",
+          },
+        },
+        animate = {
+          enabled = true,
+          duration = { step = 20, total = 300 },
+        },
+      },
       picker = {
         icons = {
           tree = {
