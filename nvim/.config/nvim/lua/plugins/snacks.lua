@@ -30,6 +30,11 @@ return {
           duration = { step = 20, total = 300 },
         },
       },
+      image = {
+        enabled = true,
+        backend = "kitty",
+        force = false,
+      },
       picker = {
         icons = {
           tree = {
