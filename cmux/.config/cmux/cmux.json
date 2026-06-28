@@ -1,50 +1,46 @@
 {
   "$schema": "https://raw.githubusercontent.com/manaflow-ai/cmux/main/web/data/cmux.schema.json",
   "schemaVersion": 1,
-
   // This file uses JSON with comments (JSONC).
   // Uncomment and edit any setting to make it file-managed.
   // Remove a setting to fall back to the value saved in Settings.
   // cmux creates this template on launch when ~/.config/cmux/cmux.json is missing.
   // Legacy settings.json files are read only as fallback for keys not present here.
-
-  //   "app" : {
-  //     "minimalMode" : false,
-  //     "preferredEditor" : "",
-  //     "focusPaneOnFirstClick" : false,
-  //     "renameSelectsExistingName" : true,
-  //     "sendAnonymousTelemetry" : true,
-  //     "warnBeforeClosingTab" : true,
-  //     "keepWorkspaceOpenWhenClosingLastSurface" : false,
-  //     "menuBarOnly" : false,
-  //     "commandPaletteSearchesAllSurfaces" : false,
-  //     "openMarkdownInCmuxViewer" : false,
-  //     "workspaceInheritWorkingDirectory" : true,
-  //     "hideTabCloseButton" : false,
-  //     "appearance" : "system",
-  //     "language" : "system",
-  //     "newWorkspacePlacement" : "afterCurrent",
-  //     "openSupportedFilesInCmux" : true,
-  //     "reorderOnNotification" : true,
-  //     "confirmQuit" : "always",
-  //     "appIcon" : "automatic",
-  //     "iMessageMode" : false,
-  //     "warnBeforeClosingTabXButton" : false
-  //   },
-
+  "app": {
+    "minimalMode": true,
+    "preferredEditor": "",
+    "focusPaneOnFirstClick": false,
+    "renameSelectsExistingName": true,
+    "sendAnonymousTelemetry": true,
+    "warnBeforeClosingTab": true,
+    "keepWorkspaceOpenWhenClosingLastSurface": false,
+    "menuBarOnly": true,
+    "commandPaletteSearchesAllSurfaces": false,
+    "openMarkdownInCmuxViewer": false,
+    "workspaceInheritWorkingDirectory": true,
+    "hideTabCloseButton": false,
+    "appearance": "system",
+    "language": "system",
+    "newWorkspacePlacement": "afterCurrent",
+    "openSupportedFilesInCmux": true,
+    "reorderOnNotification": true,
+    "confirmQuit": "always",
+    "appIcon": "automatic",
+    "iMessageMode": false,
+    "warnBeforeClosingTabXButton": false
+  },
   //   "terminal" : {
   //     "resumeCommands" : [
-  // 
+  //
   //     ],
   //     "showScrollBar" : true,
   //     "copyOnSelect" : false,
   //     "autoResumeAgentSessions" : true,
   //     "textBoxMaxLines" : 10
   //   },
-
   //   "notifications" : {
   //     "hooks" : [
-  // 
+  //
   //     ],
   //     "customSoundFilePath" : "",
   //     "unreadPaneRing" : true,
@@ -55,7 +51,6 @@
   //     "sound" : "default",
   //     "command" : ""
   //   },
-
   //   "sidebar" : {
   //     "showPullRequests" : true,
   //     "showNotificationMessage" : true,
@@ -73,7 +68,6 @@
   //     "openPullRequestLinksInCmuxBrowser" : true,
   //     "showCustomMetadata" : true
   //   },
-
   //   "workspaceColors" : {
   //     "indicatorStyle" : "leftRail",
   //     "selectionColor" : null,
@@ -97,7 +91,6 @@
   //       "Crimson" : "#922B21"
   //     }
   //   },
-
   //   "sidebarAppearance" : {
   //     "lightModeTintColor" : null,
   //     "darkModeTintColor" : null,
@@ -105,7 +98,6 @@
   //     "matchTerminalBackground" : false,
   //     "tintColor" : "#000000"
   //   },
-
   //   "automation" : {
   //     "claudeBinaryPath" : "",
   //     "socketControlMode" : "cmuxOnly",
@@ -118,16 +110,15 @@
   //     "ripgrepBinaryPath" : "",
   //     "geminiIntegration" : true
   //   },
-
   //   "browser" : {
   //     "discardHiddenWebViews" : true,
   //     "openTerminalLinksInCmuxBrowser" : true,
   //     "theme" : "system",
   //     "hostsToOpenInEmbeddedBrowser" : [
-  // 
+  //
   //     ],
   //     "urlsToAlwaysOpenExternally" : [
-  // 
+  //
   //     ],
   //     "insecureHttpHostsAllowedInEmbeddedBrowser" : [
   //       "localhost",
@@ -144,7 +135,6 @@
   //     "reactGrabVersion" : "0.1.29",
   //     "defaultSearchEngine" : "google"
   //   },
-
   //   "shortcuts" : {
   //     "bindings" : {
   //       "reloadConfiguration" : "cmd+shift+,",
