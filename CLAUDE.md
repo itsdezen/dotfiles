@@ -17,15 +17,15 @@ AI assistant instructions for this dotfiles repository. For general documentatio
 
 ```
 dotfiles/
-├── sync.sh / stow-install.sh / uninstall.sh
+├── sync.sh
 ├── Brewfile
 ├── zsh/        → ~/.zshrc, ~/.zshenv, ~/.zprofile
 ├── nvim/       → ~/.config/nvim/
 ├── aerospace/  → ~/.config/aerospace/
 ├── starship/   → ~/.config/starship.toml
 ├── zed/        → ~/.config/zed/
-├── cmux/       → ~/.config/cmux/
 ├── ghostty/    → ~/.config/ghostty/
+├── tmux/       → ~/.tmux.conf
 └── mise/       → ~/.config/mise/config.toml
 ```
 
@@ -41,8 +41,8 @@ dotfiles/
 
 ### 2. One script philosophy
 
-- `sync.sh` is the single entry point
-- When adding a package: add to `PACKAGES` in both `sync.sh` and `stow-install.sh`
+- `sync.sh` is the single entry point: `./sync.sh` to install, `./sync.sh uninstall` to remove
+- When adding a package: add to `PACKAGES` in `sync.sh` only
 
 ### 3. Conventions
 

@@ -10,7 +10,8 @@ Personal macOS development environment using **GNU Stow** for dotfiles managemen
 - 📦 **pnpm + bun** — JS package managers
 - ✏️ **Neovim (LazyVim)** — terminal editor
 - ⚡ **Zed** — primary code editor (Claude AI built-in)
-- 🖥️ **cmux** — Ghostty-based terminal
+- 👻 **Ghostty** — GPU-accelerated terminal emulator
+- 📟 **tmux** — terminal multiplexer for session management
 - 🪟 **AeroSpace** — i3-like tiling window manager
 
 ## Quick Start
@@ -27,8 +28,7 @@ cd ~/Developer/dotfiles && ./sync.sh
 | Script | Description |
 |--------|-------------|
 | `./sync.sh` | Sync everything: Homebrew, dotfiles, runtimes, nvim plugins |
-| `./stow-install.sh [install\|restow\|remove\|list]` | Manual stow operations |
-| `./uninstall.sh` | Remove dotfiles and zinit |
+| `./sync.sh uninstall` | Remove all dotfiles symlinks and zinit |
 
 ## Stow Packages
 
@@ -39,8 +39,8 @@ cd ~/Developer/dotfiles && ./sync.sh
 | `aerospace` | `~/.config/aerospace/` |
 | `starship` | `~/.config/starship.toml` |
 | `zed` | `~/.config/zed/` |
-| `cmux` | `~/.config/cmux/` |
 | `ghostty` | `~/.config/ghostty/` |
+| `tmux` | `~/.tmux.conf` |
 | `mise` | `~/.config/mise/config.toml` |
 
 ## Runtimes (mise)
@@ -66,7 +66,7 @@ go = "latest"
 | `alt-/` | Toggle tiles layout |
 | `alt-,` | Toggle accordion layout |
 
-Workspaces: **work** (Zed + cmux, auto-assigned), **entertain**, **1/2/3**.
+Workspaces: **work** (Zed + Ghostty, auto-assigned), **entertain**, **1/2/3**.
 
 ### Neovim
 
@@ -92,6 +92,14 @@ LazyVim defaults. Custom: `tokyonight` colorscheme (transparent), biome formatte
 
 - **Font**: MapleMono NF, size 12
 - **Theme**: `TokyoNight` (built-in), opacity 0.7, blur on
+
+### tmux (`tmux/.tmux.conf`)
+
+- **Prefix**: `C-a`
+- **Mouse**: enabled
+- **Splits**: `|` horizontal, `-` vertical (opens in current path)
+- **Pane nav**: `prefix + h/j/k/l`
+- **Reload**: `prefix + r`
 
 ### zsh (`zsh/.zshrc`)
 

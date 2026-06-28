@@ -34,8 +34,11 @@ cask "zed"
 
 # ── Terminal ──────────────────────────────────────────────────────────────────
 
-# cmux - Ghostty-based terminal with vertical tabs and AI agent notifications
-cask "cmux"
+# Ghostty - GPU-accelerated terminal emulator
+cask "ghostty"
+
+# tmux - Terminal multiplexer for session management
+brew "tmux"
 
 # ── Window Management ─────────────────────────────────────────────────────────
 
