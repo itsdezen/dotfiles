@@ -3,7 +3,10 @@
   "logo": {
     "type": "small",
     "padding": {
-      "top": 10
+      "top": 5,
+      "right":5,
+      "bottom":5,
+      "left": 5,
     }
   },
   "display": {
