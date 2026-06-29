@@ -9,7 +9,7 @@ abort()   { printf "  ${R}✗${NC} %s\n" "$*" >&2; exit 1; }
 section() { printf "\n${B}%s${NC}\n" "$*"; }
 
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PACKAGES=(zsh nvim aerospace starship zed ghostty tmux mise fastfetch)
+PACKAGES=(zsh nvim aerospace starship zed ghostty tmux mise fastfetch git)
 
 # ── stow helpers ────────────────────────────────────────────────────────────────
 
@@ -18,7 +18,12 @@ stow_pkg() {
   [[ -d "$DOTFILES/$pkg" ]] || { warn "package not found: $pkg"; return; }
   stow -n -t "$HOME" -R "$pkg" 2>&1 \
     | grep '^\s*\*' | sed 's/.*: //' \
-    | while IFS= read -r conflict; do rm -rf "$HOME/$conflict"; done \
+    | while IFS= read -r conflict; do
+        [[ -n "$conflict" && "$conflict" != *".."* ]] || continue
+        local target="$HOME/$conflict"
+        [[ "$target" == "$HOME/"* ]] || continue
+        rm -rf "$target"
+      done \
     || true
   if stow -t "$HOME" -R "$pkg" 2>/dev/null; then
     ok "$pkg"
@@ -68,8 +73,9 @@ cmd_sync() {
   section "system"
   [[ "$(uname)" == "Darwin" ]] || abort "macOS only"
   ok "macOS $(sw_vers -productVersion)"
-  command -v git  &>/dev/null || abort "git missing — run: xcode-select --install"
-  command -v curl &>/dev/null || abort "curl missing — run: xcode-select --install"
+
+  command -v git  &>/dev/null || abort "git missing — install xcode cli tools: xcode-select --install"
+  command -v curl &>/dev/null || abort "curl missing — install xcode cli tools: xcode-select --install"
   ok "git · curl"
 
   # ── homebrew ──────────────────────────────────────────────────────────────────
@@ -106,14 +112,14 @@ cmd_sync() {
   # ── runtimes ──────────────────────────────────────────────────────────────────
   section "runtimes"
   command -v mise &>/dev/null || abort "mise not found"
-  eval "$(mise activate bash)"
+  eval "$(mise env)"
 
   NODE_VER="$(tr -d '[:space:]' < "$DOTFILES/.node-version" 2>/dev/null || echo "lts")"
   if ! command -v node &>/dev/null; then
     run "installing node $NODE_VER"
     mise install "node@$NODE_VER" >/dev/null
     mise use -g "node@$NODE_VER" >/dev/null
-    eval "$(mise activate bash)"
+    eval "$(mise env)"
   fi
   ok "node $(node --version)"
 
@@ -121,7 +127,7 @@ cmd_sync() {
     run "installing bun"
     mise install bun >/dev/null
     mise use -g bun >/dev/null
-    eval "$(mise activate bash)"
+    eval "$(mise env)"
   fi
   ok "bun $(bun --version)"
 
@@ -135,7 +141,9 @@ cmd_sync() {
   section "editor"
   if command -v nvim &>/dev/null; then
     run "syncing plugins"
-    nvim --headless "+Lazy! sync" +qa 2>/dev/null || warn "plugin sync had issues"
+    local nvim_log
+    nvim_log="$(nvim --headless "+Lazy! sync" +qa 2>&1)" \
+      || { warn "plugin sync failed"; warn "$nvim_log"; return; }
     ok "neovim plugins"
   else
     warn "neovim not installed"

@@ -42,6 +42,7 @@ cd ~/Developer/dotfiles && ./sync.sh
 | `ghostty` | `~/.config/ghostty/` |
 | `tmux` | `~/.tmux.conf` |
 | `mise` | `~/.config/mise/config.toml` |
+| `git` | `~/.gitconfig` |
 
 ## Runtimes (mise)
 
