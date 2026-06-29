@@ -17,7 +17,7 @@ Personal macOS development environment using **GNU Stow** for dotfiles managemen
 ## Quick Start
 
 ```bash
-git clone https://github.com/onepercman/dotfiles.git ~/Developer/dotfiles
+git clone https://github.com/itsdezen/dotfiles.git ~/Developer/dotfiles
 cd ~/Developer/dotfiles && ./sync.sh
 ```
 

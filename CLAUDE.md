@@ -72,4 +72,4 @@ Whenever a dotfiles change affects something documented in `README.md` or `CLAUD
 
 ---
 
-**Maintained by:** @onepercman — https://github.com/onepercman/dotfiles
+**Maintained by:** @itsdezen — https://github.com/itsdezen/dotfiles
