@@ -121,6 +121,11 @@ if command -v starship &>/dev/null; then
   eval "$(starship init zsh)"
 fi
 
+# ── Startup ──────────────────────────────────────────────────────────────────
+if command -v fastfetch &>/dev/null; then
+  fastfetch
+fi
+
 # ── Local overrides ──────────────────────────────────────────────────────────
 # This file is NOT committed to git — use for machine-specific config
 [[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"

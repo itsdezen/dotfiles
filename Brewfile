@@ -32,6 +32,11 @@ brew "fd"
 # Zed - High-performance, multiplayer code editor
 cask "zed"
 
+# ── System Info ───────────────────────────────────────────────────────────────
+
+# fastfetch - Fast system information tool (shown on terminal startup)
+brew "fastfetch"
+
 # ── Terminal ──────────────────────────────────────────────────────────────────
 
 # Ghostty - GPU-accelerated terminal emulator
