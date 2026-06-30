@@ -52,3 +52,8 @@ cask "nikitabobko/tap/aerospace"
 
 # ── Fonts ─────────────────────────────────────────────────────────────────────
 cask "font-maple-mono-nf"
+
+# ── AI / Local LLMs ───────────────────────────────────────────────────────────
+
+# Ollama - Run local LLMs (models stored at ~/.ollama/models, not in dotfiles)
+brew "ollama"

@@ -1,0 +1,6 @@
+# Ollama environment configuration
+# Models are stored at $HOME/.ollama/models — NOT versioned in dotfiles
+
+export OLLAMA_HOST="127.0.0.1:11434"
+export OLLAMA_KEEP_ALIVE="5m"
+export OLLAMA_FLASH_ATTENTION=1

@@ -121,6 +121,9 @@ if command -v starship &>/dev/null; then
   eval "$(starship init zsh)"
 fi
 
+# ── Ollama ───────────────────────────────────────────────────────────────────
+[[ -f "$XDG_CONFIG_HOME/ollama/env" ]] && source "$XDG_CONFIG_HOME/ollama/env"
+
 # ── Startup ──────────────────────────────────────────────────────────────────
 if command -v fastfetch &>/dev/null && [[ $COLUMNS -ge 70 ]]; then
   fastfetch

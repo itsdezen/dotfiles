@@ -14,6 +14,7 @@ Personal macOS development environment using **GNU Stow** for dotfiles managemen
 - 🖥️ **cmux** — terminal multiplexer built on top of Ghostty
 - 📟 **tmux** — terminal multiplexer for session management
 - 🪟 **AeroSpace** — i3-like tiling window manager
+- 🤖 **Ollama** — local LLM inference (Qwen3 8B)
 
 ## Quick Start
 
@@ -45,6 +46,7 @@ cd ~/Developer/dotfiles && ./sync.sh
 | `tmux` | `~/.tmux.conf` |
 | `mise` | `~/.config/mise/config.toml` |
 | `git` | `~/.gitconfig` |
+| `ollama` | `~/.config/ollama/env` |
 
 ## Runtimes (mise)
 
@@ -110,6 +112,14 @@ LazyVim defaults. Custom: `tokyonight` colorscheme (transparent), biome formatte
 - **Splits**: `|` horizontal, `-` vertical (opens in current path)
 - **Pane nav**: `prefix + h/j/k/l`
 - **Reload**: `prefix + r`
+
+### ollama (`ollama/.config/ollama/env`)
+
+- **Host**: `127.0.0.1:11434`
+- **Keep alive**: `5m` (model stays loaded for 5 minutes after last request)
+- **Flash attention**: enabled
+- **Models**: stored at `~/.ollama/models` — not versioned in dotfiles
+- Default model: `qwen3:8b` (pulled automatically by `sync.sh`)
 
 ### zsh (`zsh/.zshrc`)
 

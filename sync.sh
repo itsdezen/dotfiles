@@ -9,7 +9,7 @@ abort()   { printf "  ${R}✗${NC} %s\n" "$*" >&2; exit 1; }
 section() { printf "\n${B}%s${NC}\n" "$*"; }
 
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PACKAGES=(zsh nvim aerospace starship zed ghostty cmux tmux mise fastfetch git)
+PACKAGES=(zsh nvim aerospace starship zed ghostty cmux tmux mise fastfetch git ollama)
 
 # ── stow helpers ────────────────────────────────────────────────────────────────
 
@@ -147,6 +147,28 @@ cmd_sync() {
     ok "neovim plugins"
   else
     warn "neovim not installed"
+  fi
+
+  # ── ai models ─────────────────────────────────────────────────────────────────
+  section "ai models"
+  if command -v ollama &>/dev/null; then
+    if ! ollama list &>/dev/null 2>&1; then
+      run "starting ollama"
+      brew services start ollama >/dev/null 2>&1 || true
+      local _w=0
+      while ! ollama list &>/dev/null 2>&1 && (( _w < 15 )); do
+        sleep 1; (( _w++ ))
+      done
+    fi
+    if ollama list 2>/dev/null | grep -q "qwen3:8b"; then
+      ok "qwen3:8b"
+    else
+      run "pulling qwen3:8b (may take a while)"
+      ollama pull qwen3:8b
+      ok "qwen3:8b"
+    fi
+  else
+    warn "ollama not found — skipping models"
   fi
 
   printf "\n${G}✓${NC} done\n\n"
