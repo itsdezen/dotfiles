@@ -26,6 +26,9 @@ return {
       inline = { adapter = "ollama" },
       agent  = { adapter = "ollama" },
     },
+    opts = {
+      language = "the same language the user writes in",
+    },
     display = {
       chat = { show_settings = true },
     },
