@@ -39,8 +39,8 @@ brew "fastfetch"
 
 # ── Terminal ──────────────────────────────────────────────────────────────────
 
-# Ghostty - GPU-accelerated terminal emulator
-cask "ghostty"
+# cmux - Terminal multiplexer built on top of Ghostty
+cask "cmux"
 
 # tmux - Terminal multiplexer for session management
 brew "tmux"

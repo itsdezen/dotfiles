@@ -10,7 +10,8 @@ Personal macOS development environment using **GNU Stow** for dotfiles managemen
 - 📦 **pnpm + bun** — JS package managers
 - ✏️ **Neovim (LazyVim)** — terminal editor
 - ⚡ **Zed** — primary code editor (Claude AI built-in)
-- 👻 **Ghostty** — GPU-accelerated terminal emulator
+- 👻 **Ghostty** — GPU-accelerated terminal emulator (managed by cmux)
+- 🖥️ **cmux** — terminal multiplexer built on top of Ghostty
 - 📟 **tmux** — terminal multiplexer for session management
 - 🪟 **AeroSpace** — i3-like tiling window manager
 
@@ -40,6 +41,7 @@ cd ~/Developer/dotfiles && ./sync.sh
 | `starship` | `~/.config/starship.toml` |
 | `zed` | `~/.config/zed/` |
 | `ghostty` | `~/.config/ghostty/` |
+| `cmux` | `~/.config/cmux/` |
 | `tmux` | `~/.tmux.conf` |
 | `mise` | `~/.config/mise/config.toml` |
 | `git` | `~/.gitconfig` |
@@ -93,6 +95,13 @@ LazyVim defaults. Custom: `tokyonight` colorscheme (transparent), biome formatte
 
 - **Font**: MapleMono NF, size 12
 - **Theme**: `TokyoNight` (built-in), opacity 0.7, blur on
+- Config is required by cmux (which runs on top of Ghostty)
+
+### cmux (`cmux/.config/cmux/cmux.json`)
+
+- **Mode**: minimal mode enabled
+- **Quit**: confirm always
+- Sections for terminal, sidebar, notifications, shortcuts, automation are available as commented-out JSONC blocks
 
 ### tmux (`tmux/.tmux.conf`)
 
