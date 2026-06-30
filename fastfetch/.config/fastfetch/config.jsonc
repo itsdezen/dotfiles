@@ -17,7 +17,7 @@
     "break",
     {
       "type": "custom",
-      "format": "╭─❲  󰌢 HARDWARE  ❳─────────────────────────────────────────────╮",
+      "format": "╭─❲ 󰌢 HARDWARE ❳───────────────────────────────────────────────╮",
       "outputColor": "38;5;111"
     },
     {
@@ -26,15 +26,27 @@
       "outputColor": "38;5;111"
     },
     {
+      "type": "host",
+      "outputColor": "38;5;141",
+      "key": "  ├ 󰌢 ",
+      "keyColor": "38;5;111"
+    },
+    {
       "type": "cpu",
       "outputColor": "38;5;141",
       "key": "  ├ 󰍛 ",
       "keyColor": "38;5;111"
     },
     {
-      "type": "memory",
+      "type": "gpu",
       "outputColor": "38;5;141",
       "key": "  ├ 󰍹 ",
+      "keyColor": "38;5;111"
+    },
+    {
+      "type": "memory",
+      "outputColor": "38;5;141",
+      "key": "  ├ 󰘚 ",
       "keyColor": "38;5;111"
     },
     {
@@ -63,7 +75,7 @@
     "break",
     {
       "type": "custom",
-      "format": "╭─❲  󰀘 SOFTWARE  ❳─────────────────────────────────────────────╮",
+      "format": "╭─❲ 󰀘 SOFTWARE ❳───────────────────────────────────────────────╮",
       "outputColor": "38;5;141"
     },
     {
@@ -74,6 +86,12 @@
     {
       "type": "os",
       "key": "  ├ 󰀵 ",
+      "keyColor": "38;5;141",
+      "outputColor": "38;5;111"
+    },
+    {
+      "type": "uptime",
+      "key": "  ├ 󰔚 ",
       "keyColor": "38;5;141",
       "outputColor": "38;5;111"
     },
@@ -90,12 +108,6 @@
       "outputColor": "38;5;111"
     },
     {
-      "type": "terminal",
-      "key": "  ├ 󰄛 ",
-      "keyColor": "38;5;141",
-      "outputColor": "38;5;111"
-    },
-    {
       "type": "wm",
       "key": "  ├ 󱂬 ",
       "keyColor": "38;5;141",
@@ -105,34 +117,6 @@
       "type": "custom",
       "format": "  ╰────────────────────────────────────────────────────────────╯",
       "outputColor": "38;5;141"
-    },
-    "break",
-    {
-      "type": "custom",
-      "format": "╭─❲  󰔱 CUSTOMIZATION  ❳────────────────────────────────────────╮",
-      "outputColor": "38;5;111"
-    },
-    {
-      "type": "custom",
-      "format": "╰─┬────────────────────────────────────────────────────────────╯",
-      "outputColor": "38;5;111"
-    },
-    {
-      "type": "theme",
-      "key": "  ├ 󰸉 ",
-      "keyColor": "38;5;111",
-      "outputColor": "38;5;141"
-    },
-    {
-      "type": "terminalfont",
-      "key": "  ├ 󰐱 ",
-      "keyColor": "38;5;111",
-      "outputColor": "38;5;141"
-    },
-    {
-      "type": "custom",
-      "format": "  ╰────────────────────────────────────────────────────────────╯",
-      "outputColor": "38;5;111"
     }
   ]
 }
