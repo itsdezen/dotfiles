@@ -17,7 +17,7 @@ stow_pkg() {
   local pkg="$1"
   [[ -d "$DOTFILES/$pkg" ]] || { warn "package not found: $pkg"; return; }
   stow -n -t "$HOME" -R "$pkg" 2>&1 \
-    | grep '^\s*\*' | sed 's/.*: //' \
+    | grep '^[[:space:]]*\*' | sed 's/.*:[[:space:]]*//' \
     | while IFS= read -r conflict; do
         [[ -n "$conflict" && "$conflict" != *".."* ]] || continue
         local target="$HOME/$conflict"
