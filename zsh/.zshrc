@@ -122,7 +122,7 @@ if command -v starship &>/dev/null; then
 fi
 
 # ── Startup ──────────────────────────────────────────────────────────────────
-if command -v fastfetch &>/dev/null && [[ $COLUMNS -ge 100 ]]; then
+if command -v fastfetch &>/dev/null && [[ $COLUMNS -ge 70 ]]; then
   fastfetch
 fi
 
