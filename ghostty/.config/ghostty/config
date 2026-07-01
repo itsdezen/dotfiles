@@ -1,5 +1,7 @@
 font-family = MapleMono NF
 font-size = 12
+font-feature = liga
+font-feature = calt
 background-opacity = 0.85
 background-blur = true
 font-thicken = true
