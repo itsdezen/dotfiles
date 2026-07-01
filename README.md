@@ -82,8 +82,8 @@ LazyVim defaults. Custom: `kanagawa-dragon` colorscheme (transparent), biome for
 ### nvim (`nvim/.config/nvim/lua/`)
 
 - **Colorscheme**: `kanagawa-dragon` + transparent (`plugins/colorscheme.lua`)
-- **LazyVim extras**: `coding.blink`, `lang.typescript`, `lang.tailwind`
-- **Formatting**: `conform.nvim` — biome (JS/TS/JSX/TSX/JSON/CSS), stylua (Lua)
+- **LazyVim extras**: `coding.blink`, `lang.typescript`, `lang.tailwind`, `lang.python`, `lang.rust`, `lang.go`, `lang.vue`, `lang.svelte`
+- **Formatting**: `conform.nvim` — biome → prettier fallback (JS/TS/JSX/TSX/JSON/CSS), prettier (Vue/Svelte), stylua (Lua), goimports/gofumpt (Go, via `lang.go` extra), ruff/rustfmt via LSP fallback (Python/Rust)
 - **UI**: lualine (powerline separators), bufferline (slant), snacks.indent (chunk scope), noice.nvim (default on), nvim-colorizer
 - **Disabled**: catppuccin (`plugins/disabled.lua`)
 
