@@ -46,7 +46,7 @@ automatically-unhide-macos-hidden-apps = false
 
 # List of workspaces that should stay alive even when they contain no windows
 # This config option is only available since 'config-version = 2'
-persistent-workspaces = ["work", "entertain", "1", "2", "3"]
+persistent-workspaces = ["work", "entertain", "random"]
 
 # A callback that runs every time binding mode changes
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
@@ -121,24 +121,18 @@ alt-shift-equal = 'resize smart +50'
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#workspace
 # work      (alt-w): Zed + cmux — auto-assigned, tiles layout
-# entertain (alt-e): Chrome / media — auto-assigned, flexible
-# 1         (alt-1): backup / temporary
-# 2         (alt-2): backup / temporary
-# 3         (alt-3): backup / temporary
+# entertain (alt-e): Browser / entertainment — auto-assigned, flexible
+# random    (alt-r): uncategorized / rarely used, catch-all
 alt-w = 'workspace work'
 alt-e = 'workspace entertain'
-alt-1 = 'workspace 1'
-alt-2 = 'workspace 2'
-alt-3 = 'workspace 3'
+alt-r = 'workspace random'
 
 # ── Move to Workspace ─────────────────────────────────────────────────────────
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#move-node-to-workspace
 alt-shift-w = 'move-node-to-workspace work'
 alt-shift-e = 'move-node-to-workspace entertain'
-alt-shift-1 = 'move-node-to-workspace 1'
-alt-shift-2 = 'move-node-to-workspace 2'
-alt-shift-3 = 'move-node-to-workspace 3'
+alt-shift-r = 'move-node-to-workspace random'
 
 # ── Layout ────────────────────────────────────────────────────────────────────
 
