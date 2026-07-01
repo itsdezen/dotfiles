@@ -40,6 +40,9 @@ cask "zed"
 # fastfetch - Fast system information tool (shown on terminal startup)
 brew "fastfetch"
 
+# btop - Resource monitor (CPU, memory, disks, network, processes)
+brew "btop"
+
 # ── Terminal ──────────────────────────────────────────────────────────────────
 
 # cmux - Terminal multiplexer built on top of Ghostty
