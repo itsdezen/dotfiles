@@ -91,13 +91,13 @@
   //       "Crimson" : "#922B21"
   //     }
   //   },
-  //   "sidebarAppearance" : {
-  //     "lightModeTintColor" : null,
-  //     "darkModeTintColor" : null,
-  //     "tintOpacity" : 0.17999999999999999,
-  //     "matchTerminalBackground" : false,
-  //     "tintColor" : "#000000"
-  //   },
+  "sidebarAppearance" : {
+    "lightModeTintColor" : null,
+    "darkModeTintColor" : null,
+    "tintOpacity" : 0.17999999999999999,
+    "matchTerminalBackground" : true,
+    "tintColor" : "#000000"
+  },
   //   "automation" : {
   //     "claudeBinaryPath" : "",
   //     "socketControlMode" : "cmuxOnly",
