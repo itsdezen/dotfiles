@@ -27,6 +27,9 @@ brew "neovim"
 # fd - Fast and user-friendly alternative to find (used by snacks.nvim picker)
 brew "fd"
 
+# ripgrep - Fast recursive grep (used by snacks.nvim picker for live grep)
+brew "ripgrep"
+
 # ── Editors ───────────────────────────────────────────────────────────────────
 
 # Zed - High-performance, multiplayer code editor
