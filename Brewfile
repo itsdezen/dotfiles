@@ -60,3 +60,8 @@ cask "font-maple-mono-nf"
 
 # Ollama - Run local LLMs (models stored at ~/.ollama/models, not in dotfiles)
 brew "ollama"
+
+# ── Networking / VPN ──────────────────────────────────────────────────────────
+
+# Cloudflare WARP - VPN client
+cask "cloudflare-warp"
