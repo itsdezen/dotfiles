@@ -75,13 +75,13 @@ Workspaces: **work** (Zed + Ghostty, auto-assigned), **entertain**, **1/2/3**.
 
 ### Neovim
 
-LazyVim defaults. Custom: `tokyonight` colorscheme (transparent), biome formatter (JS/TS/CSS/JSON), snacks.nvim picker.
+LazyVim defaults. Custom: `kanagawa-dragon` colorscheme (transparent), biome formatter (JS/TS/CSS/JSON), snacks.nvim picker.
 
 ## Key Config Details
 
 ### nvim (`nvim/.config/nvim/lua/`)
 
-- **Colorscheme**: `tokyonight` + transparent (`plugins/colorscheme.lua`)
+- **Colorscheme**: `kanagawa-dragon` + transparent (`plugins/colorscheme.lua`)
 - **LazyVim extras**: `coding.blink`, `lang.typescript`, `lang.tailwind`
 - **Formatting**: `conform.nvim` — biome (JS/TS/JSX/TSX/JSON/CSS), stylua (Lua)
 - **UI**: lualine (powerline separators), bufferline (slant), snacks.indent (chunk scope), noice.nvim (default on), nvim-colorizer
@@ -96,7 +96,7 @@ LazyVim defaults. Custom: `tokyonight` colorscheme (transparent), biome formatte
 ### ghostty (`ghostty/.config/ghostty/config`)
 
 - **Font**: MapleMono NF, size 12
-- **Theme**: `TokyoNight` (built-in), opacity 0.7, blur on
+- **Theme**: `kanagawa-dragon` (built-in), opacity 0.7, blur on
 - Config is required by cmux (which runs on top of Ghostty)
 
 ### cmux (`cmux/.config/cmux/cmux.json`)
