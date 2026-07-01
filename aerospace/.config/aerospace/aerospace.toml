@@ -4,11 +4,19 @@
 
 # ── General Settings ──────────────────────────────────────────────────────────
 
+# Config version for compatibility and deprecations
+# See: https://nikitabobko.github.io/AeroSpace/guide#config-version
+config-version = 2
+
 # Start AeroSpace at login
 start-at-login = true
 
 # Switch to entertain workspace on startup
 after-startup-command = ['workspace entertain']
+
+# Automatically reload the config when the config file is saved
+# After setting this to true, reload once manually to start the auto-reloading
+auto-reload-config = true
 
 # Normalizations. See: https://nikitabobko.github.io/AeroSpace/guide#normalization
 enable-normalization-flatten-containers = true
@@ -31,6 +39,25 @@ default-root-container-orientation = 'auto'
 # Drop it from your config, if you don't like this behavior
 # See https://nikitabobko.github.io/AeroSpace/guide#on-focus-changed-callbacks
 on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
+
+# You can effectively turn off macOS "Hide application" (cmd-h) feature by toggling this flag
+# Useful if you don't use this macOS feature, but accidentally hit cmd-h or cmd-alt-h key
+automatically-unhide-macos-hidden-apps = false
+
+# List of workspaces that should stay alive even when they contain no windows
+# This config option is only available since 'config-version = 2'
+persistent-workspaces = ["work", "entertain", "1", "2", "3"]
+
+# A callback that runs every time binding mode changes
+# See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
+on-mode-changed = []
+
+# Mouse follows focus when focused window changes (not monitor)
+focus-follows-mouse.enabled = false
+
+# Possible values: (qwerty|dvorak|colemak)
+# See https://nikitabobko.github.io/AeroSpace/guide#key-mapping
+key-mapping.preset = 'qwerty'
 
 # ── Gaps ──────────────────────────────────────────────────────────────────────
 
