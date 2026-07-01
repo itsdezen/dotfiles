@@ -27,7 +27,8 @@ dotfiles/
 ├── ghostty/    → ~/.config/ghostty/
 ├── cmux/       → ~/.config/cmux/
 ├── tmux/       → ~/.tmux.conf
-└── mise/       → ~/.config/mise/config.toml
+├── mise/       → ~/.config/mise/config.toml
+└── superfile/  → ~/.config/superfile/
 ```
 
 ---

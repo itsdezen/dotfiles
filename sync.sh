@@ -9,7 +9,7 @@ abort()   { printf "  ${R}✗${NC} %s\n" "$*" >&2; exit 1; }
 section() { printf "\n${B}%s${NC}\n" "$*"; }
 
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PACKAGES=(zsh nvim aerospace starship zed ghostty cmux tmux mise fastfetch git ollama)
+PACKAGES=(zsh nvim aerospace starship zed ghostty cmux tmux mise fastfetch git ollama superfile)
 
 # ── stow helpers ────────────────────────────────────────────────────────────────
 

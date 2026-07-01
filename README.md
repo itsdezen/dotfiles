@@ -15,6 +15,7 @@ Personal macOS development environment using **GNU Stow** for dotfiles managemen
 - 📟 **tmux** — terminal multiplexer for session management
 - 🪟 **AeroSpace** — i3-like tiling window manager
 - 🤖 **Ollama** — local LLM inference (Qwen3 8B)
+- 📁 **superfile** — terminal file manager (Nord theme)
 
 ## Quick Start
 
@@ -47,6 +48,7 @@ cd ~/Developer/dotfiles && ./sync.sh
 | `mise` | `~/.config/mise/config.toml` |
 | `git` | `~/.gitconfig` |
 | `ollama` | `~/.config/ollama/env` |
+| `superfile` | `~/.config/superfile/` |
 
 ## Runtimes (mise)
 
@@ -112,6 +114,11 @@ LazyVim defaults. Custom: `kanagawa-dragon` colorscheme (transparent), biome for
 - **Splits**: `|` horizontal, `-` vertical (opens in current path)
 - **Pane nav**: `prefix + h/j/k/l`
 - **Reload**: `prefix + r`
+
+### superfile (`superfile/.config/superfile/`)
+
+- **Theme**: `nord` (`config.toml` → `theme = "nord"`, definition in `theme/nord.toml`)
+- Launch with `spf`
 
 ### ollama (`ollama/.config/ollama/env`)
 

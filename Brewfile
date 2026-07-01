@@ -43,6 +43,11 @@ brew "fastfetch"
 # btop - Resource monitor (CPU, memory, disks, network, processes)
 brew "btop"
 
+# ── File Management ──────────────────────────────────────────────────────────
+
+# superfile - Pretty, modern terminal file manager
+brew "superfile"
+
 # ── Terminal ──────────────────────────────────────────────────────────────────
 
 # cmux - Terminal multiplexer built on top of Ghostty
