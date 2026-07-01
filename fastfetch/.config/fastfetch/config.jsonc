@@ -4,7 +4,7 @@
     "type": "file",
     "source": "~/.config/fastfetch/logo.txt",
     "position": "top",
-    "color": { "1": "38;5;141" },
+    "color": { "1": "38;2;229;194;131" },
     "padding": {
       "top": 2,
       "bottom": 1,
@@ -18,105 +18,105 @@
     {
       "type": "custom",
       "format": "╭─❲ 󰌢 HARDWARE ❳───────────────────────────────────────────────╮",
-      "outputColor": "38;5;111"
+      "outputColor": "38;2;255;160;102"
     },
     {
       "type": "custom",
       "format": "╰─┬────────────────────────────────────────────────────────────╯",
-      "outputColor": "38;5;111"
+      "outputColor": "38;2;255;160;102"
     },
     {
       "type": "host",
-      "outputColor": "38;5;141",
+      "outputColor": "38;2;229;194;131",
       "key": "  ├ 󰌢 ",
-      "keyColor": "38;5;111"
+      "keyColor": "38;2;255;160;102"
     },
     {
       "type": "cpu",
-      "outputColor": "38;5;141",
+      "outputColor": "38;2;229;194;131",
       "key": "  ├ 󰍛 ",
-      "keyColor": "38;5;111"
+      "keyColor": "38;2;255;160;102"
     },
     {
       "type": "gpu",
-      "outputColor": "38;5;141",
+      "outputColor": "38;2;229;194;131",
       "key": "  ├ 󰍹 ",
-      "keyColor": "38;5;111"
+      "keyColor": "38;2;255;160;102"
     },
     {
       "type": "memory",
-      "outputColor": "38;5;141",
+      "outputColor": "38;2;229;194;131",
       "key": "  ├ 󰘚 ",
-      "keyColor": "38;5;111"
+      "keyColor": "38;2;255;160;102"
     },
     {
       "type": "disk",
-      "outputColor": "38;5;141",
+      "outputColor": "38;2;229;194;131",
       "key": "  ├ 󰋊 ",
-      "keyColor": "38;5;111"
+      "keyColor": "38;2;255;160;102"
     },
     {
       "type": "display",
       "key": "  ├ 󰹑 ",
-      "keyColor": "38;5;111",
-      "outputColor": "38;5;141"
+      "keyColor": "38;2;255;160;102",
+      "outputColor": "38;2;229;194;131"
     },
     {
       "type": "battery",
       "key": "  ├ 󰁹 ",
-      "keyColor": "38;5;111",
-      "outputColor": "38;5;141"
+      "keyColor": "38;2;255;160;102",
+      "outputColor": "38;2;229;194;131"
     },
     {
       "type": "custom",
       "format": "  ╰────────────────────────────────────────────────────────────╯",
-      "outputColor": "38;5;111"
+      "outputColor": "38;2;255;160;102"
     },
     "break",
     {
       "type": "custom",
       "format": "╭─❲ 󰀘 SOFTWARE ❳───────────────────────────────────────────────╮",
-      "outputColor": "38;5;141"
+      "outputColor": "38;2;229;194;131"
     },
     {
       "type": "custom",
       "format": "╰─┬────────────────────────────────────────────────────────────╯",
-      "outputColor": "38;5;141"
+      "outputColor": "38;2;229;194;131"
     },
     {
       "type": "os",
       "key": "  ├ 󰀵 ",
-      "keyColor": "38;5;141",
-      "outputColor": "38;5;111"
+      "keyColor": "38;2;229;194;131",
+      "outputColor": "38;2;255;160;102"
     },
     {
       "type": "uptime",
       "key": "  ├ 󰔚 ",
-      "keyColor": "38;5;141",
-      "outputColor": "38;5;111"
+      "keyColor": "38;2;229;194;131",
+      "outputColor": "38;2;255;160;102"
     },
     {
       "type": "shell",
       "key": "  ├ 󰆍 ",
-      "keyColor": "38;5;141",
-      "outputColor": "38;5;111"
+      "keyColor": "38;2;229;194;131",
+      "outputColor": "38;2;255;160;102"
     },
     {
       "type": "packages",
       "key": "  ├ 󰏗 ",
-      "keyColor": "38;5;141",
-      "outputColor": "38;5;111"
+      "keyColor": "38;2;229;194;131",
+      "outputColor": "38;2;255;160;102"
     },
     {
       "type": "wm",
       "key": "  ├ 󱂬 ",
-      "keyColor": "38;5;141",
-      "outputColor": "38;5;111"
+      "keyColor": "38;2;229;194;131",
+      "outputColor": "38;2;255;160;102"
     },
     {
       "type": "custom",
       "format": "  ╰────────────────────────────────────────────────────────────╯",
-      "outputColor": "38;5;141"
+      "outputColor": "38;2;229;194;131"
     }
   ]
 }

@@ -1,16 +1,17 @@
 return {
 	{
-		"folke/tokyonight.nvim",
-		name = "tokyonight",
+		"rebelot/kanagawa.nvim",
+		name = "kanagawa",
 		priority = 1000,
 		opts = {
+			theme = "dragon",
 			transparent = true,
 		},
 	},
 	{
 		"LazyVim/LazyVim",
 		opts = {
-			colorscheme = "tokyonight",
+			colorscheme = "kanagawa-dragon",
 		},
 	},
 }

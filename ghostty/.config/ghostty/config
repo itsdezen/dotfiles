@@ -5,6 +5,6 @@ background-blur = true
 font-thicken = true
 font-thicken-strength = 35
 macos-titlebar-style = transparent
-theme = TokyoNight
+theme = kanagawa-dragon
 font-synthetic-style = true
 vsync = true
