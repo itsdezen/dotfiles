@@ -21,13 +21,13 @@
   // ── Appearance ─────────────────────────────────────────────────────────────
   "theme": {
     "mode": "dark",
-    "light": "Tokyo Night Day",
-    "dark": "Tokyo Night"
+    "light": "Ayu Light",
+    "dark": "Kanagawa Dragon"
   },
-  "ui_font_family": "MapleMono NF",
-  "ui_font_size": 14,
-  "buffer_font_family": "MapleMono NF",
-  "buffer_font_size": 14,
+  "ui_font_family": "Maple Mono NF",
+  "ui_font_size": 12,
+  "buffer_font_family": "Maple Mono NF",
+  "buffer_font_size": 12,
   "buffer_font_features": {
     "calt": true,
     "liga": true
@@ -95,8 +95,8 @@
   },
   // ── Terminal ───────────────────────────────────────────────────────────────
   "terminal": {
-    "font_family": "MapleMono NF",
-    "font_size": 14,
+    "font_family": "Maple Mono NF",
+    "font_size": 12,
     "line_height": "comfortable",
     "shell": "system",
     "dock": "bottom",
@@ -112,7 +112,7 @@
   "vim_mode": false,
   // ── Extensions ─────────────────────────────────────────────────────────────
   "auto_install_extensions": {
-    "tokyonight": true,
+    "kanagawa-themes": true,
     "colored-zed-icons-theme": true,
     "html": true,
     "lua": true,
