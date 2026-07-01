@@ -3,8 +3,8 @@
 # Install with: brew bundle
 #
 # ╔════════════════════════════════════════════╗
-# ║  How to update your Brewfile:             ║
-# ║  Run on your current machine:             ║
+# ║  How to update your Brewfile:              ║
+# ║  Run on your current machine:              ║
 # ║    bash scripts/dump-brew.sh               ║
 # ║  Or manually:                              ║
 # ║    brew bundle dump --force                ║
