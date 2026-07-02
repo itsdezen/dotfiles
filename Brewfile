@@ -61,6 +61,9 @@ brew "tmux"
 # Aerospace - i3-like tiling window manager for macOS
 cask "nikitabobko/tap/aerospace"
 
+# Hammerspoon - macOS automation via Lua
+cask "hammerspoon"
+
 # ── Fonts ─────────────────────────────────────────────────────────────────────
 cask "font-maple-mono-nf"
 

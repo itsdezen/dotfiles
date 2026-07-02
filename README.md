@@ -14,6 +14,7 @@ Personal macOS development environment using **GNU Stow** for dotfiles managemen
 - 🖥️ **cmux** — terminal multiplexer built on top of Ghostty
 - 📟 **tmux** — terminal multiplexer for session management
 - 🪟 **AeroSpace** — i3-like tiling window manager
+- 🔨 **Hammerspoon** — macOS automation via Lua
 - 🤖 **Ollama** — local LLM inference (Qwen3 8B)
 - 📁 **superfile** — terminal file manager (Nord theme)
 - 📊 **btop** — resource monitor (CPU, memory, disks, network, processes)
@@ -41,6 +42,7 @@ cd ~/Developer/dotfiles && ./sync.sh
 | `zsh` | `~/.zshrc`, `~/.zshenv`, `~/.zprofile` |
 | `nvim` | `~/.config/nvim/` |
 | `aerospace` | `~/.config/aerospace/` |
+| `hammerspoon` | `~/.hammerspoon/` |
 | `starship` | `~/.config/starship.toml` |
 | `zed` | `~/.config/zed/` |
 | `ghostty` | `~/.config/ghostty/` |
@@ -121,6 +123,11 @@ LazyVim defaults. Custom: `kanagawa-dragon` colorscheme (transparent), biome for
 
 - **Theme**: `nord` (`config.toml` → `theme = "nord"`, definition in `theme/nord.toml`)
 - Launch with `spf`
+
+### hammerspoon (`hammerspoon/.hammerspoon/init.lua`)
+
+- Auto-reloads config on save
+- Centers AeroSpace's floating apps (System Settings, Activity Monitor, Calculator, Passwords, Messages) when their window opens
 
 ### btop (`btop/.config/btop/btop.conf`)
 

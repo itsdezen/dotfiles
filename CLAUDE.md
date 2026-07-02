@@ -22,6 +22,7 @@ dotfiles/
 ├── zsh/        → ~/.zshrc, ~/.zshenv, ~/.zprofile
 ├── nvim/       → ~/.config/nvim/
 ├── aerospace/  → ~/.config/aerospace/
+├── hammerspoon/→ ~/.hammerspoon/
 ├── starship/   → ~/.config/starship.toml
 ├── zed/        → ~/.config/zed/
 ├── ghostty/    → ~/.config/ghostty/
