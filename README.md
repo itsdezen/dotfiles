@@ -16,6 +16,7 @@ Personal macOS development environment using **GNU Stow** for dotfiles managemen
 - 🪟 **AeroSpace** — i3-like tiling window manager
 - 🤖 **Ollama** — local LLM inference (Qwen3 8B)
 - 📁 **superfile** — terminal file manager (Nord theme)
+- 📊 **btop** — resource monitor (CPU, memory, disks, network, processes)
 
 ## Quick Start
 
@@ -49,6 +50,7 @@ cd ~/Developer/dotfiles && ./sync.sh
 | `git` | `~/.gitconfig` |
 | `ollama` | `~/.config/ollama/env` |
 | `superfile` | `~/.config/superfile/` |
+| `btop` | `~/.config/btop/` |
 
 ## Runtimes (mise)
 
@@ -119,6 +121,11 @@ LazyVim defaults. Custom: `kanagawa-dragon` colorscheme (transparent), biome for
 
 - **Theme**: `nord` (`config.toml` → `theme = "nord"`, definition in `theme/nord.toml`)
 - Launch with `spf`
+
+### btop (`btop/.config/btop/btop.conf`)
+
+- **Background**: `theme_background = false` for terminal transparency
+- **Theme**: `kanagawa-dragon` (`btop/.config/btop/themes/kanagawa-dragon.theme`) — matches nvim/Ghostty colorscheme
 
 ### ollama (`ollama/.config/ollama/env`)
 
