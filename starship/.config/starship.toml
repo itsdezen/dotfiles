@@ -14,10 +14,9 @@ $bun\
 $python\
 $rust\
 $golang\
-[](fg:gray_2 bg:gray_3)\
 $git_branch\
 $git_status\
-[ ](fg:gray_3)\
+${custom.gray2_close}\
 $docker_context\
 $cmd_duration\
 $character\
@@ -125,11 +124,11 @@ format = '[ $symbol $version ]($style)'
 [git_branch]
 symbol = ""
 style = "bg:gray_3 fg:gray_1"
-format = '[ $symbol $branch ]($style)'
+format = '[](fg:gray_2 bg:gray_3)[ $symbol $branch ]($style)'
 
 [git_status]
 style = "bg:gray_3"
-format = '([$staged$modified$untracked$renamed$deleted$conflicted$stashed$ahead_behind]($style))'
+format = '([$staged$modified$untracked$renamed$deleted$conflicted$stashed$ahead_behind]($style))[](fg:gray_3)'
 
 staged = '[+${count} ](bold green bg:gray_3)'
 modified = '[!${count} ](bold yellow bg:gray_3)'
@@ -149,20 +148,29 @@ diverged = '[⇕⇡${ahead_count}⇣${behind_count} ](bold gold bg:gray_3)'
 [docker_context]
 symbol = ""
 style = "bg:gray_4 fg:gray_1"
-format = '[](gray_4)[ $symbol $context ]($style)[ ](fg:gray_4)'
+format = ' [](gray_4)[ $symbol $context ]($style)[](fg:gray_4)'
 
 # -----------------------------
 # COMMAND DURATION
 # -----------------------------
 [cmd_duration]
 min_time = 2_000
-format = '[$duration]($style) '
+format = ' [$duration]($style)'
 style = "bold gold"
 
 # -----------------------------
 # CHARACTER (prompt symbol)
 # -----------------------------
 [character]
-success_symbol = "[•](bold green)"
-error_symbol = "[•](bold red)"
-vimcmd_symbol = "[•](bold green)"
+success_symbol = " [•](bold green)"
+error_symbol = " [•](bold red)"
+vimcmd_symbol = " [•](bold green)"
+
+# -----------------------------
+# GRAY_2 CLOSE
+# rounds off the gray_2 pill when NOT in a git repo
+# (in a repo, git_branch/git_status own the gray_3 caps instead)
+# -----------------------------
+[custom.gray2_close]
+when = "! git rev-parse --is-inside-work-tree 2>/dev/null"
+format = "[](fg:gray_2)"
