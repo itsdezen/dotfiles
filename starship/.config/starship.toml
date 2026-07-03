@@ -40,6 +40,12 @@ blue = "#7FB4CA"      # ANSI 12 bright blue
 violet = "#938AA9"    # ANSI 13 bright magenta
 gold = "#E6C384"      # ANSI 11 bright yellow
 pink = "#A292A3"      # ANSI 5 magenta
+# darkened runtime hues — legible on the light gray_2 pill
+node_dark = "#3E5A3E"
+bun_dark = "#8A6A1E"
+python_dark = "#6E5E2E"
+rust_dark = "#8E3F3A"
+go_dark = "#2F5E72"
 
 # -----------------------------
 # OS
@@ -99,24 +105,24 @@ truncation_symbol = "…/"
 # LANGUAGE RUNTIMES (mise-managed)
 # -----------------------------
 [nodejs]
-style = "bg:gray_2 fg:green"
-format = '[ $symbol $version ]($style)'
+style = "bg:gray_2 fg:node_dark"
+format = '[$symbol$version]($style)'
 
 [bun]
-style = "bg:gray_2 fg:gold"
-format = '[ $symbol $version ]($style)'
+style = "bg:gray_2 fg:bun_dark"
+format = '[$symbol$version]($style)'
 
 [python]
-style = "bg:gray_2 fg:yellow"
-format = '[ $symbol $version ]($style)'
+style = "bg:gray_2 fg:python_dark"
+format = '[$symbol$version]($style)'
 
 [rust]
-style = "bg:gray_2 fg:red_deep"
-format = '[ $symbol $version ]($style)'
+style = "bg:gray_2 fg:rust_dark"
+format = '[$symbol$version]($style)'
 
 [golang]
-style = "bg:gray_2 fg:blue"
-format = '[ $symbol $version ]($style)'
+style = "bg:gray_2 fg:go_dark"
+format = '[$symbol$version]($style)'
 
 # -----------------------------
 # GIT
