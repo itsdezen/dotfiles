@@ -72,12 +72,12 @@ go = "latest"
 |-----|--------|
 | `alt-hjkl` | Focus window |
 | `alt-shift-hjkl` | Move window |
-| `alt-w/e/1/2/3` | Switch workspace |
-| `alt-shift-w/e/1/2/3` | Move to workspace |
+| `alt-w/e/r` | Switch workspace |
+| `alt-shift-w/e/r` | Move to workspace |
 | `alt-/` | Toggle tiles layout |
 | `alt-,` | Toggle accordion layout |
 
-Workspaces: **work** (Zed + Ghostty, auto-assigned), **entertain**, **1/2/3**.
+Workspaces: **work** (Zed + cmux, auto-assigned), **entertain**, **random** (catch-all).
 
 ### Neovim
 
