@@ -83,71 +83,16 @@ Workspaces: **work** (Zed + Ghostty, auto-assigned), **entertain**, **1/2/3**.
 
 LazyVim defaults. Custom: `kanagawa-dragon` colorscheme (transparent), biome formatter (JS/TS/CSS/JSON), snacks.nvim picker.
 
-## Key Config Details
+## Highlights
 
-### nvim (`nvim/.config/nvim/lua/`)
+- **Unified theme** — Kanagawa Dragon across nvim, Ghostty, Zed, and btop for a consistent look everywhere
+- **AI-native editing** — Zed ships with Claude built-in; Ollama runs local models as an offline fallback
+- **Keyboard-driven window management** — AeroSpace tiling + Hammerspoon Lua automation
+- **Terminal stack** — Ghostty (GPU-accelerated) as the base terminal, managed by cmux, with tmux available for classic session management
+- **Idempotent sync** — one script (`sync.sh`) installs Homebrew packages, symlinks every Stow package, provisions mise runtimes, and pulls the default Ollama model — safe to re-run anytime
+- **Polyglot runtimes via mise** — node, bun, python, rust, go, pinned centrally instead of per-project
 
-- **Colorscheme**: `kanagawa-dragon` + transparent (`plugins/colorscheme.lua`)
-- **LazyVim extras**: `coding.blink`, `lang.typescript`, `lang.tailwind`, `lang.python`, `lang.rust`, `lang.go`, `lang.vue`, `lang.svelte`
-- **Formatting**: `conform.nvim` — biome → prettier fallback (JS/TS/JSX/TSX/JSON/CSS), prettier (Vue/Svelte), stylua (Lua), goimports/gofumpt (Go, via `lang.go` extra), ruff/rustfmt via LSP fallback (Python/Rust)
-- **UI**: lualine (powerline separators), bufferline (slant), snacks.indent (chunk scope), noice.nvim (default on), nvim-colorizer
-- **Disabled**: catppuccin (`plugins/disabled.lua`)
-
-### zed (`zed/.config/zed/`)
-
-- **Theme**: Kanagawa Dragon (dark) / Ayu Light (light)
-- **Font**: Maple Mono NF, size 12
-- **AI**: Claude Sonnet via anthropic provider, claude-acp MCP server
-
-### ghostty (`ghostty/.config/ghostty/config`)
-
-- **Font**: Maple Mono NF, size 12
-- **Theme**: `kanagawa-dragon` (built-in), opacity 0.7, blur on
-- Config is required by cmux (which runs on top of Ghostty)
-
-### cmux (`cmux/.config/cmux/cmux.json`)
-
-- **Mode**: minimal mode enabled
-- **Quit**: confirm always
-- Sections for terminal, sidebar, notifications, shortcuts, automation are available as commented-out JSONC blocks
-
-### tmux (`tmux/.tmux.conf`)
-
-- **Prefix**: `C-a`
-- **Mouse**: enabled
-- **Splits**: `|` horizontal, `-` vertical (opens in current path)
-- **Pane nav**: `prefix + h/j/k/l`
-- **Reload**: `prefix + r`
-
-### superfile (`superfile/.config/superfile/`)
-
-- **Theme**: `nord` (`config.toml` → `theme = "nord"`, definition in `theme/nord.toml`)
-- Launch with `spf`
-
-### hammerspoon (`hammerspoon/.hammerspoon/init.lua`)
-
-- Auto-reloads config on save
-- Centers AeroSpace's floating apps (System Settings, Activity Monitor, Calculator, Passwords, Messages) when their window opens
-
-### btop (`btop/.config/btop/btop.conf`)
-
-- **Background**: `theme_background = false` for terminal transparency
-- **Theme**: `kanagawa-dragon` (`btop/.config/btop/themes/kanagawa-dragon.theme`) — matches nvim/Ghostty colorscheme
-
-### ollama (`ollama/.config/ollama/env`)
-
-- **Host**: `127.0.0.1:11434`
-- **Keep alive**: `5m` (model stays loaded for 5 minutes after last request)
-- **Flash attention**: enabled
-- **Models**: stored at `~/.ollama/models` — not versioned in dotfiles
-- Default model: `qwen3:8b` (pulled automatically by `sync.sh`)
-
-### zsh (`zsh/.zshrc`)
-
-- Plugin manager: zinit (turbo/lazy)
-- Plugins: git (oh-my-zsh), zsh-autosuggestions, fast-syntax-highlighting
-- `EDITOR` = `code --wait`
-- Sources `~/.zshrc.local` if present (machine-specific overrides, not committed)
+For exact settings of any given tool, read its config directly under the matching Stow package (e.g. `zed/.config/zed/settings.json`) — that file is always the source of truth.
 
 ## Workflow
 
@@ -166,5 +111,4 @@ git pull && ./sync.sh
 
 ```bash
 ./sync.sh        # re-run to fix
-./stow-install.sh restow   # or restow manually
 ```
