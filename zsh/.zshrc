@@ -4,10 +4,14 @@
 # =============================================================================
 
 # ── Path ─────────────────────────────────────────────────────────────────────
-# Homebrew (Apple Silicon)
-[[ -f /opt/homebrew/bin/brew ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
-# Homebrew (Intel)
-[[ -f /usr/local/bin/brew ]] && eval "$(/usr/local/bin/brew shellenv)"
+# Homebrew shellenv already runs in .zprofile for login shells — only re-run
+# here if this is a non-login interactive shell that skipped it.
+if ! command -v brew &>/dev/null; then
+  # Homebrew (Apple Silicon)
+  [[ -f /opt/homebrew/bin/brew ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
+  # Homebrew (Intel)
+  [[ -f /usr/local/bin/brew ]] && eval "$(/usr/local/bin/brew shellenv)"
+fi
 
 export PATH="$HOME/.local/bin:$PATH"
 
@@ -32,6 +36,10 @@ zinit snippet https://github.com/ohmyzsh/ohmyzsh/raw/master/plugins/git/git.plug
 # Fish-like autosuggestions
 zinit ice wait lucid atload'_zsh_autosuggest_start'
 zinit light zsh-users/zsh-autosuggestions
+
+# Extra completions for common CLI tools
+zinit ice wait lucid blockf
+zinit light zsh-users/zsh-completions
 
 # Fast syntax highlighting (better performance)
 # Must be loaded last for proper functionality
@@ -65,6 +73,13 @@ if ls -G /dev/null &>/dev/null; then
   alias ls='ls -G'
 fi
 
+# ── Completion styling ───────────────────────────────────────────────────────
+# Reuses $LS_COLORS above, so completion menu colors match `ls` output —
+# both ride Ghostty's kanagawa-dragon ANSI palette, no hardcoded hex needed.
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' # case-insensitive
+zstyle ':completion:*' menu select                          # arrow-key select
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"     # colorize list
+
 # Color for diff command
 if diff --color /dev/null{,} &>/dev/null 2>&1; then
   alias diff='diff --color'
@@ -77,6 +92,10 @@ SAVEHIST=50000
 setopt HIST_IGNORE_ALL_DUPS  # Don't save duplicate commands
 setopt HIST_IGNORE_SPACE     # Don't save commands starting with space
 setopt SHARE_HISTORY         # Share history between tabs
+setopt EXTENDED_HISTORY      # Save timestamp for each command
+setopt HIST_EXPIRE_DUPS_FIRST # Expire duplicates first when trimming history
+setopt HIST_FIND_NO_DUPS     # Skip duplicates when searching history
+setopt HIST_VERIFY           # Expand !! etc. into the buffer before running
 
 # ── Aliases ──────────────────────────────────────────────────────────────────
 
@@ -112,7 +131,7 @@ if command -v mise &>/dev/null; then
 fi
 
 # ── Editor ───────────────────────────────────────────────────────────────────
-export EDITOR="code --wait"
+export EDITOR="nvim"
 export VISUAL="$EDITOR"
 
 # ── Starship prompt ─────────────────────────────────────────────────────────
