@@ -114,11 +114,10 @@ cmd_sync() {
   command -v mise &>/dev/null || abort "mise not found"
   eval "$(mise env)"
 
-  NODE_VER="$(tr -d '[:space:]' < "$DOTFILES/.node-version" 2>/dev/null || echo "lts")"
   if ! command -v node &>/dev/null; then
-    run "installing node $NODE_VER"
-    mise install "node@$NODE_VER" >/dev/null
-    mise use -g "node@$NODE_VER" >/dev/null
+    run "installing node"
+    mise install node >/dev/null
+    mise use -g node >/dev/null
     eval "$(mise env)"
   fi
   ok "node $(node --version)"
