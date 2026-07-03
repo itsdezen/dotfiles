@@ -95,8 +95,8 @@ LazyVim defaults. Custom: `kanagawa-dragon` colorscheme (transparent), biome for
 
 ### zed (`zed/.config/zed/`)
 
-- **Theme**: Tokyo Night (dark) / Tokyo Night Day (light)
-- **Font**: Maple Mono NF, size 14, ligatures on
+- **Theme**: Kanagawa Dragon (dark) / Ayu Light (light)
+- **Font**: Maple Mono NF, size 12
 - **AI**: Claude Sonnet via anthropic provider, claude-acp MCP server
 
 ### ghostty (`ghostty/.config/ghostty/config`)
