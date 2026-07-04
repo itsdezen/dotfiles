@@ -53,7 +53,7 @@ go_dark = "#2F5E72"
 [os]
 disabled = false
 style = "bg:gray_1 fg:ink"
-format = '[ $symbol ]($style)'
+format = '[$symbol]($style)'
 
 [os.symbols]
 Macos = ""
