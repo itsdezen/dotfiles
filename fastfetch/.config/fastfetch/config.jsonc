@@ -56,12 +56,6 @@
       "keyColor": "38;2;255;160;102"
     },
     {
-      "type": "display",
-      "key": "  ├ 󰹑 ",
-      "keyColor": "38;2;255;160;102",
-      "outputColor": "38;2;229;194;131"
-    },
-    {
       "type": "battery",
       "key": "  ├ 󰁹 ",
       "keyColor": "38;2;255;160;102",
@@ -104,12 +98,6 @@
     {
       "type": "packages",
       "key": "  ├ 󰏗 ",
-      "keyColor": "38;2;229;194;131",
-      "outputColor": "38;2;255;160;102"
-    },
-    {
-      "type": "wm",
-      "key": "  ├ 󱂬 ",
       "keyColor": "38;2;229;194;131",
       "outputColor": "38;2;255;160;102"
     },
