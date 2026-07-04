@@ -9,11 +9,15 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
--- Prevent "save Untitled?" prompt caused by snacks dashboard/image marking nofile buffers modified
+-- Prevent "save Untitled?" prompt caused by snacks dashboard/image/preview
+-- buffers getting marked modified. Picker file previews use buftype="" (not
+-- "nofile"), so key off bufhidden="wipe" too — that's how snacks marks any
+-- disposable scratch buffer, regardless of buftype.
 vim.api.nvim_create_autocmd("QuitPre", {
   callback = function()
     for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-      if vim.bo[buf].buftype == "nofile" and vim.bo[buf].modified then
+      local is_scratch = vim.bo[buf].buftype == "nofile" or vim.bo[buf].bufhidden == "wipe"
+      if is_scratch and vim.bo[buf].modified and vim.api.nvim_buf_get_name(buf) == "" then
         vim.api.nvim_buf_delete(buf, { force = true })
       end
     end
