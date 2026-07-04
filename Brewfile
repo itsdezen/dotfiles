@@ -48,6 +48,11 @@ brew "btop"
 # superfile - Pretty, modern terminal file manager
 brew "superfile"
 
+# ── Git ───────────────────────────────────────────────────────────────────────
+
+# lazygit - Terminal UI for git; usable standalone or inside Neovim (<leader>gg)
+brew "lazygit"
+
 # ── Terminal ──────────────────────────────────────────────────────────────────
 
 # cmux - Terminal multiplexer built on top of Ghostty

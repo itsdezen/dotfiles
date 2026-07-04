@@ -1,0 +1,25 @@
+# Kanagawa Dragon theme — matches nvim/Ghostty/Zed/btop for standalone lazygit.
+# Inside nvim (<leader>gg), snacks.nvim overrides this with a theme generated
+# from the active colorscheme, so this file only applies to standalone runs.
+gui:
+  theme:
+    activeBorderColor:
+      - '#c4b28a'
+      - bold
+    inactiveBorderColor:
+      - '#7a8382'
+    optionsTextColor:
+      - '#8ba4b0'
+    selectedLineBgColor:
+      - '#282727'
+    cherryPickedCommitBgColor:
+      - '#8992a7'
+    cherryPickedCommitFgColor:
+      - '#c5c9c5'
+    unstagedChangesColor:
+      - '#c4746e'
+    defaultFgColor:
+      - '#c5c9c5'
+    searchingActiveBorderColor:
+      - '#c4b28a'
+      - bold

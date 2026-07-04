@@ -16,6 +16,7 @@ Personal macOS development environment using **GNU Stow** for dotfiles managemen
 - 🪟 **AeroSpace** — i3-like tiling window manager
 - 🔨 **Hammerspoon** — macOS automation via Lua
 - 🤖 **Ollama** — local LLM inference (Qwen3 8B)
+- 🐙 **lazygit** — terminal UI for git, standalone or inside Neovim (`<leader>gg`)
 - 📁 **superfile** — terminal file manager (Nord theme)
 - 📊 **btop** — resource monitor (CPU, memory, disks, network, processes)
 
@@ -53,6 +54,7 @@ cd ~/Developer/dotfiles && ./sync.sh
 | `ollama` | `~/.config/ollama/env` |
 | `superfile` | `~/.config/superfile/` |
 | `btop` | `~/.config/btop/` |
+| `lazygit` | `~/.config/lazygit/` |
 
 ## Runtimes (mise)
 
@@ -81,11 +83,11 @@ Workspaces: **work** (Zed + cmux, auto-assigned), **entertain**, **random** (cat
 
 ### Neovim
 
-LazyVim defaults. Custom: `kanagawa-dragon` colorscheme (transparent), biome formatter (JS/TS/CSS/JSON), snacks.nvim picker.
+LazyVim defaults. Custom: `kanagawa-dragon` colorscheme (transparent), biome formatter (JS/TS/CSS/JSON), snacks.nvim picker. `<leader>gg` opens lazygit in a float (root dir), `<leader>gG` for cwd.
 
 ## Highlights
 
-- **Unified theme** — Kanagawa Dragon across nvim, Ghostty, Zed, and btop for a consistent look everywhere
+- **Unified theme** — Kanagawa Dragon across nvim, Ghostty, Zed, btop, and lazygit for a consistent look everywhere
 - **AI-native editing** — Zed ships with Claude built-in; Ollama runs local models as an offline fallback
 - **Keyboard-driven window management** — AeroSpace tiling + Hammerspoon Lua automation
 - **Terminal stack** — Ghostty (GPU-accelerated) as the base terminal, managed by cmux, with tmux available for classic session management
