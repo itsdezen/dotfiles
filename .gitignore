@@ -3,18 +3,16 @@
 # =============================================================================
 
 # ── Sensitive files ──────────────────────────────────────────────────────────
-*.local                 # Machine-specific configs (e.g., .zshrc.local)
-*.secret                # Secret files
-.env*                   # Environment variables
+# Machine-specific overrides (e.g. ~/.zshrc.local, sourced by zsh/.zshrc)
+*.local
+*.secret
+.env*
 
 # ── macOS ────────────────────────────────────────────────────────────────────
-.DS_Store               # Finder metadata
+.DS_Store
 .AppleDouble
 .LSOverride
-
-# ── Backup files ─────────────────────────────────────────────────────────────
-*.backup.*              # Created by link.sh when backing up existing files
-*.old                   # Old files during refactoring
+._*
 
 # ── Editor files ─────────────────────────────────────────────────────────────
 .vscode/
@@ -28,6 +26,3 @@
 zed/.config/zed/prompts/
 # Auto-downloaded themes
 zed/.config/zed/themes/
-
-# ── Fonts ────────────────────────────────────────────────────────────────────
-fonts/                  # Fonts installed via Homebrew, not committed
