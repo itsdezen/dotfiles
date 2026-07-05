@@ -11,5 +11,4 @@ theme = kanagawa-dragon
 font-synthetic-style = true
 vsync = true
 
-custom-shader = shaders/cursor_blaze_kanagawa.glsl
-custom-shader = shaders/cursor_smear_fade.glsl
+custom-shader = shaders/cursor_kanagawa.glsl
