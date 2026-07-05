@@ -1,0 +1,78 @@
+##############################################
+#                                            #
+#             Kanagawa Dragon Theme          #
+#                                            #
+##############################################
+
+# This contains the theme config file for superfile! For more details see:
+# https://superfile.dev/configure/custom-theme/
+
+# Palette matches the kanagawa-dragon colors used elsewhere in this repo
+# (ghostty, nvim, starship) for a consistent look across tools.
+
+###############################################################################
+#                           Code Syntax Highlighting                          #
+###############################################################################
+
+# Find one you like at: https://github.com/alecthomas/chroma/blob/master/styles.
+# Chroma has no native "kanagawa" style; monokai is the closest warm dark match.
+
+code_syntax_highlight = "monokai"
+
+###############################################################################
+#                                 Base Colors                                 #
+###############################################################################
+
+#-- Full Screen
+full_screen_fg = "#c5c9c5"
+full_screen_bg = "#181616"
+
+#-- Gradient
+# Note: This currently only supports two colors.
+gradient_color = ["#7fb4ca", "#e46876"]
+
+#-- File Panel
+file_panel_fg = "#c5c9c5"
+file_panel_bg = "#181616"
+file_panel_border = "#625e5a"
+file_panel_border_active = "#c5c9c5"
+file_panel_top_directory_icon = "#7fb4ca"
+file_panel_top_path = "#7fb4ca"
+file_panel_item_selected_fg = "#c4746e"
+file_panel_item_selected_bg = "#181616"
+
+#-- Footer
+footer_fg = "#c5c9c5"
+footer_bg = "#181616"
+footer_border = "#625e5a"
+footer_border_active = "#938aa9"
+
+#-- Sidebar
+sidebar_fg = "#c5c9c5"
+sidebar_bg = "#181616"
+sidebar_title = "#7fb4ca"
+sidebar_border = "#181616"
+sidebar_border_active = "#938aa9"
+sidebar_item_selected_fg = "#7aa89f"
+sidebar_item_selected_bg = "#181616"
+sidebar_divider = "#9e9b93"
+
+#-- Modals
+modal_fg = "#c5c9c5"
+modal_bg = "#181616"
+modal_border_active = "#9e9b93"
+modal_cancel_fg = "#c5c9c5"
+modal_cancel_bg = "#282727"
+modal_confirm_fg = "#c5c9c5"
+modal_confirm_bg = "#c4746e"
+
+#-- Help Menu
+help_menu_hotkey = "#7aa89f"
+help_menu_title = "#7fb4ca"
+
+#-- Special
+cursor = "#7fb4ca"
+correct = "#87a987"
+error = "#e46876"
+hint = "#7aa89f"
+cancel = "#c5c9c5"
