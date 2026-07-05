@@ -17,9 +17,10 @@ vec2 getRectangleCenter(vec4 rectangle) {
 
 // ---- blaze: kanagawa-colored glow that flashes and fades around the cursor ----
 
-const vec4 TRAIL_COLOR = vec4(0.902, 0.765, 0.518, 1.0); // kanagawa carpYellow #e6c384 (inner)
-const vec4 TRAIL_COLOR_ACCENT = vec4(1.0, 0.620, 0.231, 1.0); // kanagawa roninYellow #ff9e3b (outer)
+const vec4 TRAIL_COLOR = vec4(0.714, 0.573, 0.482, 1.0); // kanagawa dragon dragonOrange #b6927b (inner, darker)
+const vec4 TRAIL_COLOR_ACCENT = vec4(1.0, 0.620, 0.231, 1.0); // kanagawa dragon roninYellow #ff9e3b (outer, lighter)
 const float BLAZE_DURATION = 0.3; // seconds
+const float BLAZE_SIZE_SCALE = 0.55; // shrinks the glow halo reach (1.0 = full trail length)
 
 float easeBlaze(float x) {
     return pow(1.0 - x, 3.0);
@@ -39,7 +40,7 @@ vec4 applyBlaze(vec4 baseColor, vec2 fragCoord) {
 
     float progress = clamp((iTime - iTimeCursorChange) / BLAZE_DURATION, 0.0, 1.0);
     float easedProgress = easeBlaze(progress);
-    float lineLength = distance(centerCC, centerCP);
+    float lineLength = distance(centerCC, centerCP) * BLAZE_SIZE_SCALE;
 
     vec4 trail = mix(TRAIL_COLOR_ACCENT, baseColor, 1. - smoothstep(0., sdfCurrentCursor + .002, 0.004));
     trail = mix(TRAIL_COLOR, trail, 1. - smoothstep(0., sdfCurrentCursor + .002, 0.004));
