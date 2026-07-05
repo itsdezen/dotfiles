@@ -148,6 +148,35 @@ if command -v fastfetch &>/dev/null && [[ $COLUMNS -ge 70 ]]; then
   fastfetch
 fi
 
+# ── Dotfiles auto-update ─────────────────────────────────────────────────────
+# Offers to pull + sync when the dotfiles repo is behind its remote.
+# Fetches at most once per $DOTFILES_UPDATE_INTERVAL (default 24h) so shell
+# startup stays fast. First install is unaffected — this file only exists
+# after the initial ./sync.sh. Run `dotfiles-update` to check manually.
+dotfiles-update() {
+  local repo="$HOME/Developer/dotfiles"
+  [[ -d "$repo/.git" ]] || return 0
+
+  if [[ "$1" != "--force" ]]; then
+    local stamp="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles-update-check"
+    local interval="${DOTFILES_UPDATE_INTERVAL:-86400}"
+    [[ -f "$stamp" ]] && (( $(date +%s) - $(stat -f %m "$stamp") < interval )) && return 0
+    mkdir -p "${stamp:h}" && touch "$stamp"
+  fi
+
+  git -C "$repo" fetch --quiet 2>/dev/null || return 0
+  local behind
+  behind="$(git -C "$repo" rev-list --count 'HEAD..@{u}' 2>/dev/null)" || return 0
+  (( behind > 0 )) || return 0
+
+  local resp
+  printf "dotfiles: %d new commit(s) on remote. Pull and sync? [Y/n] " "$behind"
+  read -r resp
+  [[ -z "$resp" || "$resp" == [Yy] ]] || return 0
+  git -C "$repo" pull --ff-only && "$repo/sync.sh"
+}
+dotfiles-update
+
 # ── Local overrides ──────────────────────────────────────────────────────────
 # This file is NOT committed to git — use for machine-specific config
 [[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
