@@ -7,7 +7,7 @@ background-blur = true
 font-thicken = true
 font-thicken-strength = 50
 macos-titlebar-style = transparent
-theme = kanagawa-dragon
+theme = Kanagawa Dragon
 font-synthetic-style = true
 vsync = true
 
