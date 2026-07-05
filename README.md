@@ -6,7 +6,7 @@ Personal macOS development environment using **GNU Stow** for dotfiles managemen
 
 - 🍺 **Homebrew** — package management
 - 🐚 **zsh + zinit + Starship** — shell, plugins, prompt
-- 🔧 **mise** — polyglot runtime manager (node, bun, python, rust, go)
+- 🔧 **mise** — polyglot runtime manager (node, bun, pnpm, python, uv, ruff, ty, rust, go)
 - 📦 **pnpm + bun** — JS package managers
 - ✏️ **Neovim (LazyVim)** — terminal editor
 - ⚡ **Zed** — primary code editor (Claude AI built-in)
@@ -59,9 +59,18 @@ cd ~/Developer/dotfiles && ./sync.sh
 ## Runtimes (mise)
 
 ```toml
+# JavaScript / Bun
 node = "lts"
 bun = "latest"
+pnpm = "latest"
+
+# Python
 python = "latest"
+uv = "latest"
+ruff = "latest"
+ty = "latest"
+
+# Systems
 rust = "latest"
 go = "latest"
 ```
@@ -93,7 +102,7 @@ LazyVim defaults. Custom: `kanagawa-dragon` colorscheme (transparent), biome for
 - **Terminal stack** — Ghostty (GPU-accelerated) as the base terminal, managed by cmux, with tmux available for classic session management
 - **Idempotent sync** — one script (`sync.sh`) installs Homebrew packages, symlinks every Stow package, provisions mise runtimes, and pulls the default Ollama model — safe to re-run anytime
 - **Auto-update prompt** — new shells periodically check the repo for remote commits and offer to pull + sync (Enter to accept); `dotfiles-update --force` checks on demand
-- **Polyglot runtimes via mise** — node, bun, python, rust, go, pinned centrally instead of per-project
+- **Polyglot runtimes via mise** — node, bun, pnpm, python, uv, ruff, ty, rust, go, pinned centrally instead of per-project
 
 For exact settings of any given tool, read its config directly under the matching Stow package (e.g. `zed/.config/zed/settings.json`) — that file is always the source of truth.
 

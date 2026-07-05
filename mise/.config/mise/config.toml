@@ -1,6 +1,15 @@
 [tools]
+# JavaScript / Bun
 node = "lts"
 bun = "latest"
+pnpm = "latest"
+
+# Python
 python = "latest"
+uv = "latest"
+ruff = "latest"
+ty = "latest"
+
+# Systems
 rust = "latest"
 go = "latest"
