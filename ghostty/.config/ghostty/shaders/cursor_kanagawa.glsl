@@ -48,7 +48,7 @@ vec4 applyBlaze(vec4 baseColor, vec2 fragCoord) {
 
 // ---- smooth move: cursor rectangle glides to its new position/size ----
 
-const float MOVE_DURATION = 0.3; // seconds
+const float MOVE_DURATION = 0.1; // seconds
 
 float easeMove(float x) {
     float t = 1.0 - x;
