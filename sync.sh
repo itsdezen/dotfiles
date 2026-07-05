@@ -112,29 +112,12 @@ cmd_sync() {
   # ── runtimes ──────────────────────────────────────────────────────────────────
   section "runtimes"
   command -v mise &>/dev/null || abort "mise not found"
+  run "installing tools from mise config"
+  mise install --yes >/dev/null
   eval "$(mise env)"
-
-  if ! command -v node &>/dev/null; then
-    run "installing node"
-    mise install node >/dev/null
-    mise use -g node >/dev/null
-    eval "$(mise env)"
-  fi
-  ok "node $(node --version)"
-
-  if ! command -v bun &>/dev/null; then
-    run "installing bun"
-    mise install bun >/dev/null
-    mise use -g bun >/dev/null
-    eval "$(mise env)"
-  fi
-  ok "bun $(bun --version)"
-
-  if ! command -v pnpm &>/dev/null; then
-    run "installing pnpm"
-    npm install -g pnpm --silent
-  fi
-  ok "pnpm $(pnpm --version)"
+  mise ls --current 2>/dev/null | while read -r name version _; do
+    [[ -n "$name" ]] && ok "$name $version"
+  done
 
   # ── editor ────────────────────────────────────────────────────────────────────
   section "editor"
