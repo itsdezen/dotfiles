@@ -118,6 +118,7 @@ alias g="git"
 # Development
 alias dev="cd ~/Developer"
 alias dots="cd ~/Developer/dotfiles"
+alias dots-sync="(cd ~/Developer/dotfiles && git pull && ./sync.sh)"
 alias v="nvim"
 
 # Misc
