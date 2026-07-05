@@ -96,7 +96,7 @@ float easeClamped(float x) {
 }
 
 // Trail animation duration in seconds
-const float DURATION = 0.3;
+const float DURATION = 0.2;
 
 void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     // Calculate animation progress with easing
@@ -150,6 +150,11 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     vec2 normCoord = fragCoord * scale - normOffset;
     float sdfHex = sdHexagon(normCoord, trailP1, trailP2, currP2, currP4, currP3, trailP3);
     float alpha = 1.0 - smoothstep(-aaWidth, aaWidth, sdfHex);
+
+    // Fade the trail out toward the tail (previous cursor side) instead of a hard edge
+    float trailLen = length(deltaPos) + 1e-5;
+    float tailT = clamp(dot(normCoord - currentPos, -deltaPos / trailLen) / trailLen, 0.0, 1.0);
+    alpha *= 1.0 - tailT;
 
     // Compute current cursor SDF
     vec2 halfCurrentSize = currentSize * 0.5;
