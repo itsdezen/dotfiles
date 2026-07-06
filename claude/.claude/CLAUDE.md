@@ -4,11 +4,8 @@ Rules that apply to every project on this machine.
 
 ---
 
-## Language & Communication
+## Communication
 
-- Detect the language of the user's prompt and respond in that same language.
-- Default fallback is English when the language is ambiguous.
-- All implementation (code, identifiers, comments, commit messages, file names) must always be in English, regardless of the conversation language — unless explicitly requested otherwise.
 - Keep responses short and concise. Do not explain what the code already makes obvious.
 
 ---
