@@ -11,21 +11,42 @@ section() { printf "\n${B}%s${NC}\n" "$*"; }
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PACKAGES=(zsh nvim aerospace hammerspoon starship zed ghostty cmux tmux mise fastfetch git ollama superfile btop lazygit claude)
 
+# packages whose target dir mixes static config with app-generated state
+# (e.g. zed prompts/themes, claude projects/sessions) — always stowed file-by-file
+# so runtime-generated files never land inside the repo
+NO_FOLD_PACKAGES=(zed claude)
+
 # ── stow helpers ────────────────────────────────────────────────────────────────
+
+is_no_fold() {
+  local pkg="$1" p
+  for p in "${NO_FOLD_PACKAGES[@]}"; do
+    [[ "$p" == "$pkg" ]] && return 0
+  done
+  return 1
+}
 
 stow_pkg() {
   local pkg="$1"
   [[ -d "$DOTFILES/$pkg" ]] || { warn "package not found: $pkg"; return; }
-  stow -n -t "$HOME" -R "$pkg" 2>&1 \
-    | grep '^[[:space:]]*\*' | sed 's/.*:[[:space:]]*//' \
+  local fold_flag=""
+  is_no_fold "$pkg" && fold_flag="--no-folding"
+  # $fold_flag intentionally unquoted: word-splits away when empty (bash 3.2 on
+  # macOS can't safely expand an empty array under set -u)
+  stow -n -t "$HOME" -R $fold_flag "$pkg" 2>&1 \
+    | perl -ne '
+        if (/existing target is not owned by stow: (.+)$/) { print "$1\n" }
+        elsif (/existing target is stowed to a different package: (.+?) => /) { print "$1\n" }
+        elsif (/cannot stow .* over existing (?:directory )?target (.+?)(?: since\b|$)/) { print "$1\n" }
+      ' \
     | while IFS= read -r conflict; do
-        [[ -n "$conflict" && "$conflict" != *".."* ]] || continue
+        [[ -n "$conflict" ]] || continue
         local target="$HOME/$conflict"
         [[ "$target" == "$HOME/"* ]] || continue
         rm -rf "$target"
       done \
     || true
-  if stow -t "$HOME" -R "$pkg" 2>/dev/null; then
+  if stow -t "$HOME" -R $fold_flag "$pkg" 2>/dev/null; then
     ok "$pkg"
   else
     warn "$pkg stow failed"
@@ -35,7 +56,9 @@ stow_pkg() {
 unstow_pkg() {
   local pkg="$1"
   [[ -d "$DOTFILES/$pkg" ]] || return
-  if stow -t "$HOME" -D "$pkg" 2>/dev/null; then
+  local fold_flag=""
+  is_no_fold "$pkg" && fold_flag="--no-folding"
+  if stow -t "$HOME" -D $fold_flag "$pkg" 2>/dev/null; then
     ok "$pkg"
   else
     warn "$pkg unstow failed"

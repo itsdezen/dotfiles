@@ -20,9 +20,3 @@
 *.swp
 *.swo
 *~
-
-# ── Zed ──────────────────────────────────────────────────────────────────────
-# Auto-generated prompt library database
-zed/.config/zed/prompts/
-# Auto-downloaded themes
-zed/.config/zed/themes/
