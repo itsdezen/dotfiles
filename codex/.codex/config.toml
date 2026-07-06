@@ -134,7 +134,7 @@ web_search = "cached"
 # Skills
 ################################################################################
 
-[[skills.config]]
+# [[skills.config]]
 
 # path = "/path/to/skill/SKILL.md"
 # enabled = false
@@ -179,13 +179,9 @@ notifications = false
 # notification_condition = "unfocused"
 animations = true
 show_tooltips = true
-# alternate_screen = "auto"
-# status_line = ["model", "context-remaining", "git-branch"]
-# terminal_title = ["spinner", "project"]
-# theme = "catppuccin-mocha"
 
 [tui.model_availability_nux]
-"gpt-5.5" = 1
+"gpt-5.5" = 2
 
 ################################################################################
 # Analytics & Feedback
@@ -310,6 +306,9 @@ enabled = true
 [projects]
 
 [projects."/Users/itsdezen/Developer"]
+trust_level = "trusted"
+
+[projects."/Users/itsdezen/Developer/dotfiles"]
 trust_level = "trusted"
 
 ################################################################################
