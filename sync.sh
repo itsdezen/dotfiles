@@ -14,7 +14,7 @@ PACKAGES=(zsh nvim aerospace hammerspoon starship zed ghostty cmux tmux mise fas
 # packages whose target dir mixes static config with app-generated state
 # (e.g. zed prompts/themes, claude projects/sessions, codex auth/sqlite state)
 # — always stowed file-by-file so runtime-generated files never land in the repo
-NO_FOLD_PACKAGES=(zed claude codex)
+NO_FOLD_PACKAGES=(zed claude codex cmux)
 
 # ── stow helpers ────────────────────────────────────────────────────────────────
 
