@@ -120,6 +120,7 @@ alias dev="cd ~/Developer"
 alias dots="cd ~/Developer/dotfiles"
 alias dots-sync="(cd ~/Developer/dotfiles && git pull && ./sync.sh)"
 alias v="nvim"
+alias codex-local="codex --oss --local-provider ollama --model qwen3:8b"
 
 # Misc
 alias zrc="$EDITOR ~/.zshrc"
