@@ -9,12 +9,12 @@ abort()   { printf "  ${R}✗${NC} %s\n" "$*" >&2; exit 1; }
 section() { printf "\n${B}%s${NC}\n" "$*"; }
 
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PACKAGES=(zsh nvim aerospace hammerspoon starship zed ghostty cmux tmux mise fastfetch git ollama superfile btop lazygit claude)
+PACKAGES=(zsh nvim aerospace hammerspoon starship zed ghostty cmux tmux mise fastfetch git ollama superfile btop lazygit claude codex)
 
 # packages whose target dir mixes static config with app-generated state
-# (e.g. zed prompts/themes, claude projects/sessions) — always stowed file-by-file
-# so runtime-generated files never land inside the repo
-NO_FOLD_PACKAGES=(zed claude)
+# (e.g. zed prompts/themes, claude projects/sessions, codex auth/sqlite state)
+# — always stowed file-by-file so runtime-generated files never land in the repo
+NO_FOLD_PACKAGES=(zed claude codex)
 
 # ── stow helpers ────────────────────────────────────────────────────────────────
 

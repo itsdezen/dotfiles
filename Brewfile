@@ -77,6 +77,14 @@ cask "font-maple-mono-nf"
 # Ollama - Run local LLMs (models stored at ~/.ollama/models, not in dotfiles)
 brew "ollama"
 
+# ── AI Coding Agents ──────────────────────────────────────────────────────────
+
+# Claude Code - Anthropic's terminal-based AI coding assistant
+cask "claude-code"
+
+# Codex - OpenAI's terminal-based coding agent
+cask "codex"
+
 # ── Networking / VPN ──────────────────────────────────────────────────────────
 
 # Cloudflare WARP - VPN client

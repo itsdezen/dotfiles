@@ -56,6 +56,7 @@ cd ~/Developer/dotfiles && ./sync.sh
 | `btop` | `~/.config/btop/` |
 | `lazygit` | `~/.config/lazygit/` |
 | `claude` | `~/.claude/settings.json` |
+| `codex` | `~/.codex/config.toml` |
 
 ## Runtimes (mise)
 
