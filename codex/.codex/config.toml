@@ -41,7 +41,7 @@ model_provider = "openai"
 
 # developer_instructions = ""
 # compact_prompt = ""
-# commit_attribution = "Jane Doe <jane@example.com>"
+commit_attribution = ""
 # model_instructions_file = "/absolute/or/relative/path/to/instructions.txt"
 # experimental_compact_prompt_file = "/absolute/or/relative/path/to/compact_prompt.txt"
 
