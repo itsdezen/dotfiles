@@ -7,8 +7,6 @@ pnpm = "latest"
 # Python
 python = "latest"
 uv = "latest"
-ruff = "latest"
-ty = "latest"
 
 # Systems
 rust = "latest"
