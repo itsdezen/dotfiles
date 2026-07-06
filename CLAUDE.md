@@ -29,7 +29,8 @@ dotfiles/
 ├── cmux/       → ~/.config/cmux/
 ├── tmux/       → ~/.tmux.conf
 ├── mise/       → ~/.config/mise/config.toml
-└── superfile/  → ~/.config/superfile/
+├── superfile/  → ~/.config/superfile/
+└── claude/     → ~/.claude/settings.json
 ```
 
 ---

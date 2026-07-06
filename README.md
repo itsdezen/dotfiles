@@ -55,6 +55,7 @@ cd ~/Developer/dotfiles && ./sync.sh
 | `superfile` | `~/.config/superfile/` |
 | `btop` | `~/.config/btop/` |
 | `lazygit` | `~/.config/lazygit/` |
+| `claude` | `~/.claude/settings.json` |
 
 ## Runtimes (mise)
 
