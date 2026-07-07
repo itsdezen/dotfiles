@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-G='\033[0;32m'; Y='\033[1;33m'; R='\033[0;31m'; D='\033[2m'; B='\033[1m'; NC='\033[0m'
+G='\033[0;32m'; Y='\033[1;33m'; R='\033[0;31m'; C='\033[0;36m'; D='\033[2m'; B='\033[1m'; NC='\033[0m'
 ok()      { printf "  ${G}✓${NC} %s\n" "$*"; }
 run()     { printf "  ${D}→${NC} %s\n" "$*"; }
 warn()    { printf "  ${Y}!${NC} %s\n" "$*"; }
@@ -11,16 +11,11 @@ abort()   {
   exit 1
 }
 section() {
-  local label="$*"
-  local cols; cols=$(tput cols 2>/dev/null || echo 60)
-  if [[ -n "$_section_t" ]]; then
-    printf "${D}%*s${NC}\n" "$cols" "$(( SECONDS - _section_t ))s"
-  fi
   _section_t=$SECONDS
-  local pad=$(( cols - ${#label} - 4 ))
-  [[ $pad -lt 1 ]] && pad=1
-  local line; line="$(printf '─%.0s' $(seq 1 $pad))"
-  printf "\n${B}  %s ${D}%s${NC}\n" "$label" "$line"
+  printf "\n${C}${B}  %s${NC}\n" "$*"
+}
+section_end() {
+  [[ -n "$_section_t" ]] && printf "  ${D}%ds${NC}\n" "$(( SECONDS - _section_t ))"
 }
 
 # ── spinner ──────────────────────────────────────────────────────────────────
@@ -148,6 +143,7 @@ cmd_sync() {
   command -v git  &>/dev/null || abort "git missing — install xcode cli tools: xcode-select --install"
   command -v curl &>/dev/null || abort "curl missing — install xcode cli tools: xcode-select --install"
   ok "git · curl"
+  section_end
 
   # ── homebrew ──────────────────────────────────────────────────────────────────
   section "homebrew"
@@ -165,12 +161,14 @@ cmd_sync() {
   local _bout
   _bout=$(brew bundle --file="$DOTFILES/Brewfile" --quiet 2>&1) || abort "brew bundle failed: $_bout"
   spin_ok "packages"
+  section_end
 
   # ── dotfiles ──────────────────────────────────────────────────────────────────
   section "dotfiles"
   command -v stow &>/dev/null || abort "stow not found — run: brew install stow"
   cd "$DOTFILES"
   for pkg in "${PACKAGES[@]}"; do stow_pkg "$pkg"; done
+  section_end
 
   # ── shell ─────────────────────────────────────────────────────────────────────
   section "shell"
@@ -183,6 +181,7 @@ cmd_sync() {
   else
     ok "zinit"
   fi
+  section_end
 
   # ── runtimes ──────────────────────────────────────────────────────────────────
   section "runtimes"
@@ -195,6 +194,7 @@ cmd_sync() {
   mise ls --current 2>/dev/null | while read -r name version _; do
     [[ -n "$name" ]] && ok "$name $version"
   done
+  section_end
 
   # ── editor ────────────────────────────────────────────────────────────────────
   section "editor"
@@ -207,6 +207,7 @@ cmd_sync() {
   else
     warn "neovim not installed"
   fi
+  section_end
 
   # ── ai models ─────────────────────────────────────────────────────────────────
   section "ai models"
@@ -230,9 +231,8 @@ cmd_sync() {
   else
     warn "ollama not found — skipping models"
   fi
+  section_end
 
-  local _cols; _cols=$(tput cols 2>/dev/null || echo 60)
-  [[ -n "$_section_t" ]] && printf "${D}%*s${NC}\n" "$_cols" "$(( SECONDS - _section_t ))s"
   printf "\n${G}  ✓ done${NC}  ${D}$(( SECONDS - _t0 ))s total${NC}\n\n"
 }
 
