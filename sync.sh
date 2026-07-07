@@ -13,6 +13,10 @@ abort()   {
 section() {
   local label="$*"
   local cols; cols=$(tput cols 2>/dev/null || echo 60)
+  if [[ -n "$_section_t" ]]; then
+    printf "${D}%*s${NC}\n" "$cols" "$(( SECONDS - _section_t ))s"
+  fi
+  _section_t=$SECONDS
   local pad=$(( cols - ${#label} - 4 ))
   [[ $pad -lt 1 ]] && pad=1
   local line; line="$(printf '─%.0s' $(seq 1 $pad))"
@@ -22,6 +26,7 @@ section() {
 # ── spinner ──────────────────────────────────────────────────────────────────
 
 SPIN_PID=""
+_section_t=""
 [[ -t 1 ]] && _TTY=true || _TTY=false
 trap '[[ -n "$SPIN_PID" ]] && kill "$SPIN_PID" 2>/dev/null' EXIT
 
@@ -226,7 +231,9 @@ cmd_sync() {
     warn "ollama not found — skipping models"
   fi
 
-  printf "\n${G}  ✓ done${NC}  ${D}$(( SECONDS - _t0 ))s${NC}\n\n"
+  local _cols; _cols=$(tput cols 2>/dev/null || echo 60)
+  [[ -n "$_section_t" ]] && printf "${D}%*s${NC}\n" "$_cols" "$(( SECONDS - _section_t ))s"
+  printf "\n${G}  ✓ done${NC}  ${D}$(( SECONDS - _t0 ))s total${NC}\n\n"
 }
 
 # ── entrypoint ──────────────────────────────────────────────────────────────────
