@@ -115,12 +115,12 @@ cmd_bootstrap() {
 
   section "Xcode CLI Tools"
   if ! xcode-select -p &>/dev/null 2>&1; then
-    spin "Installing Xcode CLI tools"
+    spin "Installing Xcode CLI Tools"
     xcode-select --install 2>/dev/null || true
     until xcode-select -p &>/dev/null 2>&1; do sleep 5; done
-    spin_ok "Xcode CLI tools installed"
+    spin_ok "Xcode CLI Tools installed"
   else
-    ok "Xcode CLI tools"
+    ok "Xcode CLI Tools"
   fi
   section_end
 
@@ -131,7 +131,7 @@ cmd_bootstrap() {
     mkdir -p "$HOME/Developer"
     spin "Cloning dotfiles"
     git clone --quiet "$DOTFILES_REPO" "$DOTFILES_DIR"
-    spin_ok "dotfiles cloned"
+    spin_ok "Dotfiles cloned"
   fi
   section_end
 
