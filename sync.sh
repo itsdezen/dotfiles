@@ -5,8 +5,49 @@ G='\033[0;32m'; Y='\033[1;33m'; R='\033[0;31m'; D='\033[2m'; B='\033[1m'; NC='\0
 ok()      { printf "  ${G}✓${NC} %s\n" "$*"; }
 run()     { printf "  ${D}→${NC} %s\n" "$*"; }
 warn()    { printf "  ${Y}!${NC} %s\n" "$*"; }
-abort()   { printf "  ${R}✗${NC} %s\n" "$*" >&2; exit 1; }
-section() { printf "\n${B}%s${NC}\n" "$*"; }
+abort()   {
+  [[ -n "$SPIN_PID" ]] && kill "$SPIN_PID" 2>/dev/null; SPIN_PID=""
+  printf "\r\033[2K  ${R}✗${NC} %s\n" "$*" >&2
+  exit 1
+}
+section() {
+  local label="$*"
+  local cols; cols=$(tput cols 2>/dev/null || echo 60)
+  local pad=$(( cols - ${#label} - 4 ))
+  [[ $pad -lt 1 ]] && pad=1
+  local line; line="$(printf '─%.0s' $(seq 1 $pad))"
+  printf "\n${B}  %s ${D}%s${NC}\n" "$label" "$line"
+}
+
+# ── spinner ──────────────────────────────────────────────────────────────────
+
+SPIN_PID=""
+[[ -t 1 ]] && _TTY=true || _TTY=false
+trap '[[ -n "$SPIN_PID" ]] && kill "$SPIN_PID" 2>/dev/null' EXIT
+
+spin() {
+  if ! $_TTY; then run "$1"; return; fi
+  local msg="$1" i=0 frames='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
+  printf "  ${D}⠋${NC} %s" "$msg"
+  ( while true; do
+      printf "\r  ${D}%s${NC} %s" "${frames:$i:1}" "$msg"
+      i=$(( (i+1) % 10 )); sleep 0.08
+    done ) &
+  SPIN_PID=$!
+  disown "$SPIN_PID"
+}
+
+spin_ok() {
+  if ! $_TTY; then ok "$*"; return; fi
+  [[ -n "$SPIN_PID" ]] && kill "$SPIN_PID" 2>/dev/null; SPIN_PID=""
+  printf "\r\033[2K  ${G}✓${NC} %s\n" "$*"
+}
+
+spin_warn() {
+  if ! $_TTY; then warn "$*"; return; fi
+  [[ -n "$SPIN_PID" ]] && kill "$SPIN_PID" 2>/dev/null; SPIN_PID=""
+  printf "\r\033[2K  ${Y}!${NC} %s\n" "$*"
+}
 
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PACKAGES=(zsh nvim aerospace hammerspoon starship zed ghostty cmux tmux mise fastfetch git ollama superfile btop lazygit claude)
@@ -92,6 +133,8 @@ cmd_uninstall() {
 # ── sync ────────────────────────────────────────────────────────────────────────
 
 cmd_sync() {
+  local _t0; _t0=$SECONDS
+
   # ── system ────────────────────────────────────────────────────────────────────
   section "system"
   [[ "$(uname)" == "Darwin" ]] || abort "macOS only"
@@ -104,17 +147,18 @@ cmd_sync() {
   # ── homebrew ──────────────────────────────────────────────────────────────────
   section "homebrew"
   if ! command -v brew &>/dev/null; then
-    run "installing"
+    spin "installing homebrew"
     NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" >/dev/null
     [[ -f /opt/homebrew/bin/brew ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
     [[ -f /usr/local/bin/brew    ]] && eval "$(/usr/local/bin/brew shellenv)"
     command -v brew &>/dev/null || abort "Homebrew install failed"
+    spin_ok "homebrew"
   fi
   ok "Homebrew $(brew --version | head -1 | awk '{print $2}')"
   brew trust nikitabobko/tap 2>/dev/null || true
-  run "bundle"
+  spin "brew bundle"
   brew bundle --file="$DOTFILES/Brewfile" --quiet || abort "brew bundle failed"
-  ok "packages"
+  spin_ok "packages"
 
   # ── dotfiles ──────────────────────────────────────────────────────────────────
   section "dotfiles"
@@ -126,17 +170,20 @@ cmd_sync() {
   section "shell"
   ZINIT_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/zinit/zinit.git"
   if [[ ! -d "$ZINIT_HOME" ]]; then
-    run "installing zinit"
+    spin "installing zinit"
     mkdir -p "$(dirname "$ZINIT_HOME")"
     git clone --quiet https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+    spin_ok "zinit"
+  else
+    ok "zinit"
   fi
-  ok "zinit"
 
   # ── runtimes ──────────────────────────────────────────────────────────────────
   section "runtimes"
   command -v mise &>/dev/null || abort "mise not found"
-  run "installing tools from mise config"
+  spin "mise install"
   mise install --yes >/dev/null
+  spin_ok "tools installed"
   eval "$(mise env)"
   mise ls --current 2>/dev/null | while read -r name version _; do
     [[ -n "$name" ]] && ok "$name $version"
@@ -145,11 +192,11 @@ cmd_sync() {
   # ── editor ────────────────────────────────────────────────────────────────────
   section "editor"
   if command -v nvim &>/dev/null; then
-    run "syncing plugins"
+    spin "neovim plugins"
     local nvim_log
     nvim_log="$(nvim --headless "+Lazy! sync" +qa 2>&1)" \
-      || { warn "plugin sync failed"; warn "$nvim_log"; return; }
-    ok "neovim plugins"
+      || { spin_warn "plugin sync failed: $nvim_log"; return; }
+    spin_ok "neovim plugins"
   else
     warn "neovim not installed"
   fi
@@ -158,25 +205,26 @@ cmd_sync() {
   section "ai models"
   if command -v ollama &>/dev/null; then
     if ! ollama list &>/dev/null 2>&1; then
-      run "starting ollama"
+      spin "starting ollama"
       brew services start ollama >/dev/null 2>&1 || true
       local _w=0
       while ! ollama list &>/dev/null 2>&1 && (( _w < 15 )); do
         sleep 1; (( _w++ ))
       done
+      spin_ok "ollama"
     fi
     if ollama list 2>/dev/null | grep -q "qwen3:8b"; then
       ok "qwen3:8b"
     else
-      run "pulling qwen3:8b (may take a while)"
-      ollama pull qwen3:8b
-      ok "qwen3:8b"
+      spin "pulling qwen3:8b"
+      ollama pull qwen3:8b >/dev/null 2>&1
+      spin_ok "qwen3:8b"
     fi
   else
     warn "ollama not found — skipping models"
   fi
 
-  printf "\n${G}✓${NC} done\n\n"
+  printf "\n${G}  ✓ done${NC}  ${D}$(( SECONDS - _t0 ))s${NC}\n\n"
 }
 
 # ── entrypoint ──────────────────────────────────────────────────────────────────
