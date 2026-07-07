@@ -12,7 +12,7 @@ abort()   {
 }
 section() {
   _section_t=$SECONDS
-  printf "\n${P}${B}➤ %s${NC}\n" "$(printf '%s' "$*" | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) tolower(substr($i,2)); print}')"
+  printf "\n${P}${B}➤ %s${NC}\n" "$*"
 }
 section_end() {
   [[ -n "$_section_t" ]] && printf "  ${D}%ds${NC}\n" "$(( SECONDS - _section_t ))"
@@ -113,7 +113,7 @@ unstow_pkg() {
 cmd_bootstrap() {
   [[ "$(uname)" == "Darwin" ]] || abort "macOS only"
 
-  section "xcode cli tools"
+  section "Xcode CLI Tools"
   if ! xcode-select -p &>/dev/null 2>&1; then
     spin "Installing Xcode CLI tools"
     xcode-select --install 2>/dev/null || true
@@ -124,7 +124,7 @@ cmd_bootstrap() {
   fi
   section_end
 
-  section "dotfiles"
+  section "Dotfiles"
   if [[ -d "$DOTFILES_DIR" ]]; then
     ok "Already cloned — $DOTFILES_DIR"
   else
@@ -145,12 +145,12 @@ cmd_uninstall() {
   read -r resp
   [[ "$resp" =~ ^[Yy]$ ]] || { ok "aborted"; exit 0; }
 
-  section "dotfiles"
+  section "Dotfiles"
   command -v stow &>/dev/null || abort "stow not found"
   cd "$DOTFILES"
   for pkg in "${PACKAGES[@]}"; do unstow_pkg "$pkg"; done
 
-  section "shell"
+  section "Shell"
   ZINIT_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/zinit"
   if [[ -d "$ZINIT_HOME" ]]; then
     rm -rf "$ZINIT_HOME"
@@ -168,7 +168,7 @@ cmd_sync() {
   local _t0; _t0=$SECONDS
 
   # ── system ────────────────────────────────────────────────────────────────────
-  section "system"
+  section "System"
   [[ "$(uname)" == "Darwin" ]] || abort "macOS only"
   ok "macOS $(sw_vers -productVersion)"
 
@@ -178,7 +178,7 @@ cmd_sync() {
   section_end
 
   # ── homebrew ──────────────────────────────────────────────────────────────────
-  section "homebrew"
+  section "Homebrew"
   if ! command -v brew &>/dev/null; then
     spin "Installing Homebrew"
     NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" >/dev/null
@@ -196,14 +196,14 @@ cmd_sync() {
   section_end
 
   # ── dotfiles ──────────────────────────────────────────────────────────────────
-  section "dotfiles"
+  section "Dotfiles"
   command -v stow &>/dev/null || abort "stow not found — run: brew install stow"
   cd "$DOTFILES"
   for pkg in "${PACKAGES[@]}"; do stow_pkg "$pkg"; done
   section_end
 
   # ── shell ─────────────────────────────────────────────────────────────────────
-  section "shell"
+  section "Shell"
   ZINIT_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/zinit/zinit.git"
   if [[ ! -d "$ZINIT_HOME" ]]; then
     spin "Installing zinit"
@@ -216,7 +216,7 @@ cmd_sync() {
   section_end
 
   # ── runtimes ──────────────────────────────────────────────────────────────────
-  section "runtimes"
+  section "Runtimes"
   command -v mise &>/dev/null || abort "mise not found"
   spin "Installing runtimes"
   local _mout
@@ -229,7 +229,7 @@ cmd_sync() {
   section_end
 
   # ── editor ────────────────────────────────────────────────────────────────────
-  section "editor"
+  section "Editor"
   if command -v nvim &>/dev/null; then
     spin "Syncing plugins"
     local nvim_log
@@ -242,7 +242,7 @@ cmd_sync() {
   section_end
 
   # ── ai models ─────────────────────────────────────────────────────────────────
-  section "ai models"
+  section "AI Models"
   if command -v ollama &>/dev/null; then
     if ! ollama list &>/dev/null 2>&1; then
       spin "Starting Ollama"
