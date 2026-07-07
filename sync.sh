@@ -50,6 +50,8 @@ spin_warn() {
 }
 
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_REPO="https://github.com/itsdezen/dotfiles"
+DOTFILES_DIR="$HOME/Developer/dotfiles"
 PACKAGES=(zsh nvim aerospace hammerspoon starship zed ghostty cmux tmux mise fastfetch git ollama superfile btop lazygit claude)
 
 # packages whose target dir mixes static config with app-generated state
@@ -104,6 +106,36 @@ unstow_pkg() {
   else
     warn "$pkg unstow failed"
   fi
+}
+
+# ── bootstrap ───────────────────────────────────────────────────────────────────
+
+cmd_bootstrap() {
+  [[ "$(uname)" == "Darwin" ]] || abort "macOS only"
+
+  section "xcode cli tools"
+  if ! xcode-select -p &>/dev/null 2>&1; then
+    spin "Installing Xcode CLI tools"
+    xcode-select --install 2>/dev/null || true
+    until xcode-select -p &>/dev/null 2>&1; do sleep 5; done
+    spin_ok "Xcode CLI tools installed"
+  else
+    ok "Xcode CLI tools"
+  fi
+  section_end
+
+  section "dotfiles"
+  if [[ -d "$DOTFILES_DIR" ]]; then
+    ok "Already cloned — $DOTFILES_DIR"
+  else
+    mkdir -p "$HOME/Developer"
+    spin "Cloning dotfiles"
+    git clone --quiet "$DOTFILES_REPO" "$DOTFILES_DIR"
+    spin_ok "dotfiles cloned"
+  fi
+  section_end
+
+  exec "$DOTFILES_DIR/sync.sh"
 }
 
 # ── uninstall ───────────────────────────────────────────────────────────────────
@@ -240,6 +272,7 @@ cmd_sync() {
 
 case "${1:-sync}" in
   sync)      cmd_sync ;;
+  bootstrap) cmd_bootstrap ;;
   uninstall) cmd_uninstall ;;
-  *) printf "usage: %s [sync|uninstall]\n" "$0"; exit 1 ;;
+  *) printf "usage: %s [sync|bootstrap|uninstall]\n" "$0"; exit 1 ;;
 esac
