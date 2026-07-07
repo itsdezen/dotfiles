@@ -27,8 +27,8 @@ trap '[[ -n "$SPIN_PID" ]] && kill "$SPIN_PID" 2>/dev/null' EXIT
 
 spin() {
   if ! $_TTY; then run "$1"; return; fi
-  local msg="$1" i=0 frames='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
-  printf "  ${D}⠋${NC} %s" "$msg"
+  local msg="$1" i=0 frames='/-\|'
+  printf "  ${D}/${NC} %s" "$msg"
   ( while true; do
       printf "\r  ${D}%s${NC} %s" "${frames:$i:1}" "$msg"
       i=$(( (i+1) % 10 )); sleep 0.08
