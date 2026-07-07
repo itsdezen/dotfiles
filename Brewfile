@@ -1,14 +1,6 @@
 # Brewfile — Homebrew packages for development environment
 # Update with: brew bundle dump --force
 # Install with: brew bundle
-#
-# ╔════════════════════════════════════════════╗
-# ║  How to update your Brewfile:              ║
-# ║  Run on your current machine:              ║
-# ║    bash scripts/dump-brew.sh               ║
-# ║  Or manually:                              ║
-# ║    brew bundle dump --force                ║
-# ╚════════════════════════════════════════════╝
 
 # ── Essential Development Tools ──────────────────────────────────────────────
 

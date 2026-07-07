@@ -13,6 +13,16 @@ return {
         vue = { "prettier" },
         svelte = { "prettier" },
       },
+      formatters = {
+        ["biome-check"] = {
+          condition = function(_, ctx)
+            return vim.fs.find(
+              { "biome.json", "biome.jsonc" },
+              { path = ctx.filename, upward = true }
+            )[1] ~= nil
+          end,
+        },
+      },
     },
   },
 }

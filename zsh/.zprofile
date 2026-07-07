@@ -1,7 +1,7 @@
-# ~/.zprofile — Load khi login shell
-# Dùng cho setup môi trường một lần khi đăng nhập
+# ~/.zprofile — loaded once on login shell startup
+# Use for one-time environment setup that only login shells need
 
-# Homebrew (Apple Silicon) — cần có ở đây cho các login shell
+# Homebrew — must be here for login shells (before .zshrc runs)
 if [[ -f /opt/homebrew/bin/brew ]]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 elif [[ -f /usr/local/bin/brew ]]; then

@@ -1,5 +1,5 @@
-# ~/.zshenv — Load đầu tiên, mọi lúc (kể cả non-interactive shell)
-# Chỉ đặt những biến thực sự cần ở MỌI context
+# ~/.zshenv — loaded first, in every shell context (interactive, non-interactive, scripts)
+# Only set variables that must be available in ALL contexts
 
 export LANG="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
