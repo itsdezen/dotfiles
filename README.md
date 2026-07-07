@@ -22,18 +22,25 @@ Personal macOS development environment using **GNU Stow** for dotfiles managemen
 
 ## Quick Start
 
+**Fresh machine** (installs Xcode CLI tools, clones repo, runs sync):
 ```bash
-git clone https://github.com/itsdezen/dotfiles.git ~/Developer/dotfiles
+bash <(curl -fsSL https://raw.githubusercontent.com/itsdezen/dotfiles/main/sync.sh) bootstrap
+```
+
+**Existing machine:**
+```bash
+git clone https://github.com/itsdezen/dotfiles ~/Developer/dotfiles
 cd ~/Developer/dotfiles && ./sync.sh
 ```
 
-`sync.sh` is idempotent — run it on a fresh machine or anytime to sync/update.
+`sync.sh` is idempotent — safe to re-run anytime to sync/update.
 
 ## Scripts
 
 | Script | Description |
 |--------|-------------|
 | `./sync.sh` | Sync everything: Homebrew, dotfiles, runtimes, nvim plugins |
+| `./sync.sh bootstrap` | Fresh machine setup: Xcode CLI tools → clone → sync |
 | `./sync.sh uninstall` | Remove all dotfiles symlinks and zinit |
 
 ## Stow Packages
