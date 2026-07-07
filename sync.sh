@@ -52,7 +52,7 @@ spin_warn() {
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_REPO="https://github.com/itsdezen/dotfiles"
 DOTFILES_DIR="$HOME/Developer/dotfiles"
-PACKAGES=(zsh nvim aerospace hammerspoon starship zed ghostty cmux tmux mise fastfetch git ollama superfile btop lazygit claude)
+PACKAGES=(zsh nvim aerospace hammerspoon starship zed ghostty cmux mise fastfetch git ollama superfile btop lazygit claude)
 
 # packages whose target dir mixes static config with app-generated state
 # (e.g. zed prompts/themes, claude projects/sessions)

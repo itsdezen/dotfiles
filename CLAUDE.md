@@ -27,7 +27,6 @@ dotfiles/
 ├── zed/          → ~/.config/zed/
 ├── ghostty/      → ~/.config/ghostty/
 ├── cmux/         → ~/.config/cmux/
-├── tmux/         → ~/.tmux.conf
 ├── mise/         → ~/.config/mise/config.toml
 ├── fastfetch/    → ~/.config/fastfetch/
 ├── git/          → ~/.gitconfig

@@ -50,9 +50,6 @@ brew "lazygit"
 # cmux - Terminal multiplexer built on top of Ghostty
 cask "cmux"
 
-# tmux - Terminal multiplexer for session management
-brew "tmux"
-
 # ── Window Management ─────────────────────────────────────────────────────────
 
 # Aerospace - i3-like tiling window manager for macOS
