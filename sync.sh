@@ -90,7 +90,7 @@ stow_pkg() {
   if stow -t "$HOME" -R $fold_flag "$pkg" 2>/dev/null; then
     ok "$pkg"
   else
-    warn "$pkg stow failed"
+    warn "$pkg — stow failed"
   fi
 }
 
@@ -111,7 +111,7 @@ unstow_pkg() {
 cmd_uninstall() {
   printf "${Y}!${NC} Remove all dotfiles symlinks? [y/N] "
   read -r resp
-  [[ "$resp" =~ ^[Yy]$ ]] || { echo "aborted"; exit 0; }
+  [[ "$resp" =~ ^[Yy]$ ]] || { ok "aborted"; exit 0; }
 
   section "dotfiles"
   command -v stow &>/dev/null || abort "stow not found"
@@ -125,7 +125,7 @@ cmd_uninstall() {
     ok "zinit removed"
   fi
 
-  printf "\n${G}✓${NC} done\n"
+  printf "\n  ${G}✓${NC} done\n"
   warn "Homebrew packages and mise runtimes were not removed"
   warn "To remove Homebrew: /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)\""
 }
@@ -148,19 +148,19 @@ cmd_sync() {
   # ── homebrew ──────────────────────────────────────────────────────────────────
   section "homebrew"
   if ! command -v brew &>/dev/null; then
-    spin "installing homebrew"
+    spin "Installing Homebrew"
     NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" >/dev/null
     [[ -f /opt/homebrew/bin/brew ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
     [[ -f /usr/local/bin/brew    ]] && eval "$(/usr/local/bin/brew shellenv)"
     command -v brew &>/dev/null || abort "Homebrew install failed"
-    spin_ok "homebrew"
+    spin_ok "Homebrew installed"
   fi
   ok "Homebrew $(brew --version | head -1 | awk '{print $2}')"
   brew trust nikitabobko/tap >/dev/null 2>&1 || true
-  spin "brew bundle"
+  spin "Installing packages"
   local _bout
   _bout=$(brew bundle --file="$DOTFILES/Brewfile" --quiet 2>&1) || abort "brew bundle failed: $_bout"
-  spin_ok "packages"
+  spin_ok "Packages up to date"
   section_end
 
   # ── dotfiles ──────────────────────────────────────────────────────────────────
@@ -174,10 +174,10 @@ cmd_sync() {
   section "shell"
   ZINIT_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/zinit/zinit.git"
   if [[ ! -d "$ZINIT_HOME" ]]; then
-    spin "installing zinit"
+    spin "Installing zinit"
     mkdir -p "$(dirname "$ZINIT_HOME")"
     git clone --quiet https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
-    spin_ok "zinit"
+    spin_ok "zinit installed"
   else
     ok "zinit"
   fi
@@ -186,10 +186,10 @@ cmd_sync() {
   # ── runtimes ──────────────────────────────────────────────────────────────────
   section "runtimes"
   command -v mise &>/dev/null || abort "mise not found"
-  spin "mise install"
+  spin "Installing runtimes"
   local _mout
   _mout=$(mise install --yes 2>&1) || abort "mise install failed: $_mout"
-  spin_ok "tools installed"
+  spin_ok "Runtimes up to date"
   eval "$(mise env)"
   mise ls --current 2>/dev/null | while read -r name version _; do
     [[ -n "$name" ]] && ok "$name $version"
@@ -199,13 +199,13 @@ cmd_sync() {
   # ── editor ────────────────────────────────────────────────────────────────────
   section "editor"
   if command -v nvim &>/dev/null; then
-    spin "neovim plugins"
+    spin "Syncing plugins"
     local nvim_log
     nvim_log="$(nvim --headless "+Lazy! sync" +qa 2>&1)" \
-      || { spin_warn "plugin sync failed: $nvim_log"; return; }
-    spin_ok "neovim plugins"
+      || { spin_warn "Plugin sync failed"; return; }
+    spin_ok "Plugins synced"
   else
-    warn "neovim not installed"
+    warn "Neovim not found — skipping"
   fi
   section_end
 
@@ -213,27 +213,27 @@ cmd_sync() {
   section "ai models"
   if command -v ollama &>/dev/null; then
     if ! ollama list &>/dev/null 2>&1; then
-      spin "starting ollama"
+      spin "Starting Ollama"
       brew services start ollama >/dev/null 2>&1 || true
       local _w=0
       while ! ollama list &>/dev/null 2>&1 && (( _w < 15 )); do
         sleep 1; (( _w++ ))
       done
-      spin_ok "ollama"
+      spin_ok "Ollama ready"
     fi
     if ollama list 2>/dev/null | grep -q "qwen3:8b"; then
       ok "qwen3:8b"
     else
-      spin "pulling qwen3:8b"
+      spin "Pulling qwen3:8b"
       ollama pull qwen3:8b >/dev/null 2>&1
-      spin_ok "qwen3:8b"
+      spin_ok "qwen3:8b ready"
     fi
   else
-    warn "ollama not found — skipping models"
+    warn "Ollama not found — skipping"
   fi
   section_end
 
-  printf "\n${G}  ✓ done${NC}  ${D}$(( SECONDS - _t0 ))s total${NC}\n\n"
+  printf "\n  ${G}✓${NC} done  ${D}$(( SECONDS - _t0 ))s total${NC}\n\n"
 }
 
 # ── entrypoint ──────────────────────────────────────────────────────────────────
