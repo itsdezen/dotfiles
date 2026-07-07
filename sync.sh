@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-G='\033[0;32m'; Y='\033[1;33m'; R='\033[0;31m'; C='\033[0;36m'; D='\033[2m'; B='\033[1m'; NC='\033[0m'
+G='\033[0;32m'; Y='\033[1;33m'; R='\033[0;31m'; BL='\033[0;34m'; C='\033[0;36m'; D='\033[2m'; B='\033[1m'; NC='\033[0m'
 ok()      { printf "  ${G}✓${NC} %s\n" "$*"; }
 run()     { printf "  ${D}→${NC} %s\n" "$*"; }
 warn()    { printf "  ${Y}!${NC} %s\n" "$*"; }
@@ -27,11 +27,11 @@ trap '[[ -n "$SPIN_PID" ]] && kill "$SPIN_PID" 2>/dev/null' EXIT
 
 spin() {
   if ! $_TTY; then run "$1"; return; fi
-  local msg="$1" i=0 frames='/-\|'
-  printf "  ${D}/${NC} %s" "$msg"
+  local msg="$1" i=0 frames='|/-\'
+  printf "  ${BL}|${NC} %s" "$msg"
   ( while true; do
-      printf "\r  ${D}%s${NC} %s" "${frames:$i:1}" "$msg"
-      i=$(( (i+1) % 10 )); sleep 0.08
+      printf "\r  ${BL}%s${NC} %s" "${frames:$i:1}" "$msg"
+      i=$(( (i+1) % 4 )); sleep 0.05
     done ) &
   SPIN_PID=$!
   disown "$SPIN_PID"
