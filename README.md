@@ -8,7 +8,7 @@ Personal macOS development environment using **GNU Stow** for dotfiles managemen
 - 🐚 **zsh + zinit + Starship** — shell, plugins, prompt
 - 🔧 **mise** — polyglot runtime manager (node, bun, pnpm, python, uv, rust, go)
 - 📦 **pnpm + bun** — JS package managers
-- ✏️ **Neovim (LazyVim)** — terminal editor
+- ✏️ **Neovim (LazyVim)** — primary code editor
 - 👻 **Ghostty** — GPU-accelerated terminal emulator (managed by cmux)
 - 🖥️ **cmux** — terminal multiplexer built on top of Ghostty
 - 🪟 **AeroSpace** — i3-like tiling window manager
