@@ -19,18 +19,23 @@ AI assistant instructions for this dotfiles repository. For general documentatio
 dotfiles/
 ├── sync.sh
 ├── Brewfile
-├── zsh/        → ~/.zshrc, ~/.zshenv, ~/.zprofile
-├── nvim/       → ~/.config/nvim/
-├── aerospace/  → ~/.config/aerospace/
-├── hammerspoon/→ ~/.hammerspoon/
-├── starship/   → ~/.config/starship.toml
-├── zed/        → ~/.config/zed/
-├── ghostty/    → ~/.config/ghostty/
-├── cmux/       → ~/.config/cmux/
-├── tmux/       → ~/.tmux.conf
-├── mise/       → ~/.config/mise/config.toml
-├── superfile/  → ~/.config/superfile/
-└── claude/     → ~/.claude/settings.json
+├── zsh/          → ~/.zshrc, ~/.zshenv, ~/.zprofile
+├── nvim/         → ~/.config/nvim/
+├── aerospace/    → ~/.config/aerospace/
+├── hammerspoon/  → ~/.hammerspoon/
+├── starship/     → ~/.config/starship.toml
+├── zed/          → ~/.config/zed/
+├── ghostty/      → ~/.config/ghostty/
+├── cmux/         → ~/.config/cmux/
+├── tmux/         → ~/.tmux.conf
+├── mise/         → ~/.config/mise/config.toml
+├── fastfetch/    → ~/.config/fastfetch/
+├── git/          → ~/.gitconfig
+├── ollama/       → ~/.config/ollama/env
+├── superfile/    → ~/.config/superfile/
+├── btop/         → ~/.config/btop/
+├── lazygit/      → ~/.config/lazygit/
+└── claude/       → ~/.claude/settings.json
 ```
 
 ---
@@ -51,8 +56,8 @@ dotfiles/
 ### 3. Conventions
 
 - Stow package dirs: lowercase
-- Scripts: `set -euo pipefail`, helpers: `ok/run/warn/abort`
-- No banners, no prompts (except destructive ops in `uninstall.sh`)
+- Scripts: `set -euo pipefail`, helpers: `ok/run/warn/abort/section/section_end/spin/spin_ok/spin_warn`
+- No banners, no prompts (except destructive ops in `sync.sh uninstall`)
 - Commit style: emoji prefix (`🚀 🐞 🔧 ♻️ 📝 🗑️ ⬆️`)
 
 ### 4. When adding features
@@ -64,17 +69,24 @@ dotfiles/
 
 ### 5. Keep docs in sync
 
-Whenever a dotfiles change affects something documented in `README.md` or `CLAUDE.md`, update the relevant doc in the same commit. This includes:
+**Mandatory check before every commit**: if the change touches a config file, a package dir, or `sync.sh` — scan `README.md` and `CLAUDE.md` for any mention of what changed and update it in the same commit. No exceptions.
 
-- Stack or tool changes → `README.md` Stack section
-- New/removed Stow packages → `README.md` Stow Packages table + Directory Structure above
-- New standout/user-facing capability → `README.md` Highlights section
-- New scripts or changed script behavior → `README.md` Scripts table
-- New AI rules or conventions → `CLAUDE.md` AI Assistant Rules
+Trigger → what to update:
 
-**Do not** document ephemeral state (current branch, in-progress work, which PR fixed what). **Do not** document per-package config values (theme names, font sizes, keybind specifics, etc.) — those live in the config file itself and go stale; `README.md` stays at the Stack/Highlights altitude.
+| Change | Doc to update |
+|--------|--------------|
+| Add/remove a tool or package | `README.md` Stack + Stow Packages table; `CLAUDE.md` Directory Structure |
+| Add/remove a Stow package dir | Same as above |
+| Change `sync.sh` behavior or helpers | `README.md` Scripts table; `CLAUDE.md` Conventions helpers list |
+| New user-facing capability | `README.md` Highlights |
+| New AI rule or convention | `CLAUDE.md` AI Assistant Rules |
 
-Before claiming a doc update is done, verify each fact against the actual config file (`grep`/`Read` it) rather than assuming — stale or invented details are worse than no docs.
+**Verification step** — before marking a doc edit done:
+1. `grep` or `Read` the actual config file to confirm each stated fact
+2. Cross-check `PACKAGES` in `sync.sh` against the Stow Packages table in `README.md` — they must match exactly
+3. Cross-check `CLAUDE.md` Directory Structure against the actual package dirs on disk
+
+**Do not** document: ephemeral state, current branch, per-package config values (theme names, font sizes, keybinds) — those live in the config file and go stale. `README.md` stays at Stack/Highlights altitude.
 
 ---
 

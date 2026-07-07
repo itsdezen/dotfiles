@@ -50,6 +50,7 @@ cd ~/Developer/dotfiles && ./sync.sh
 | `cmux` | `~/.config/cmux/` |
 | `tmux` | `~/.tmux.conf` |
 | `mise` | `~/.config/mise/config.toml` |
+| `fastfetch` | `~/.config/fastfetch/` |
 | `git` | `~/.gitconfig` |
 | `ollama` | `~/.config/ollama/env` |
 | `superfile` | `~/.config/superfile/` |
