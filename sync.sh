@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-G='\033[0;32m'; Y='\033[1;33m'; R='\033[0;31m'; BL='\033[0;34m'; C='\033[0;36m'; D='\033[2m'; B='\033[1m'; NC='\033[0m'
+G='\033[0;32m'; Y='\033[1;33m'; R='\033[0;31m'; BL='\033[0;34m'; P='\033[38;2;149;127;184m'; D='\033[2m'; B='\033[1m'; NC='\033[0m'
 ok()      { printf "  ${G}✓${NC} %s\n" "$*"; }
 run()     { printf "  ${D}→${NC} %s\n" "$*"; }
 warn()    { printf "  ${Y}!${NC} %s\n" "$*"; }
@@ -12,7 +12,7 @@ abort()   {
 }
 section() {
   _section_t=$SECONDS
-  printf "\n${C}${B}  %s${NC}\n" "$*"
+  printf "\n${P}${B}➤ %s${NC}\n" "$(printf '%s' "$*" | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) tolower(substr($i,2)); print}')"
 }
 section_end() {
   [[ -n "$_section_t" ]] && printf "  ${D}%ds${NC}\n" "$(( SECONDS - _section_t ))"
