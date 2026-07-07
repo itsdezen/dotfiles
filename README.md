@@ -107,7 +107,7 @@ LazyVim defaults. Custom: `kanagawa-dragon` colorscheme (transparent), biome for
 - **Auto-update prompt** — new shells periodically check the repo for remote commits and offer to pull + sync (Enter to accept); `dotfiles-update --force` checks on demand
 - **Polyglot runtimes via mise** — node, bun, pnpm, python, uv, rust, go, pinned centrally instead of per-project
 
-For exact settings of any given tool, read its config directly under the matching Stow package (e.g. `zed/.config/zed/settings.json`) — that file is always the source of truth.
+For exact settings of any given tool, read its config directly under the matching Stow package (e.g. `nvim/.config/nvim/init.lua`) — that file is always the source of truth.
 
 ## Workflow
 

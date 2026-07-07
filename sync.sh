@@ -62,7 +62,7 @@ DOTFILES_DIR="$HOME/Developer/dotfiles"
 PACKAGES=(zsh nvim aerospace hammerspoon starship ghostty cmux mise fastfetch git ollama superfile btop lazygit claude)
 
 # packages whose target dir mixes static config with app-generated state
-# (e.g. zed prompts/themes, claude projects/sessions)
+# (e.g. claude projects/sessions)
 # — always stowed file-by-file so runtime-generated files never land in the repo
 NO_FOLD_PACKAGES=(claude cmux)
 
