@@ -24,7 +24,6 @@ dotfiles/
 ├── aerospace/    → ~/.config/aerospace/
 ├── hammerspoon/  → ~/.hammerspoon/
 ├── starship/     → ~/.config/starship.toml
-├── zed/          → ~/.config/zed/
 ├── ghostty/      → ~/.config/ghostty/
 ├── cmux/         → ~/.config/cmux/
 ├── mise/         → ~/.config/mise/config.toml

@@ -9,7 +9,6 @@ Personal macOS development environment using **GNU Stow** for dotfiles managemen
 - 🔧 **mise** — polyglot runtime manager (node, bun, pnpm, python, uv, rust, go)
 - 📦 **pnpm + bun** — JS package managers
 - ✏️ **Neovim (LazyVim)** — terminal editor
-- ⚡ **Zed** — primary code editor (Claude AI built-in)
 - 👻 **Ghostty** — GPU-accelerated terminal emulator (managed by cmux)
 - 🖥️ **cmux** — terminal multiplexer built on top of Ghostty
 - 🪟 **AeroSpace** — i3-like tiling window manager
@@ -51,7 +50,6 @@ cd ~/Developer/dotfiles && ./sync.sh
 | `aerospace` | `~/.config/aerospace/` |
 | `hammerspoon` | `~/.hammerspoon/` |
 | `starship` | `~/.config/starship.toml` |
-| `zed` | `~/.config/zed/` |
 | `ghostty` | `~/.config/ghostty/` |
 | `cmux` | `~/.config/cmux/` |
 | `mise` | `~/.config/mise/config.toml` |

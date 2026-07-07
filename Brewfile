@@ -22,10 +22,6 @@ brew "fd"
 # ripgrep - Fast recursive grep (used by snacks.nvim picker for live grep)
 brew "ripgrep"
 
-# ── Editors ───────────────────────────────────────────────────────────────────
-
-# Zed - High-performance, multiplayer code editor
-cask "zed"
 
 # ── System Info ───────────────────────────────────────────────────────────────
 
