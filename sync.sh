@@ -3,6 +3,7 @@ set -euo pipefail
 
 G='\033[0;32m'; Y='\033[1;33m'; R='\033[0;31m'; BL='\033[0;34m'; P='\033[0;35m'; D='\033[2m'; B='\033[1m'; NC='\033[0m'
 ok()      { printf "  ${G}✓${NC} %s\n" "$*"; }
+skip()    { printf "  ${D}◎${NC} %s\n" "$*"; }
 run()     { printf "  ${D}→${NC} %s\n" "$*"; }
 warn()    { printf "  ${Y}!${NC} %s\n" "$*"; }
 abort()   {
@@ -47,6 +48,12 @@ spin_warn() {
   if ! $_TTY; then warn "$*"; return; fi
   [[ -n "$SPIN_PID" ]] && kill "$SPIN_PID" 2>/dev/null; SPIN_PID=""
   printf "\r\033[2K  ${Y}!${NC} %s\n" "$*"
+}
+
+spin_skip() {
+  if ! $_TTY; then skip "$*"; return; fi
+  [[ -n "$SPIN_PID" ]] && kill "$SPIN_PID" 2>/dev/null; SPIN_PID=""
+  printf "\r\033[2K  ${D}◎${NC} %s\n" "$*"
 }
 
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -120,13 +127,13 @@ cmd_bootstrap() {
     until xcode-select -p &>/dev/null 2>&1; do sleep 5; done
     spin_ok "Xcode CLI Tools installed"
   else
-    ok "Xcode CLI Tools"
+    skip "Xcode CLI Tools"
   fi
   section_end
 
   section "Dotfiles"
   if [[ -d "$DOTFILES_DIR" ]]; then
-    ok "Already cloned — $DOTFILES_DIR"
+    skip "Already cloned — $DOTFILES_DIR"
   else
     mkdir -p "$HOME/Developer"
     spin "Cloning dotfiles"
@@ -170,11 +177,11 @@ cmd_sync() {
   # ── system ────────────────────────────────────────────────────────────────────
   section "System"
   [[ "$(uname)" == "Darwin" ]] || abort "macOS only"
-  ok "macOS $(sw_vers -productVersion)"
+  skip "macOS $(sw_vers -productVersion)"
 
   command -v git  &>/dev/null || abort "git missing — install xcode cli tools: xcode-select --install"
   command -v curl &>/dev/null || abort "curl missing — install xcode cli tools: xcode-select --install"
-  ok "git · curl"
+  skip "git · curl"
   section_end
 
   # ── homebrew ──────────────────────────────────────────────────────────────────
@@ -187,12 +194,16 @@ cmd_sync() {
     command -v brew &>/dev/null || abort "Homebrew install failed"
     spin_ok "Homebrew installed"
   fi
-  ok "Homebrew $(brew --version | head -1 | awk '{print $2}')"
+  skip "Homebrew $(brew --version | head -1 | awk '{print $2}')"
   brew trust nikitabobko/tap >/dev/null 2>&1 || true
   spin "Installing packages"
   local _bout
-  _bout=$(brew bundle --file="$DOTFILES/Brewfile" --quiet 2>&1) || abort "brew bundle failed: $_bout"
-  spin_ok "Packages up to date"
+  _bout=$(brew bundle --file="$DOTFILES/Brewfile" 2>&1) || abort "brew bundle failed: $_bout"
+  if echo "$_bout" | grep -qE '^(Installing|Upgrading|Tapping)'; then
+    spin_ok "Packages updated"
+  else
+    spin_skip "Packages up to date"
+  fi
   section_end
 
   # ── dotfiles ──────────────────────────────────────────────────────────────────
@@ -211,7 +222,7 @@ cmd_sync() {
     git clone --quiet https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
     spin_ok "zinit installed"
   else
-    ok "zinit"
+    skip "zinit"
   fi
   section_end
 
@@ -221,10 +232,14 @@ cmd_sync() {
   spin "Installing runtimes"
   local _mout
   _mout=$(mise install --yes 2>&1) || abort "mise install failed: $_mout"
-  spin_ok "Runtimes up to date"
+  if echo "$_mout" | grep -q "all tools are installed"; then
+    spin_skip "Runtimes up to date"
+  else
+    spin_ok "Runtimes updated"
+  fi
   eval "$(mise env)"
   mise ls --current 2>/dev/null | while read -r name version _; do
-    [[ -n "$name" ]] && ok "$name $version"
+    [[ -n "$name" ]] && skip "$name $version"
   done
   section_end
 
@@ -254,7 +269,7 @@ cmd_sync() {
       spin_ok "Ollama ready"
     fi
     if ollama list 2>/dev/null | grep -q "qwen3:8b"; then
-      ok "qwen3:8b"
+      skip "qwen3:8b"
     else
       spin "Pulling qwen3:8b"
       ollama pull qwen3:8b >/dev/null 2>&1
