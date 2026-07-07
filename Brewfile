@@ -45,6 +45,11 @@ brew "superfile"
 # lazygit - Terminal UI for git; usable standalone or inside Neovim (<leader>gg)
 brew "lazygit"
 
+# ── Dotfiles ──────────────────────────────────────────────────────────────────
+
+# Stow - Symlink manager used by sync.sh to link all packages to $HOME
+brew "stow"
+
 # ── Terminal ──────────────────────────────────────────────────────────────────
 
 # cmux - Terminal multiplexer built on top of Ghostty
