@@ -155,9 +155,10 @@ cmd_sync() {
     spin_ok "homebrew"
   fi
   ok "Homebrew $(brew --version | head -1 | awk '{print $2}')"
-  brew trust nikitabobko/tap 2>/dev/null || true
+  brew trust nikitabobko/tap >/dev/null 2>&1 || true
   spin "brew bundle"
-  brew bundle --file="$DOTFILES/Brewfile" --quiet || abort "brew bundle failed"
+  local _bout
+  _bout=$(brew bundle --file="$DOTFILES/Brewfile" --quiet 2>&1) || abort "brew bundle failed: $_bout"
   spin_ok "packages"
 
   # ── dotfiles ──────────────────────────────────────────────────────────────────
@@ -182,7 +183,8 @@ cmd_sync() {
   section "runtimes"
   command -v mise &>/dev/null || abort "mise not found"
   spin "mise install"
-  mise install --yes >/dev/null
+  local _mout
+  _mout=$(mise install --yes 2>&1) || abort "mise install failed: $_mout"
   spin_ok "tools installed"
   eval "$(mise env)"
   mise ls --current 2>/dev/null | while read -r name version _; do
