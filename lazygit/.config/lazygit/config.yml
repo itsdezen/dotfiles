@@ -2,6 +2,7 @@
 # Inside nvim (<leader>gg), snacks.nvim overrides this with a theme generated
 # from the active colorscheme, so this file only applies to standalone runs.
 gui:
+  nerdFontsVersion: "3"
   theme:
     activeBorderColor:
       - '#c4b28a'

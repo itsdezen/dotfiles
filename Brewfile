@@ -49,6 +49,7 @@ brew "stow"
 # ── Terminal ──────────────────────────────────────────────────────────────────
 
 # cmux - Terminal multiplexer built on top of Ghostty
+# (no separate "ghostty" cask — cmux embeds the Ghostty engine and reads ~/.config/ghostty/)
 cask "cmux"
 
 # ── Window Management ─────────────────────────────────────────────────────────

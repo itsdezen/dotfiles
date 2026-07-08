@@ -18,7 +18,7 @@
     "preferredEditor" : "",
     "renameSelectsExistingName" : true,
     "reorderOnNotification" : true,
-    "sendAnonymousTelemetry" : true,
+    "sendAnonymousTelemetry" : false,
     "warnBeforeClosingTab" : true,
     "warnBeforeClosingTabXButton" : false,
     "workspaceInheritWorkingDirectory" : true
