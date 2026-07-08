@@ -1,9 +1,22 @@
 return {
   {
     "NvChad/nvim-colorizer.lua",
-    event = "BufReadPre",
+    event = "LazyFile",
     opts = {
-      filetypes = { "*" },
+      filetypes = {
+        "css",
+        "scss",
+        "html",
+        "javascript",
+        "typescript",
+        "javascriptreact",
+        "typescriptreact",
+        "vue",
+        "svelte",
+        "lua",
+        "conf",
+        "toml",
+      },
       user_default_options = {
         RGB      = true,
         RRGGBB   = true,

@@ -38,12 +38,14 @@ require("lazy").setup({
     lazy = true,
     version = false,
   },
-  install = { colorscheme = { "tokyonight" } },
-  checker = { enabled = true, notify = false },
+  install = { colorscheme = { "kanagawa-dragon", "habamax" } },
+  checker = { enabled = true, notify = false, frequency = 86400 },
   performance = {
     rtp = {
       disabled_plugins = {
         "gzip",
+        "netrwPlugin",
+        "rplugin",
         "tarPlugin",
         "tohtml",
         "tutor",
