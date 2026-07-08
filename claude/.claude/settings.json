@@ -1,6 +1,7 @@
 {
-  "tui": "fullscreen",
   "attribution": {
     "commit": ""
-  }
+  },
+  "tui": "fullscreen",
+  "verbose": true
 }

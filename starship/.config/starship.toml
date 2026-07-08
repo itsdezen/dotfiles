@@ -9,14 +9,14 @@ $os\
 $username\
 [](fg:gray_1 bg:gray_2)\
 $directory\
+$git_branch\
+$git_status\
+${custom.gray2_close}\
 $nodejs\
 $bun\
 $python\
 $rust\
 $golang\
-$git_branch\
-$git_status\
-${custom.gray2_close}\
 $docker_context\
 $cmd_duration\
 $character\
@@ -27,7 +27,7 @@ $character\
 gray_1 = "#F0F0F0"
 gray_2 = "#B0B0B0"
 gray_3 = "#707070"
-gray_4 = "#303030"
+docker_blue = "#1D63ED"
 ink = "#0A0A0A"
 ink_soft = "#111111"
 # kanagawa-dragon ANSI palette, same hex Ghostty renders for this theme
@@ -40,12 +40,12 @@ blue = "#7FB4CA"      # ANSI 12 bright blue
 violet = "#938AA9"    # ANSI 13 bright magenta
 gold = "#E6C384"      # ANSI 11 bright yellow
 pink = "#A292A3"      # ANSI 5 magenta
-# darkened runtime hues — legible on the light gray_2 pill
-node_dark = "#3E5A3E"
-bun_dark = "#8A6A1E"
-python_dark = "#6E5E2E"
-rust_dark = "#8E3F3A"
-go_dark = "#2F5E72"
+# official brand colors — runtime pills
+node_green = "#215732"
+bun_black = "#000000"
+python_blue = "#306998"
+rust_orange = "#B7410E"
+go_blue = "#375EAB"
 
 # -----------------------------
 # OS
@@ -98,32 +98,8 @@ truncation_symbol = "…/"
 "Pictures" = "󰉏 Pictures"
 "Desktop" = "󰟀 Desktop"
 "dotfiles" = "󱁿 dotfiles"
-".config" = " .config"
+".config" = " .config"
 ".git" = "󰊢 .git"
-
-
-# -----------------------------
-# LANGUAGE RUNTIMES (mise-managed)
-# -----------------------------
-[nodejs]
-style = "bg:gray_2 fg:node_dark"
-format = '[$symbol$version]($style)'
-
-[bun]
-style = "bg:gray_2 fg:bun_dark"
-format = '[$symbol$version]($style)'
-
-[python]
-style = "bg:gray_2 fg:python_dark"
-format = '[$symbol$version]($style)'
-
-[rust]
-style = "bg:gray_2 fg:rust_dark"
-format = '[$symbol$version]($style)'
-
-[golang]
-style = "bg:gray_2 fg:go_dark"
-format = '[$symbol$version]($style)'
 
 # -----------------------------
 # GIT
@@ -150,12 +126,36 @@ behind = '[⇣${count} ](bold red_deep bg:gray_3)'
 diverged = '[⇕⇡${ahead_count}⇣${behind_count} ](bold gold bg:gray_3)'
 
 # -----------------------------
+# LANGUAGE RUNTIMES (mise-managed)
+# each is its own pill, brand color background + white foreground
+# -----------------------------
+[nodejs]
+style = "bg:node_green fg:gray_1"
+format = ' [](fg:node_green)[$symbol$version]($style)[](fg:node_green)'
+
+[bun]
+style = "bg:bun_black fg:gray_1"
+format = ' [](fg:bun_black)[$symbol$version]($style)[](fg:bun_black)'
+
+[python]
+style = "bg:python_blue fg:gray_1"
+format = ' [](fg:python_blue)[$symbol$version]($style)[](fg:python_blue)'
+
+[rust]
+style = "bg:rust_orange fg:gray_1"
+format = ' [](fg:rust_orange)[$symbol$version]($style)[](fg:rust_orange)'
+
+[golang]
+style = "bg:go_blue fg:gray_1"
+format = ' [](fg:go_blue)[$symbol$version]($style)[](fg:go_blue)'
+
+# -----------------------------
 # DOCKER
 # -----------------------------
 [docker_context]
 symbol = ""
-style = "bg:gray_4 fg:gray_1"
-format = ' [](gray_4)[ $symbol $context ]($style)[](fg:gray_4)'
+style = "bg:docker_blue fg:gray_1"
+format = ' [](fg:docker_blue)[$symbol $context]($style)[](fg:docker_blue)'
 
 # -----------------------------
 # COMMAND DURATION
