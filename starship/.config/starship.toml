@@ -97,6 +97,7 @@ truncation_symbol = "…/"
 "Music" = "󱍙 Music"
 "Pictures" = "󰉏 Pictures"
 "Desktop" = "󰟀 Desktop"
+"dotfiles" = "󱁿 dotfiles"
 ".config" = " .config"
 ".git" = "󰊢 .git"
 
