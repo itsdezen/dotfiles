@@ -95,12 +95,12 @@ Workspaces: **work** (Zed + cmux, auto-assigned), **entertain**, **random** (cat
 
 ### Neovim
 
-LazyVim defaults. Custom: `kanagawa-dragon` colorscheme (transparent), biome formatter (JS/TS/CSS/JSON), snacks.nvim picker. `<leader>gg` opens lazygit in a float (root dir), `<leader>gG` for cwd.
+LazyVim defaults. Custom: `kanagawa-dragon` colorscheme (transparent), biome formatter (JS/TS/CSS/JSON), snacks.nvim picker. `<leader>gg` opens lazygit in a float (root dir), `<leader>gG` for cwd. AI: Claude Code integrated via the official IDE protocol plugin (claudecode.nvim), CodeCompanion on local Ollama for inline edits and commit messages.
 
 ## Highlights
 
 - **Unified theme** — Kanagawa Dragon across nvim, Ghostty, Zed, btop, and lazygit for a consistent look everywhere
-- **AI-native editing** — Zed ships with Claude built-in; Ollama runs local models as an offline fallback
+- **AI-native editing** — Claude Code runs inside nvim (send context, native diff review); Ollama handles quick local tasks (inline edits, commit messages) offline and quota-free
 - **Keyboard-driven window management** — AeroSpace tiling + Hammerspoon Lua automation
 - **Terminal stack** — Ghostty (GPU-accelerated) as the base terminal, managed by cmux
 - **Idempotent sync** — one script (`sync.sh`) installs Homebrew packages, symlinks every Stow package, provisions mise runtimes, and pulls the default Ollama model — safe to re-run anytime

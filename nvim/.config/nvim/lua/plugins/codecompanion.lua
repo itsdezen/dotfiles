@@ -6,25 +6,35 @@ return {
   },
   cmd = { "CodeCompanion", "CodeCompanionChat", "CodeCompanionActions" },
   keys = {
-    { "<leader>aa", "<cmd>CodeCompanionChat Toggle<cr>", desc = "AI: toggle chat" },
-    { "<leader>ai", "<cmd>CodeCompanion<cr>", mode = { "n", "v" }, desc = "AI: inline assist" },
-    { "<leader>ac", "<cmd>CodeCompanionChat Add<cr>", mode = "v", desc = "AI: add to chat" },
-    { "<leader>aA", "<cmd>CodeCompanionActions<cr>", mode = { "n", "v" }, desc = "AI: actions" },
+    { "<leader>Aa", "<cmd>CodeCompanionChat Toggle<cr>", desc = "AI local: toggle chat" },
+    { "<leader>Ai", "<cmd>CodeCompanion<cr>", mode = { "n", "v" }, desc = "AI local: inline assist" },
+    { "<leader>Ac", "<cmd>CodeCompanionChat Add<cr>", mode = "v", desc = "AI local: add to chat" },
+    { "<leader>AA", "<cmd>CodeCompanionActions<cr>", mode = { "n", "v" }, desc = "AI local: actions" },
+    -- alias /commit is shadowed by the builtin prompt, which resolves first
+    { "<leader>gm", "<cmd>CodeCompanion /gitmoji<cr>", desc = "AI: commit message" },
   },
   opts = {
     adapters = {
-      ollama = function()
-        return require("codecompanion.adapters").extend("ollama", {
-          schema = {
-            model = { default = "qwen3:8b" },
-          },
-        })
-      end,
+      http = {
+        ollama = function()
+          return require("codecompanion.adapters").extend("ollama", {
+            schema = {
+              model = { default = "qwen3:8b" },
+              think = { default = false },
+              keep_alive = { default = "30m" },
+            },
+          })
+        end,
+      },
     },
-    strategies = {
-      chat   = { adapter = "ollama" },
+    interactions = {
+      chat = { adapter = "ollama" },
       inline = { adapter = "ollama" },
-      agent  = { adapter = "ollama" },
+    },
+    prompt_library = {
+      markdown = {
+        dirs = { vim.fn.stdpath("config") .. "/prompts" },
+      },
     },
     opts = {
       language = "the same language the user writes in",
