@@ -1,13 +1,13 @@
 require("hs.ipc")
 
 -- ── Auto-reload config on save ───────────────────────────────────────────────
-local configWatcher = hs.pathwatcher.new(os.getenv("HOME") .. "/.hammerspoon/", function()
+local _configWatcher = hs.pathwatcher.new(os.getenv("HOME") .. "/.hammerspoon/", function()
   hs.reload()
 end):start()
 
 -- Also reload when aerospace.toml changes, since we read the floating app
 -- list from it below — keeps the two configs in sync without a manual step.
-local aerospaceConfigWatcher = hs.pathwatcher.new(os.getenv("HOME") .. "/.config/aerospace/", function()
+local _aerospaceConfigWatcher = hs.pathwatcher.new(os.getenv("HOME") .. "/.config/aerospace/", function()
   hs.reload()
 end):start()
 
