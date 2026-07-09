@@ -18,6 +18,8 @@ return {
 					FloatTitle = { bg = "none" },
 					-- default WinSeparator uses dragonBlack0 (near-black, clashes with the palette)
 					WinSeparator = { fg = colors.palette.dragonBlack4 },
+					-- NonText (hidden/ignored filenames in pickers) defaults to dragonBlack6, too dim to read
+					NonText = { fg = colors.palette.dragonGray3 },
 				}
 			end,
 		},
