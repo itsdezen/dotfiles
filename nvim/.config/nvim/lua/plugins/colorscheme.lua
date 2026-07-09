@@ -11,11 +11,13 @@ return {
 			colors = {
 				theme = { all = { ui = { bg_gutter = "none" } } },
 			},
-			overrides = function()
+			overrides = function(colors)
 				return {
 					NormalFloat = { bg = "none" },
 					FloatBorder = { bg = "none" },
 					FloatTitle = { bg = "none" },
+					-- default WinSeparator uses dragonBlack0 (near-black, clashes with the palette)
+					WinSeparator = { fg = colors.palette.dragonBlack4 },
 				}
 			end,
 		},
