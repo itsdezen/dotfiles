@@ -6,6 +6,7 @@ return {
   },
   cmd = { "CodeCompanion", "CodeCompanionChat", "CodeCompanionActions" },
   keys = {
+    { "<leader>A", nil, desc = "AI local/CodeCompanion" },
     { "<leader>Aa", "<cmd>CodeCompanionChat Toggle<cr>", desc = "AI local: toggle chat" },
     { "<leader>Ai", "<cmd>CodeCompanion<cr>", mode = { "n", "v" }, desc = "AI local: inline assist" },
     { "<leader>Ac", "<cmd>CodeCompanionChat Add<cr>", mode = "v", desc = "AI local: add to chat" },
