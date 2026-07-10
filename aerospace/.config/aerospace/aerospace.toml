@@ -171,10 +171,6 @@ run = ['move-node-to-workspace work']
 
 # ── Floating system windows ──────────────────────────────────────────────────
 [[on-window-detected]]
-if.app-id = 'com.apple.systempreferences'
-run = 'layout floating'
-
-[[on-window-detected]]
 if.app-id = 'com.apple.ActivityMonitor'
 run = 'layout floating'
 
@@ -183,9 +179,21 @@ if.app-id = 'com.apple.calculator'
 run = 'layout floating'
 
 [[on-window-detected]]
-if.app-id = 'com.apple.Passwords'
+if.app-id = 'com.apple.finder'
 run = 'layout floating'
 
 [[on-window-detected]]
 if.app-id = 'com.apple.MobileSMS'
+run = 'layout floating'
+
+[[on-window-detected]]
+if.app-id = 'com.apple.Passwords'
+run = 'layout floating'
+
+[[on-window-detected]]
+if.app-id = 'com.apple.systempreferences'
+run = 'layout floating'
+
+[[on-window-detected]]
+if.app-id = 'ru.keepcoder.Telegram'
 run = 'layout floating'
