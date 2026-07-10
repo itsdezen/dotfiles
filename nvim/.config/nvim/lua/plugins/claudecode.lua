@@ -1,7 +1,11 @@
 return {
   "coder/claudecode.nvim",
   dependencies = { "folke/snacks.nvim" },
-  config = true,
+  opts = {
+    diff_opts = {
+      keep_terminal_focus = true,
+    },
+  },
   cmd = {
     "ClaudeCode",
     "ClaudeCodeFocus",
