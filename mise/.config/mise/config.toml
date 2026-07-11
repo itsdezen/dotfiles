@@ -9,5 +9,5 @@ python = "latest"
 uv = "latest"
 
 # Systems
-rust = "latest"
+rust = "stable"
 go = "latest"
