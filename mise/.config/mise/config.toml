@@ -10,4 +10,5 @@ uv = "latest"
 
 # Systems
 rust = "stable"
+rust-analyzer = "latest"
 go = "latest"
