@@ -6,6 +6,9 @@ ok()      { printf "  ${G}✓${NC} %s\n" "$*"; }
 skip()    { printf "  ${D}◎${NC} %s\n" "$*"; }
 run()     { printf "  ${D}→${NC} %s\n" "$*"; }
 warn()    { printf "  ${Y}!${NC} %s\n" "$*"; }
+item_new() { printf "      ${G}+${NC} %s\n" "$*"; }
+item_upd() { printf "      ${Y}↑${NC} %s\n" "$*"; }
+item_rm()  { printf "      ${R}-${NC} %s\n" "$*"; }
 abort()   {
   [[ -n "$SPIN_PID" ]] && kill "$SPIN_PID" 2>/dev/null; SPIN_PID=""
   printf "\r\033[2K  ${R}✗${NC} %s\n" "$*" >&2
@@ -83,21 +86,25 @@ stow_pkg() {
   is_no_fold "$pkg" && fold_flag="--no-folding"
   # $fold_flag intentionally unquoted: word-splits away when empty (bash 3.2 on
   # macOS can't safely expand an empty array under set -u)
-  stow -n -t "$HOME" -R $fold_flag "$pkg" 2>&1 \
+  local conflicts
+  conflicts=$(stow -n -t "$HOME" -R $fold_flag "$pkg" 2>&1 \
     | perl -ne '
         if (/existing target is not owned by stow: (.+)$/) { print "$1\n" }
         elsif (/existing target is stowed to a different package: (.+?) => /) { print "$1\n" }
         elsif (/cannot stow .* over existing (?:directory )?target (.+?)(?: since\b|$)/) { print "$1\n" }
-      ' \
-    | while IFS= read -r conflict; do
-        [[ -n "$conflict" ]] || continue
-        local target="$HOME/$conflict"
-        [[ "$target" == "$HOME/"* ]] || continue
-        rm -rf "$target"
-      done \
-    || true
+      ') || true
+  while IFS= read -r conflict; do
+    [[ -n "$conflict" ]] || continue
+    local target="$HOME/$conflict"
+    [[ "$target" == "$HOME/"* ]] || continue
+    rm -rf "$target"
+  done <<<"$conflicts"
   if stow -t "$HOME" -R $fold_flag "$pkg" 2>/dev/null; then
     ok "$pkg"
+    while IFS= read -r conflict; do
+      [[ -n "$conflict" ]] || continue
+      item_rm "replaced ~/$conflict"
+    done <<<"$conflicts"
   else
     warn "$pkg — stow failed"
   fi
@@ -196,13 +203,27 @@ cmd_sync() {
   fi
   skip "Homebrew $(brew --version | head -1 | awk '{print $2}')"
   brew trust nikitabobko/tap >/dev/null 2>&1 || true
-  spin "Installing packages"
+  spin "Checking packages"
   local _bout
-  _bout=$(brew bundle --file="$DOTFILES/Brewfile" 2>&1) || abort "brew bundle failed: $_bout"
-  if echo "$_bout" | grep -qE '^(Installing|Upgrading|Tapping)'; then
+  _bout=$(brew bundle --file="$DOTFILES/Brewfile" -v 2>&1) || abort "brew bundle failed: $_bout"
+  local _using _inst _upg
+  _using=$(grep -cE '^Using ' <<<"$_bout" || true)
+  _inst=$(grep -E '^Installing .+\. It is not currently installed\.$' <<<"$_bout" \
+    | sed -E 's/^Installing ([^ ]+) ([a-zA-Z_-]+).*/\1\t\2/' || true)
+  _upg=$(grep -E '^Upgrading .+\. It is installed but .*up-to-date\.$' <<<"$_bout" \
+    | sed -E 's/^Upgrading ([^ ]+) ([a-zA-Z_-]+).*/\1\t\2/' || true)
+  if [[ -n "$_inst$_upg" ]]; then
     spin_ok "Packages updated"
+    while IFS=$'\t' read -r name kind; do
+      [[ -z "$name" ]] && continue
+      if [[ "$kind" == "tap" ]]; then item_new "tapped $name"; else item_new "installed $name ($kind)"; fi
+    done <<<"$_inst"
+    while IFS=$'\t' read -r name kind; do
+      [[ -z "$name" ]] && continue
+      item_upd "upgraded $name ($kind)"
+    done <<<"$_upg"
   else
-    spin_skip "Packages up to date"
+    spin_skip "Packages up to date ($_using)"
   fi
   section_end
 
@@ -246,11 +267,43 @@ cmd_sync() {
   # ── editor ────────────────────────────────────────────────────────────────────
   section "Editor"
   if command -v nvim &>/dev/null; then
+    local lock="$DOTFILES/nvim/.config/nvim/lazy-lock.json"
+    local lock_before=""
+    [[ -f "$lock" ]] && lock_before="$(mktemp)" && cp "$lock" "$lock_before"
+    local lock_dirty_before=false
+    git -C "$DOTFILES" diff --quiet -- nvim/.config/nvim/lazy-lock.json 2>/dev/null || lock_dirty_before=true
     spin "Syncing plugins"
     local nvim_log
     nvim_log="$(nvim --headless "+Lazy! sync" +qa 2>&1)" \
-      || { spin_warn "Plugin sync failed"; return; }
-    spin_ok "Plugins synced"
+      || { spin_warn "Plugin sync failed"; rm -f "$lock_before"; return; }
+    local _plugin_diff=""
+    if [[ -n "$lock_before" && -f "$lock" ]] && command -v jq &>/dev/null; then
+      _plugin_diff=$(jq -sr '
+          (.[0] // {}) as $old | (.[1] // {}) as $new |
+          ($new | keys[]) as $k
+          | ($old[$k].commit // "") as $o | ($new[$k].commit) as $n
+          | select($o != $n)
+          | "\(if $o == "" then "new" else "upd" end)\t\($k)\t\($o[0:7])\t\($n[0:7])"
+        ' "$lock_before" "$lock" 2>/dev/null) || true
+    fi
+    rm -f "$lock_before"
+    if [[ -n "$_plugin_diff" ]]; then
+      spin_ok "Plugins synced"
+      while IFS=$'\t' read -r kind name old new; do
+        [[ -z "$name" ]] && continue
+        if [[ "$kind" == "new" ]]; then item_new "$name  $new"; else item_upd "$name  $old → $new"; fi
+      done <<<"$_plugin_diff"
+    else
+      spin_skip "Plugins up to date"
+    fi
+    if ! $lock_dirty_before && ! git -C "$DOTFILES" diff --quiet -- nvim/.config/nvim/lazy-lock.json 2>/dev/null; then
+      if git -C "$DOTFILES" add nvim/.config/nvim/lazy-lock.json 2>/dev/null \
+        && git -C "$DOTFILES" commit -m "⬆️ nvim: update plugin lockfile" >/dev/null 2>&1; then
+        item_new "committed lockfile update"
+      else
+        warn "lockfile changed but auto-commit failed"
+      fi
+    fi
   else
     warn "Neovim not found — skipping"
   fi
