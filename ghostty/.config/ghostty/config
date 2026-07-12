@@ -11,4 +11,7 @@ theme = Kanagawa Dragon
 font-synthetic-style = true
 window-vsync = true
 
+# opt+backspace defaults to ESC+DEL, which breaks in terminal vim (ESC exits insert mode)
+keybind = opt+backspace=text:\x17
+
 custom-shader = shaders/cursor.glsl
