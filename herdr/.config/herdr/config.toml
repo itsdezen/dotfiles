@@ -19,11 +19,33 @@ name = "kanagawa"
 
 # Override individual color tokens on top of the base theme.
 # Accepts: hex (#rrggbb), named colors, rgb(r,g,b), or panel_bg = "reset"
-# [theme.custom]
-# panel_bg = "reset"
-# accent = "#f5c2e7"
-# red = "#ff6188"
-# green = "#a6e3a1"
+#
+# Custom "dragon" variant: captured the rendered SGR colors of the built-in
+# "kanagawa" theme (it's actually Kanagawa Wave) via a raw pty session, then
+# swapped each role for its Kanagawa Dragon equivalent from kanagawa.nvim's
+# palette (~/.local/share/nvim/lazy/kanagawa/lua/kanagawa/colors.lua):
+#   sumiInk3 #1f1f28 (bg)      -> dragonBlack3 #181616
+#   sumiInk4 #2a2a37 (surface) -> dragonBlack4/5 #282727 / #393836
+#   fujiWhite #dcd7ba (text)   -> dragonWhite   #c5c9c5
+#   fujiGray  #727169 (dim)    -> dragonGray3   #7a8382
+#   dragonYellow #c4b28a (accent) -> unchanged, same name/value in both variants
+[theme.custom]
+panel_bg = "#181616"
+accent = "#c4b28a"
+text = "#c5c9c5"
+subtext0 = "#7a8382"
+surface_dim = "#1d1c19"
+surface0 = "#282727"
+surface1 = "#393836"
+overlay0 = "#625e5a"
+overlay1 = "#737c73"
+red = "#c4746e"
+green = "#8a9a7b"
+yellow = "#c4b28a"
+blue = "#8ba4b0"
+teal = "#8ea4a2"
+mauve = "#8992a7"
+peach = "#b6927b"
 
 [terminal]
 # Executable used for new interactive panes.
@@ -197,7 +219,7 @@ name = "kanagawa"
 
 # Accent color for highlights, borders, and navigation UI.
 # Accepts: hex (#89b4fa), named colors (cyan, blue, magenta), or rgb(r,g,b)
-# accent = "cyan"
+accent = "#c4b28a"
 
 # Background notification popup delivery
 [ui.toast]
