@@ -14,4 +14,11 @@ window-vsync = true
 # opt+backspace defaults to ESC+DEL, which breaks in terminal vim (ESC exits insert mode)
 keybind = opt+backspace=text:\x17
 
+# cmd+k defaults to clear_screen, which only clears Ghostty's own buffer and
+# does nothing inside herdr (herdr owns its own pane scrollback). Send ctrl+l
+# instead so the focused shell clears itself, working both inside and outside
+# herdr/nvim. cmd+l has no default binding, add it to match.
+keybind = super+k=text:\x0c
+keybind = super+l=text:\x0c
+
 custom-shader = shaders/cursor.glsl
