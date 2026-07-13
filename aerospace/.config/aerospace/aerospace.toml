@@ -120,7 +120,7 @@ alt-shift-equal = 'resize smart +50'
 # ── Workspace ─────────────────────────────────────────────────────────────────
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#workspace
-# work      (alt-w): nvim + cmux — auto-assigned, tiles layout
+# work      (alt-w): nvim + Ghostty — auto-assigned, tiles layout
 # entertain (alt-e): Browser / entertainment — auto-assigned, flexible
 # random    (alt-r): uncategorized / rarely used, catch-all
 alt-w = 'workspace work'
@@ -164,9 +164,9 @@ alt-shift-l = ['join-with right', 'mode main']
 
 # Callback config works in 'main' mode only
 
-# ── work workspace: nvim + cmux (tiles, horizontal) ─────────────────────────
+# ── work workspace: nvim + Ghostty (tiles, horizontal) ─────────────────────
 [[on-window-detected]]
-if.app-id = 'com.cmuxterm.app'
+if.app-id = 'com.mitchellh.ghostty'
 run = ['move-node-to-workspace work']
 
 # ── Floating system windows ──────────────────────────────────────────────────

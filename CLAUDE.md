@@ -25,7 +25,6 @@ dotfiles/
 ├── hammerspoon/  → ~/.hammerspoon/
 ├── starship/     → ~/.config/starship.toml
 ├── ghostty/      → ~/.config/ghostty/
-├── cmux/         → ~/.config/cmux/
 ├── mise/         → ~/.config/mise/config.toml
 ├── fastfetch/    → ~/.config/fastfetch/
 ├── git/          → ~/.gitconfig
@@ -33,7 +32,8 @@ dotfiles/
 ├── superfile/    → ~/.config/superfile/
 ├── btop/         → ~/.config/btop/
 ├── lazygit/      → ~/.config/lazygit/
-└── claude/       → ~/.claude/settings.json
+├── claude/       → ~/.claude/settings.json
+└── herdr/        → ~/.config/herdr/config.toml
 ```
 
 ---

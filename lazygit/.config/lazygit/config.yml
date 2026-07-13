@@ -1,4 +1,4 @@
-# Kanagawa Dragon theme — matches nvim/Ghostty/Zed/btop for standalone lazygit.
+# Kanagawa Dragon theme — matches nvim/Ghostty/btop for standalone lazygit.
 # Inside nvim (<leader>gg), snacks.nvim overrides this with a theme generated
 # from the active colorscheme, so this file only applies to standalone runs.
 gui:

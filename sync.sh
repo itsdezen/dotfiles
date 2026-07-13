@@ -62,12 +62,12 @@ spin_skip() {
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_REPO="https://github.com/itsdezen/dotfiles"
 DOTFILES_DIR="$HOME/Developer/dotfiles"
-PACKAGES=(zsh nvim aerospace hammerspoon starship ghostty cmux mise fastfetch git ollama superfile btop lazygit claude)
+PACKAGES=(zsh nvim aerospace hammerspoon starship ghostty mise fastfetch git ollama superfile btop lazygit claude herdr)
 
 # packages whose target dir mixes static config with app-generated state
-# (e.g. claude projects/sessions)
+# (e.g. claude projects/sessions, herdr logs/sockets/session.json)
 # — always stowed file-by-file so runtime-generated files never land in the repo
-NO_FOLD_PACKAGES=(claude cmux)
+NO_FOLD_PACKAGES=(claude herdr)
 
 # ── stow helpers ────────────────────────────────────────────────────────────────
 

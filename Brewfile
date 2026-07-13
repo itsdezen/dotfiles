@@ -48,9 +48,11 @@ brew "stow"
 
 # ── Terminal ──────────────────────────────────────────────────────────────────
 
-# cmux - Terminal multiplexer built on top of Ghostty
-# (no separate "ghostty" cask — cmux embeds the Ghostty engine and reads ~/.config/ghostty/)
-cask "cmux"
+# Ghostty - GPU-accelerated terminal emulator (default terminal)
+cask "ghostty"
+
+# herdr - The agent multiplexer that lives in your terminal
+brew "herdr"
 
 # ── Window Management ─────────────────────────────────────────────────────────
 

@@ -9,8 +9,8 @@ Personal macOS development environment using **GNU Stow** for dotfiles managemen
 - 🔧 **mise** — polyglot runtime manager (node, bun, pnpm, python, uv, rust, go)
 - 📦 **pnpm + bun** — JS package managers
 - ✏️ **Neovim (LazyVim)** — primary code editor
-- 👻 **Ghostty** — GPU-accelerated terminal emulator (managed by cmux, not installed separately — the `ghostty/` package only provides config for cmux's embedded engine)
-- 🖥️ **cmux** — terminal multiplexer built on top of Ghostty
+- 👻 **Ghostty** — GPU-accelerated terminal emulator, default terminal
+- 🖥️ **herdr** — the agent multiplexer that lives in your terminal
 - 🪟 **AeroSpace** — i3-like tiling window manager
 - 🔨 **Hammerspoon** — macOS automation via Lua
 - 🤖 **Ollama** — local LLM inference (Qwen3 8B)
@@ -51,7 +51,6 @@ cd ~/Developer/dotfiles && ./sync.sh
 | `hammerspoon` | `~/.hammerspoon/` |
 | `starship` | `~/.config/starship.toml` |
 | `ghostty` | `~/.config/ghostty/` |
-| `cmux` | `~/.config/cmux/` |
 | `mise` | `~/.config/mise/config.toml` |
 | `fastfetch` | `~/.config/fastfetch/` |
 | `git` | `~/.gitconfig` |
@@ -60,6 +59,7 @@ cd ~/Developer/dotfiles && ./sync.sh
 | `btop` | `~/.config/btop/` |
 | `lazygit` | `~/.config/lazygit/` |
 | `claude` | `~/.claude/settings.json` |
+| `herdr` | `~/.config/herdr/config.toml` |
 
 ## Runtimes (mise)
 
@@ -91,7 +91,7 @@ go = "latest"
 | `alt-/` | Toggle tiles layout |
 | `alt-,` | Toggle accordion layout |
 
-Workspaces: **work** (Zed + cmux, auto-assigned), **entertain**, **random** (catch-all).
+Workspaces: **work** (Ghostty, auto-assigned), **entertain**, **random** (catch-all).
 
 ### Neovim
 
@@ -99,10 +99,10 @@ LazyVim defaults. Custom: `kanagawa-dragon` colorscheme (transparent), biome for
 
 ## Highlights
 
-- **Unified theme** — Kanagawa Dragon across nvim, Ghostty, Zed, btop, and lazygit for a consistent look everywhere
+- **Unified theme** — Kanagawa Dragon across nvim, Ghostty, btop, and lazygit for a consistent look everywhere
 - **AI-native editing** — Claude Code runs inside nvim (send context, native diff review); Ollama handles quick local tasks (inline edits, commit messages) offline and quota-free
 - **Keyboard-driven window management** — AeroSpace tiling + Hammerspoon Lua automation
-- **Terminal stack** — Ghostty (GPU-accelerated) as the base terminal, managed by cmux
+- **Terminal stack** — Ghostty (GPU-accelerated) as the default terminal, herdr as the multiplexer
 - **Idempotent sync** — one script (`sync.sh`) installs Homebrew packages, symlinks every Stow package, provisions mise runtimes, and pulls the default Ollama model — safe to re-run anytime
 - **Auto-update prompt** — new shells periodically check the repo for remote commits and offer to pull + sync (Enter to accept); `dotfiles-update --force` checks on demand
 - **Polyglot runtimes via mise** — node, bun, pnpm, python, uv, rust, go, pinned centrally instead of per-project
