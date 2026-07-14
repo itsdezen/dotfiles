@@ -2,6 +2,20 @@
   "attribution": {
     "commit": ""
   },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "command": "bash '/Users/itsdezen/.claude/hooks/herdr-agent-state.sh' session",
+            "timeout": 10,
+            "type": "command"
+          }
+        ],
+        "matcher": "*"
+      }
+    ]
+  },
   "tui": "fullscreen",
   "verbose": true
 }
