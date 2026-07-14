@@ -38,6 +38,9 @@ brew "superfile"
 
 # ── Git ───────────────────────────────────────────────────────────────────────
 
+# GitHub CLI - Interact with GitHub from the command line
+brew "gh"
+
 # lazygit - Terminal UI for git; usable standalone or inside Neovim (<leader>gg)
 brew "lazygit"
 

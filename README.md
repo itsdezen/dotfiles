@@ -14,6 +14,7 @@ Personal macOS development environment using **GNU Stow** for dotfiles managemen
 - 🪟 **AeroSpace** — i3-like tiling window manager
 - 🔨 **Hammerspoon** — macOS automation via Lua
 - 🤖 **Ollama** — local LLM inference (Qwen3 8B)
+- 🐙 **GitHub CLI** — GitHub workflows from the terminal
 - 🐙 **lazygit** — terminal UI for git, standalone or inside Neovim (`<leader>gg`)
 - 📁 **superfile** — terminal file manager (Kanagawa Dragon theme)
 - 📊 **btop** — resource monitor (CPU, memory, disks, network, processes)
