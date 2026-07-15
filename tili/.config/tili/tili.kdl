@@ -50,7 +50,7 @@ settings {
     default-workspace "entertain"
 
     // Warps the cursor to the newly-focused window (M10). On by default.
-    mouse-follows-focus #true
+    mouse-follows-focus #false
 
     // Moving the cursor onto a different monitor focuses it, same as the
     // `focus-monitor` command (M10). On by default.
