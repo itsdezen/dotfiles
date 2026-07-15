@@ -11,8 +11,7 @@ Personal macOS development environment using **GNU Stow** for dotfiles managemen
 - ✏️ **Neovim (LazyVim)** — primary code editor
 - 👻 **Ghostty** — GPU-accelerated terminal emulator, default terminal
 - 🖥️ **herdr** — the agent multiplexer that lives in your terminal
-- 🪟 **AeroSpace** — i3-like tiling window manager
-- 🔨 **Hammerspoon** — macOS automation via Lua
+- 🪟 **Tili** — i3-like tiling window manager, written in Rust
 - 🤖 **Ollama** — local LLM inference (Qwen3 8B)
 - 🐙 **GitHub CLI** — GitHub workflows from the terminal
 - 🐙 **lazygit** — terminal UI for git, standalone or inside Neovim (`<leader>gg`)
@@ -48,8 +47,7 @@ cd ~/Developer/dotfiles && ./sync.sh
 |---------|-------------|
 | `zsh` | `~/.zshrc`, `~/.zshenv`, `~/.zprofile` |
 | `nvim` | `~/.config/nvim/` |
-| `aerospace` | `~/.config/aerospace/` |
-| `hammerspoon` | `~/.hammerspoon/` |
+| `tili` | `~/.config/tili/` |
 | `starship` | `~/.config/starship.toml` |
 | `ghostty` | `~/.config/ghostty/` |
 | `mise` | `~/.config/mise/config.toml` |
@@ -81,18 +79,25 @@ go = "latest"
 
 ## Key Bindings
 
-### AeroSpace
+### Tili
 
 | Key | Action |
 |-----|--------|
 | `alt-hjkl` | Focus window |
 | `alt-shift-hjkl` | Move window |
+| `alt-shift-g` | Join with left neighbor |
 | `alt-w/e/r` | Switch workspace |
-| `alt-shift-w/e/r` | Move to workspace |
-| `alt-/` | Toggle tiles layout |
-| `alt-,` | Toggle accordion layout |
+| `alt-shift-w/e/r` | Move window to workspace |
+| `alt-tab` | Switch to previous workspace |
+| `alt-shift-tab` | Move workspace to next monitor |
+| `alt-slash` | Toggle layout (tiles ↔ accordion) |
+| `alt-shift-slash` | Toggle split orientation |
+| `alt-shift-minus/equal` | Resize focused window |
+| `alt-m` | Cycle monitor focus |
+| `alt-shift-;` | Enter resize mode (`h`/`l` resize, `esc`/`enter` exit) |
+| `alt-shift-s` | Manage mode (one-shot: `esc` reload-config, `r` flatten, `alt-shift-hjkl` join direction) |
 
-Workspaces: **work** (Ghostty, auto-assigned), **entertain**, **random** (catch-all).
+Workspaces: **work** (Ghostty, auto-assigned), **entertain** (default, Safari auto-assigned), **random** (catch-all).
 
 ### Neovim
 
@@ -102,7 +107,7 @@ LazyVim defaults. Custom: `kanagawa-dragon` colorscheme (transparent), biome for
 
 - **Unified theme** — Kanagawa Dragon across nvim, Ghostty, btop, and lazygit for a consistent look everywhere
 - **AI-native editing** — Claude Code runs inside nvim (send context, native diff review); Ollama handles quick local tasks (inline edits, commit messages) offline and quota-free
-- **Keyboard-driven window management** — AeroSpace tiling + Hammerspoon Lua automation
+- **Keyboard-driven window management** — Tili tiling window manager (built-in floating-window centering, no Hammerspoon needed)
 - **Terminal stack** — Ghostty (GPU-accelerated) as the default terminal, herdr as the multiplexer, with Claude session state shown on agent pane borders
 - **Idempotent sync** — one script (`sync.sh`) installs Homebrew packages, symlinks every Stow package, provisions mise runtimes, and pulls the default Ollama model — safe to re-run anytime
 - **Auto-update prompt** — new shells periodically check the repo for remote commits and offer to pull + sync (Enter to accept); `dotfiles-update --force` checks on demand

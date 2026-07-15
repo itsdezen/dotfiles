@@ -21,8 +21,7 @@ dotfiles/
 ├── Brewfile
 ├── zsh/          → ~/.zshrc, ~/.zshenv, ~/.zprofile
 ├── nvim/         → ~/.config/nvim/
-├── aerospace/    → ~/.config/aerospace/
-├── hammerspoon/  → ~/.hammerspoon/
+├── tili/         → ~/.config/tili/
 ├── starship/     → ~/.config/starship.toml
 ├── ghostty/      → ~/.config/ghostty/
 ├── mise/         → ~/.config/mise/config.toml

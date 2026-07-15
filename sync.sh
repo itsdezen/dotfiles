@@ -62,7 +62,7 @@ spin_skip() {
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_REPO="https://github.com/itsdezen/dotfiles"
 DOTFILES_DIR="$HOME/Developer/dotfiles"
-PACKAGES=(zsh nvim aerospace hammerspoon starship ghostty mise fastfetch git ollama superfile btop lazygit claude herdr)
+PACKAGES=(zsh nvim tili starship ghostty mise fastfetch git ollama superfile btop lazygit claude herdr)
 
 # packages whose target dir mixes static config with app-generated state
 # (e.g. claude projects/sessions, herdr logs/sockets/session.json)
@@ -202,7 +202,6 @@ cmd_sync() {
     spin_ok "Homebrew installed"
   fi
   skip "Homebrew $(brew --version | head -1 | awk '{print $2}')"
-  brew trust nikitabobko/tap >/dev/null 2>&1 || true
   spin "Checking packages"
   local _bout
   _bout=$(brew bundle --file="$DOTFILES/Brewfile" -v 2>&1) || abort "brew bundle failed: $_bout"
