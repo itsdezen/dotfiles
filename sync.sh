@@ -202,6 +202,8 @@ cmd_sync() {
     spin_ok "Homebrew installed"
   fi
   skip "Homebrew $(brew --version | head -1 | awk '{print $2}')"
+  brew tap itsdezen/tap &>/dev/null || true
+  brew trust itsdezen/tap &>/dev/null || true
   spin "Checking packages"
   local _bout
   _bout=$(brew bundle --file="$DOTFILES/Brewfile" -v 2>&1) || abort "brew bundle failed: $_bout"
