@@ -42,18 +42,13 @@ float easeBlaze(float x) {
     return pow(1.0 - x, 3.0);
 }
 
-vec4 applyBlaze(vec4 baseColor, vec2 fragCoord) {
-    vec2 vu = norm(fragCoord, 1.);
-
-    vec4 currentCursor = vec4(norm(iCurrentCursor.xy, 1.), norm(iCurrentCursor.zw, 0.));
-    vec4 previousCursor = vec4(norm(iPreviousCursor.xy, 1.), norm(iPreviousCursor.zw, 0.));
-
-    vec2 centerCC = getRectangleCenter(currentCursor);
-    vec2 centerCP = getRectangleCenter(previousCursor);
+vec4 applyBlaze(vec4 baseColor, vec2 vu, vec4 currentCursor, vec2 centerCC, vec2 centerCP) {
+    float progress = clamp((iTime - iTimeCursorChange) / BLAZE_DURATION, 0.0, 1.0);
+    if (progress >= 1.0) {
+        return baseColor;
+    }
 
     float sdfCurrentCursor = sdRectangle(vu, centerCC, currentCursor.zw * 0.5);
-
-    float progress = clamp((iTime - iTimeCursorChange) / BLAZE_DURATION, 0.0, 1.0);
     float easedProgress = easeBlaze(progress);
     float lineLength = distance(centerCC, centerCP) * BLAZE_SIZE_SCALE;
 
@@ -72,14 +67,9 @@ float easeSmear(float x) {
     return pow(1.0 - x, 2.0);
 }
 
-vec4 applySmear(vec4 baseColor, vec2 fragCoord) {
-    vec2 vu = norm(fragCoord, 1.);
-
-    vec4 currentCursor = vec4(norm(iCurrentCursor.xy, 1.), norm(iCurrentCursor.zw, 0.));
-    vec4 previousCursor = vec4(norm(iPreviousCursor.xy, 1.), norm(iPreviousCursor.zw, 0.));
-
-    vec2 head = getRectangleCenter(currentCursor);
-    vec2 tail = getRectangleCenter(previousCursor);
+vec4 applySmear(vec4 baseColor, vec2 vu, vec4 currentCursor, vec2 centerCC, vec2 centerCP) {
+    vec2 head = centerCC;
+    vec2 tail = centerCP;
 
     float progress = clamp((iTime - iTimeCursorChange) / SMEAR_DURATION, 0.0, 1.0);
     if (progress >= 1.0) {
@@ -142,17 +132,35 @@ vec4 applySmoothMove(vec4 baseColor, vec2 fragCoord) {
 
 void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     vec4 color = texture(iChannel0, fragCoord / iResolution.xy);
-    // smoothMove must run first: it paints the solid cursor block at its
-    // glided position, so blaze/smear flashes stay on top instead of
-    // getting overwritten by it.
-    if (ENABLE_SMOOTH) {
-        color = applySmoothMove(color, fragCoord);
-    }
-    if (ENABLE_BLAZE) {
-        color = applyBlaze(color, fragCoord);
-    }
-    if (ENABLE_SMEAR) {
-        color = applySmear(color, fragCoord);
+
+    vec2 vu = norm(fragCoord, 1.);
+    vec4 currentCursor = vec4(norm(iCurrentCursor.xy, 1.), norm(iCurrentCursor.zw, 0.));
+    vec4 previousCursor = vec4(norm(iPreviousCursor.xy, 1.), norm(iPreviousCursor.zw, 0.));
+    vec2 centerCC = getRectangleCenter(currentCursor);
+    vec2 centerCP = getRectangleCenter(previousCursor);
+
+    // Every effect below fades to baseColor outside a radius bounded by
+    // distance(centerCC, centerCP) plus cursor size, so pixels outside this
+    // box are guaranteed no-ops. Skip them instead of paying for the SDF
+    // math on the whole screen every frame.
+    float spread = distance(centerCC, centerCP) + max(max(currentCursor.z, currentCursor.w), max(previousCursor.z, previousCursor.w));
+    vec2 bboxMin = min(centerCC, centerCP) - spread;
+    vec2 bboxMax = max(centerCC, centerCP) + spread;
+    bool inCursorRegion = all(greaterThanEqual(vu, bboxMin)) && all(lessThanEqual(vu, bboxMax));
+
+    if (inCursorRegion) {
+        // smoothMove must run first: it paints the solid cursor block at its
+        // glided position, so blaze/smear flashes stay on top instead of
+        // getting overwritten by it.
+        if (ENABLE_SMOOTH) {
+            color = applySmoothMove(color, fragCoord);
+        }
+        if (ENABLE_BLAZE) {
+            color = applyBlaze(color, vu, currentCursor, centerCC, centerCP);
+        }
+        if (ENABLE_SMEAR) {
+            color = applySmear(color, vu, currentCursor, centerCC, centerCP);
+        }
     }
     fragColor = color;
 }
