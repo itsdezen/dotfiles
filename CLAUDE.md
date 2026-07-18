@@ -25,7 +25,6 @@ dotfiles/
 ├── starship/     → ~/.config/starship.toml
 ├── ghostty/      → ~/.config/ghostty/
 ├── mise/         → ~/.config/mise/config.toml
-├── fastfetch/    → ~/.config/fastfetch/
 ├── git/          → ~/.gitconfig
 ├── ollama/       → ~/.config/ollama/env
 ├── superfile/    → ~/.config/superfile/

@@ -145,11 +145,6 @@ fi
 # ── Ollama ───────────────────────────────────────────────────────────────────
 [[ -f "$XDG_CONFIG_HOME/ollama/env" ]] && source "$XDG_CONFIG_HOME/ollama/env"
 
-# ── Startup ──────────────────────────────────────────────────────────────────
-if command -v fastfetch &>/dev/null && [[ $COLUMNS -ge 70 ]]; then
-  fastfetch
-fi
-
 # ── Dotfiles auto-update ─────────────────────────────────────────────────────
 # Offers to pull + sync when the dotfiles repo is behind its remote.
 # Fetches at most once per $DOTFILES_UPDATE_INTERVAL (default 24h) so shell
