@@ -248,6 +248,7 @@ floating-rules {
     rule app-id="com.apple.Photos"
     rule app-id="com.apple.reminders"
     rule app-id="com.apple.systempreferences"
+    rule app-id="com.cloudflare.1dot1dot1dot1.macos"
     rule app-id="ru.keepcoder.Telegram"
 
     // Example: a rule can override `defaults` per app with its own
@@ -275,6 +276,6 @@ floating-rules {
     defaults {
         center #true
         width-ratio 0.6
-        height-ratio 0.6
+        height-ratio 0.8
     }
 }
