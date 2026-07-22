@@ -25,7 +25,7 @@ gaps {
     // `outer` is the padding around the whole tiled area. Either one number
     // (same on all 4 sides) or four numbers in CSS order: top, right,
     // bottom, left.
-    outer 8 16 16 16
+    outer 16 16 16 16
 
     // How many points of a non-visible accordion sibling peek out from
     // behind the active one. 0 collapses every child to the same full frame.
