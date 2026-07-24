@@ -106,7 +106,7 @@ LazyVim defaults. Custom: `kanagawa-dragon` colorscheme (transparent), biome for
 
 - **Unified theme** — Kanagawa Dragon across nvim, Ghostty, btop, and lazygit for a consistent look everywhere
 - **AI-native editing** — Claude Code runs inside nvim (send context, native diff review); Ollama handles quick local tasks (inline edits, commit messages) offline and quota-free
-- **Keyboard-driven window management** — Tili tiling window manager (built-in floating-window centering, no Hammerspoon needed)
+- **Keyboard-driven window management** — Tili tiling window manager with built-in floating-window centering
 - **Terminal stack** — Ghostty (GPU-accelerated) as the default terminal, herdr as the multiplexer, with Claude session state shown on agent pane borders
 - **Idempotent sync** — one script (`sync.sh`) installs Homebrew packages, symlinks every Stow package, provisions mise runtimes, and pulls the default Ollama model — safe to re-run anytime
 - **Auto-update prompt** — new shells periodically check the repo for remote commits and offer to pull + sync (Enter to accept); `dotfiles-update --force` checks on demand
