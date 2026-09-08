@@ -19,7 +19,7 @@ workspaces {
     // future windows; doesn't relayout ones already tiled.
     workspace "entertain" layout="accordion"
 
-    workspace "random"
+    workspace "random" layout="accordion"
 
     // Workspace names are arbitrary strings — nothing stops you from
     // declaring "1" through "9" here instead (or alongside these) for
