@@ -238,6 +238,37 @@ cmd_sync() {
   fi
   section_end
 
+  # ── code signing ─────────────────────────────────────────────────────────────
+  # newly poured Homebrew bottles are ad-hoc signed; on some macOS versions the
+  # kernel flags them as tainted and SIGKILLs them on first run — re-sign locally
+  # to clear it (see: opencode getting killed right after a fresh install)
+  local _touched_formulae
+  _touched_formulae=$(printf '%s\n%s\n' "$_inst" "$_upg" | grep -E $'\tformula$' | cut -f1 || true)
+  if [[ -n "$_touched_formulae" ]]; then
+    section "Code signing"
+    local _fixed=0
+    while read -r name; do
+      [[ -z "$name" ]] && continue
+      local _bin_dir _f _spctl_out
+      _bin_dir="$(brew --prefix "$name" 2>/dev/null)/bin"
+      [[ -d "$_bin_dir" ]] || continue
+      for _f in "$_bin_dir"/*; do
+        [[ -f "$_f" && -x "$_f" ]] || continue
+        file "$_f" 2>/dev/null | grep -q "Mach-O" || continue
+        _spctl_out=$(spctl -a -vv "$_f" 2>&1) || true
+        [[ "$_spctl_out" == *"invalid signature"* ]] || continue
+        if codesign --force -s - "$_f" &>/dev/null; then
+          item_upd "re-signed $name ($(basename "$_f"))"
+          _fixed=$((_fixed + 1))
+        else
+          warn "could not re-sign $name ($(basename "$_f")) — it may fail to run"
+        fi
+      done
+    done <<<"$_touched_formulae"
+    (( _fixed > 0 )) && ok "Fixed $_fixed binary(ies)" || skip "No tainted signatures found"
+    section_end
+  fi
+
   # ── dotfiles ──────────────────────────────────────────────────────────────────
   section "Dotfiles"
   command -v stow &>/dev/null || abort "stow not found — run: brew install stow"
