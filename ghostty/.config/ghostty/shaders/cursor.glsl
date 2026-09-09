@@ -1,4 +1,4 @@
-// TokyoNight cursor shader: three independent cursor behaviors, toggled below.
+// Rose Pine cursor shader: three independent cursor behaviors, toggled below.
 // - smooth: cursor glides (VS Code-style) from its previous position/size to the current one
 // - blaze:  directional glow trail shaped by the cursor's movement, then fades
 // - smear:  bright streak swiping from the previous to the current cursor position, flash-fades out
@@ -8,10 +8,9 @@ const bool ENABLE_SMOOTH = true;
 const bool ENABLE_BLAZE = true;
 const bool ENABLE_SMEAR = true;
 
-// ---- shared tokyonight accent palette (used by blaze and smear) ----
-// tokyonight only defines one cyan (#7dcfff, ANSI 6/14) so inner and outer share it.
-const vec4 ACCENT_COLOR = vec4(0.490, 0.812, 1.000, 1.0); // tokyonight cyan #7dcfff (inner)
-const vec4 ACCENT_COLOR_BRIGHT = vec4(0.490, 0.812, 1.000, 1.0); // tokyonight cyan #7dcfff (outer)
+// ---- shared rose pine accent palette (used by blaze and smear) ----
+const vec4 ACCENT_COLOR = vec4(0.965, 0.757, 0.467, 1.0); // rose pine gold #f6c177 (inner)
+const vec4 ACCENT_COLOR_BRIGHT = vec4(0.965, 0.757, 0.467, 1.0); // rose pine gold #f6c177 (outer)
 
 float sdRectangle(in vec2 p, in vec2 center, in vec2 halfSize) {
     vec2 d = abs(p - center) - halfSize;
@@ -34,7 +33,7 @@ float sdSegment(vec2 p, vec2 a, vec2 b, out float h) {
     return length(pa - ba * h);
 }
 
-// ---- blaze: tokyonight-colored glow that flashes and fades around the cursor ----
+// ---- blaze: rose pine-colored glow that flashes and fades around the cursor ----
 
 const float BLAZE_DURATION = 0.3; // seconds
 const float BLAZE_SIZE_SCALE = 0.55; // shrinks the glow halo reach (1.0 = full trail length)

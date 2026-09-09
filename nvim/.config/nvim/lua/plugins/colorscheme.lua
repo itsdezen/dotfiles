@@ -1,29 +1,27 @@
 return {
 	{
-		"folke/tokyonight.nvim",
-		name = "tokyonight",
+		"rose-pine/neovim",
+		name = "rose-pine",
 		lazy = false,
 		priority = 1000,
 		opts = {
-			style = "night",
-			transparent = true,
+			dark_variant = "main",
 			styles = {
-				sidebars = "transparent",
-				floats = "transparent",
+				transparency = true,
 			},
-			on_highlights = function(highlights, colors)
-				highlights.NormalFloat = { bg = "none" }
-				highlights.FloatBorder = { bg = "none" }
-				highlights.FloatTitle = { bg = "none" }
-				highlights.WinSeparator = { fg = colors.fg_gutter, bold = true }
-				highlights.LineNr = { fg = colors.dark5 }
-				highlights.LineNrAbove = { fg = colors.dark5 }
-				highlights.LineNrBelow = { fg = colors.dark5 }
-			end,
+			highlight_groups = {
+				NormalFloat = { bg = "none" },
+				FloatBorder = { bg = "none" },
+				FloatTitle = { bg = "none" },
+				WinSeparator = { fg = "highlight_high", bold = true },
+				LineNr = { fg = "muted" },
+				LineNrAbove = { fg = "muted" },
+				LineNrBelow = { fg = "muted" },
+			},
 		},
 		config = function(_, opts)
-			require("tokyonight").setup(opts)
-			vim.cmd.colorscheme("tokyonight")
+			require("rose-pine").setup(opts)
+			vim.cmd.colorscheme("rose-pine")
 		end,
 	},
 }

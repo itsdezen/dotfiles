@@ -17,8 +17,8 @@ Personal macOS development environment using **GNU Stow** for dotfiles managemen
 - 🐙 **lazygit** — terminal UI for git, standalone or inside Neovim (`<leader>gg`); installed via Brewfile, config/theme not managed by this repo
 - 🐳 **Colima + Docker CLI** — terminal-only container runtime, Colima runs the backend VM for `docker`
 - 🐳 **lazydocker** — terminal UI for docker, same author as lazygit
-- 📁 **superfile** — terminal file manager (TokyoNight Night theme)
-- 📊 **btop** — resource monitor (CPU, memory, disks, network, processes; TokyoNight theme)
+- 📁 **superfile** — terminal file manager (Rosé Pine theme)
+- 📊 **btop** — resource monitor (CPU, memory, disks, network, processes; Rosé Pine theme)
 
 ## Quick Start
 
@@ -65,7 +65,7 @@ cd ~/Developer/dotfiles && ./sync.sh
 
 ## Highlights
 
-- **Unified theme** — TokyoNight Night across nvim, Ghostty, superfile, btop, herdr, and opencode for a consistent look everywhere (starship and tmux are terminal-adaptive instead)
+- **Unified theme** — Rosé Pine across nvim, Ghostty, superfile, herdr, and opencode (btop has no built-in Rosé Pine preset, so it uses `horizon` as the closest match) for a consistent look everywhere (starship and tmux are terminal-adaptive instead)
 - **Keyboard-driven window management** — Tili tiling window manager with built-in floating-window centering
 - **Terminal stack** — herdr shows Claude session state on agent pane borders
 - **Idempotent sync** — one script (`sync.sh`) installs Homebrew packages, symlinks every Stow package, and provisions mise runtimes
