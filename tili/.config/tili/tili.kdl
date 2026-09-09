@@ -21,6 +21,8 @@ workspaces {
 
     workspace "random" layout="accordion"
 
+    workspace "trade" layout="accordion"
+
     // Workspace names are arbitrary strings — nothing stops you from
     // declaring "1" through "9" here instead (or alongside these) for
     // numbered switching; just add your own alt-1.."9" binds below if you
@@ -196,10 +198,12 @@ keybindings mode="main" {
     bind "alt-w" "workspace work"
     bind "alt-e" "workspace entertain"
     bind "alt-r" "workspace random"
+    bind "alt-t" "workspace trade"
 
     bind "alt-shift-w" "move-node-to-workspace work"
     bind "alt-shift-e" "move-node-to-workspace entertain"
     bind "alt-shift-r" "move-node-to-workspace random"
+    bind "alt-shift-t" "move-node-to-workspace trade"
 
     // Switches back to whichever workspace was active before this one.
     bind "alt-tab" "workspace-back"
@@ -275,6 +279,7 @@ keybindings mode="manage" auto-exit=#true {
 workspace-rules {
     rule app-id="com.mitchellh.ghostty" workspace="work"
     rule app-id="com.apple.Safari" workspace="entertain"
+    rule app-id="com.tradingview.tradingviewapp.desktop" workspace="trade"
 }
 
 // Windows matching one of these float instead of tiling, and are sized on
