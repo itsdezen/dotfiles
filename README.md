@@ -65,7 +65,7 @@ cd ~/Developer/dotfiles && ./sync.sh
 
 ## Highlights
 
-- **Unified theme** — Rosé Pine across nvim, Ghostty, superfile, herdr, and opencode (btop has no built-in Rosé Pine preset, so it uses `horizon` as the closest match) for a consistent look everywhere (starship and tmux are terminal-adaptive instead)
+- **Unified theme** — Gruvbox across nvim, Ghostty, superfile, herdr, opencode, and btop for a consistent look everywhere (starship and tmux are terminal-adaptive instead)
 - **Keyboard-driven window management** — Tili tiling window manager with built-in floating-window centering
 - **Terminal stack** — herdr shows Claude session state on agent pane borders
 - **Idempotent sync** — one script (`sync.sh`) installs Homebrew packages, symlinks every Stow package, and provisions mise runtimes
