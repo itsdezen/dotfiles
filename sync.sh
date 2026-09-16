@@ -217,6 +217,8 @@ cmd_sync() {
   run "Checking packages"
   local _bout
   _bout=$(SUDO_PROMPT="      Password: " brew bundle --file="$DOTFILES/Brewfile" -v 2>&1) || abort "brew bundle failed: $_bout"
+  # depends on exact wording of `brew bundle -v` output — a Homebrew wording
+  # change silently drops install/upgrade counts back to "up to date"
   local _using _inst _upg
   _using=$(grep -cE '^Using ' <<<"$_bout" || true)
   _inst=$(grep -E '^Installing .+\. It is not currently installed\.$' <<<"$_bout" \
@@ -343,44 +345,49 @@ cmd_sync() {
     local lock_dirty_before=false
     git -C "$DOTFILES" diff --quiet -- nvim/.config/nvim/lazy-lock.json 2>/dev/null || lock_dirty_before=true
     spin "Syncing plugins"
-    local nvim_log
-    nvim_log="$(nvim --headless "+Lazy! sync" +qa 2>&1)" \
-      || { spin_warn "Plugin sync failed"; rm -f "$lock_before"; return; }
-    local _plugin_diff=""
-    if [[ -n "$lock_before" && -f "$lock" ]] && command -v jq &>/dev/null; then
-      _plugin_diff=$(jq -sr '
-          (.[0] // {}) as $old | (.[1] // {}) as $new |
-          ($new | keys[]) as $k
-          | ($old[$k].commit // "") as $o | ($new[$k].commit) as $n
-          | select($o != $n)
-          | "\(if $o == "" then "new" else "upd" end)\t\($k)\t\($o[0:7])\t\($n[0:7])"
-        ' "$lock_before" "$lock" 2>/dev/null) || true
-    fi
-    rm -f "$lock_before"
-    if [[ -n "$_plugin_diff" ]]; then
-      spin_ok "Plugins synced"
-      while IFS=$'\t' read -r kind name old new; do
-        [[ -z "$name" ]] && continue
-        if [[ "$kind" == "new" ]]; then item_new "$name  $new"; else item_upd "$name  $old → $new"; fi
-      done <<<"$_plugin_diff"
+    local nvim_log _nvim_sync_ok=true
+    nvim_log="$(nvim --headless "+Lazy! sync" +qa 2>&1)" || _nvim_sync_ok=false
+    if ! $_nvim_sync_ok; then
+      spin_warn "Plugin sync failed"
+      while IFS= read -r _line; do warn "  $_line"; done <<<"$(tail -n 5 <<<"$nvim_log")"
+      rm -f "$lock_before"
     else
-      spin_skip "Plugins up to date"
-    fi
-    if ! $lock_dirty_before && ! git -C "$DOTFILES" diff --quiet -- nvim/.config/nvim/lazy-lock.json 2>/dev/null; then
-      local _commit_resp="y"
-      if $_TTY; then
-        printf "      ${Y}?${NC} commit lockfile update? [Y/n] "
-        read -r _commit_resp
+      local _plugin_diff=""
+      if [[ -n "$lock_before" && -f "$lock" ]] && command -v jq &>/dev/null; then
+        _plugin_diff=$(jq -sr '
+            (.[0] // {}) as $old | (.[1] // {}) as $new |
+            ($new | keys[]) as $k
+            | ($old[$k].commit // "") as $o | ($new[$k].commit) as $n
+            | select($o != $n)
+            | "\(if $o == "" then "new" else "upd" end)\t\($k)\t\($o[0:7])\t\($n[0:7])"
+          ' "$lock_before" "$lock" 2>/dev/null) || true
       fi
-      if [[ -z "$_commit_resp" || "$_commit_resp" =~ ^[Yy]$ ]]; then
-        if git -C "$DOTFILES" add nvim/.config/nvim/lazy-lock.json 2>/dev/null \
-          && git -C "$DOTFILES" commit -m "⬆️ nvim: update plugin lockfile" >/dev/null 2>&1; then
-          item_new "committed lockfile update"
-        else
-          warn "lockfile changed but auto-commit failed"
-        fi
+      rm -f "$lock_before"
+      if [[ -n "$_plugin_diff" ]]; then
+        spin_ok "Plugins synced"
+        while IFS=$'\t' read -r kind name old new; do
+          [[ -z "$name" ]] && continue
+          if [[ "$kind" == "new" ]]; then item_new "$name  $new"; else item_upd "$name  $old → $new"; fi
+        done <<<"$_plugin_diff"
       else
-        skip "lockfile commit skipped"
+        spin_skip "Plugins up to date"
+      fi
+      if ! $lock_dirty_before && ! git -C "$DOTFILES" diff --quiet -- nvim/.config/nvim/lazy-lock.json 2>/dev/null; then
+        local _commit_resp="y"
+        if $_TTY; then
+          printf "      ${Y}?${NC} commit lockfile update? [Y/n] "
+          read -r _commit_resp
+        fi
+        if [[ -z "$_commit_resp" || "$_commit_resp" =~ ^[Yy]$ ]]; then
+          if git -C "$DOTFILES" add nvim/.config/nvim/lazy-lock.json 2>/dev/null \
+            && git -C "$DOTFILES" commit -m "⬆️ nvim: update plugin lockfile" >/dev/null 2>&1; then
+            item_new "committed lockfile update"
+          else
+            warn "lockfile changed but auto-commit failed"
+          fi
+        else
+          skip "lockfile commit skipped"
+        fi
       fi
     fi
   else
