@@ -1,24 +1,25 @@
 return {
 	{
-		"ellisonleao/gruvbox.nvim",
-		name = "gruvbox",
+		"folke/tokyonight.nvim",
 		lazy = false,
 		priority = 1000,
 		opts = {
-			transparent_mode = true,
-			overrides = {
-				NormalFloat = { bg = "NONE" },
-				FloatBorder = { bg = "NONE" },
-				FloatTitle = { bg = "NONE" },
-				WinSeparator = { fg = "#7c6f64", bold = true },
-				LineNr = { fg = "#928374" },
-				LineNrAbove = { fg = "#928374" },
-				LineNrBelow = { fg = "#928374" },
+			style = "night",
+			transparent = true,
+			styles = {
+				sidebars = "transparent",
+				floats = "transparent",
 			},
+			on_highlights = function(highlights, colors)
+				highlights.WinSeparator = { fg = colors.border, bold = true }
+				highlights.LineNr = { fg = colors.fg_gutter }
+				highlights.LineNrAbove = { fg = colors.fg_gutter }
+				highlights.LineNrBelow = { fg = colors.fg_gutter }
+			end,
 		},
 		config = function(_, opts)
-			require("gruvbox").setup(opts)
-			vim.cmd.colorscheme("gruvbox")
+			require("tokyonight").setup(opts)
+			vim.cmd.colorscheme("tokyonight")
 		end,
 	},
 }

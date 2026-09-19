@@ -28,7 +28,7 @@ require("lazy").setup({
     lazy = true,
     version = false,
   },
-  install = { colorscheme = { "gruvbox", "habamax" } },
+  install = { colorscheme = { "tokyonight", "habamax" } },
   checker = { enabled = true, notify = false, frequency = 86400 },
   performance = {
     rtp = {
