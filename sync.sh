@@ -238,6 +238,51 @@ cmd_sync() {
   else
     spin_skip "Packages up to date ($_using)"
   fi
+
+  spin "Checking for cleanup candidates"
+  local _cout
+  _cout=$(brew bundle cleanup --file="$DOTFILES/Brewfile" 2>&1) || true
+  local _cleanup_list
+  _cleanup_list=$(awk '
+      /^Would uninstall casks:/    { sect="cask"; next }
+      /^Would uninstall formulae:/ { sect="formula"; next }
+      /^Would untap:/              { sect="tap"; next }
+      /^Would /                    { sect=""; next }
+      sect && NF { print sect"\t"$0 }
+    ' <<<"$_cout")
+  # formulae pulled in as transitive deps of an unlisted formula (e.g. every
+  # library ffmpeg-full links against) are noise — only surface leaves
+  # (`brew leaves`): formulae nothing else installed depends on
+  if grep -q $'^formula\t' <<<"$_cleanup_list"; then
+    local _leaves _filtered kind name
+    _leaves=$(brew leaves)
+    _filtered=""
+    while IFS=$'\t' read -r kind name; do
+      [[ -z "$name" ]] && continue
+      if [[ "$kind" != "formula" ]] || grep -Fxq "$name" <<<"$_leaves"; then
+        _filtered+="$kind"$'\t'"$name"$'\n'
+      fi
+    done <<<"$_cleanup_list"
+    _cleanup_list="${_filtered%$'\n'}"
+  fi
+  if [[ -n "$_cleanup_list" ]]; then
+    spin_warn "$(wc -l <<<"$_cleanup_list" | tr -d ' ') package(s) not in Brewfile"
+    while IFS=$'\t' read -r kind name; do
+      [[ -z "$name" ]] && continue
+      item_rm "$name ($kind)"
+    done <<<"$_cleanup_list"
+    # NOT `brew bundle cleanup --force` — that acts on the unfiltered list
+    # (every transitive dep too), not just the leaves shown above
+    local _rm_formulae _rm_casks _rm_taps
+    _rm_formulae=$(awk -F'\t' '$1=="formula"{printf "%s ", $2}' <<<"$_cleanup_list")
+    _rm_casks=$(awk -F'\t' '$1=="cask"{printf "%s ", $2}' <<<"$_cleanup_list")
+    _rm_taps=$(awk -F'\t' '$1=="tap"{printf "%s ", $2}' <<<"$_cleanup_list")
+    [[ -n "$_rm_formulae" ]] && warn "run 'brew uninstall ${_rm_formulae% } && brew autoremove' to remove"
+    [[ -n "$_rm_casks"    ]] && warn "run 'brew uninstall --cask ${_rm_casks% }' to remove"
+    [[ -n "$_rm_taps"     ]] && warn "run 'brew untap ${_rm_taps% }' to remove"
+  else
+    spin_skip "No cleanup candidates"
+  fi
   section_end
 
   # ── code signing ─────────────────────────────────────────────────────────────

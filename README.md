@@ -69,6 +69,7 @@ cd ~/Developer/dotfiles && ./sync.sh
 - **Keyboard-driven window management** — Tili tiling window manager with built-in floating-window centering
 - **Terminal stack** — herdr shows Claude session state on agent pane borders
 - **Idempotent sync** — one script (`sync.sh`) installs Homebrew packages, symlinks every Stow package, and provisions mise runtimes
+- **Cleanup candidates report** — `sync.sh` flags installed Homebrew packages not in the Brewfile (never removes automatically)
 - **Auto-update prompt** — new shells periodically check the repo for remote commits and offer to pull + sync (Enter to accept); `dotfiles-update --force` checks on demand
 - **Runtimes pinned centrally** — mise versions live in this repo instead of per-project
 
