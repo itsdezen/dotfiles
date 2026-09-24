@@ -216,7 +216,20 @@ cmd_sync() {
   $_hb_updated && spin_ok "Homebrew updated" || spin_warn "Homebrew update failed"
   run "Checking packages"
   local _bout
-  _bout=$(SUDO_PROMPT="      Password: " brew bundle --file="$DOTFILES/Brewfile" -v 2>&1) || abort "brew bundle failed: $_bout"
+  _bout=$(SUDO_PROMPT="      Password: " brew bundle --file="$DOTFILES/Brewfile" -v 2>&1) || {
+    # a Brewfile cask rename (e.g. claude-code -> claude-code@latest) leaves the
+    # old cask installed and conflicting; `brew bundle cleanup` would remove it,
+    # but bundle aborts before reaching cleanup, so retry once after clearing it
+    local _stale_cask
+    _stale_cask=$(grep -oE "conflicts with '[^']+'" <<<"$_bout" | head -1 | sed -E "s/conflicts with '(.+)'/\1/")
+    if [[ -n "$_stale_cask" ]] && ! grep -q "cask \"$_stale_cask\"" "$DOTFILES/Brewfile" && brew list --cask "$_stale_cask" &>/dev/null; then
+      warn "removing stale cask $_stale_cask (renamed in Brewfile)"
+      brew uninstall --cask "$_stale_cask" &>/dev/null || true
+      _bout=$(SUDO_PROMPT="      Password: " brew bundle --file="$DOTFILES/Brewfile" -v 2>&1) || abort "brew bundle failed: $_bout"
+    else
+      abort "brew bundle failed: $_bout"
+    fi
+  }
   # depends on exact wording of `brew bundle -v` output — a Homebrew wording
   # change silently drops install/upgrade counts back to "up to date"
   local _using _inst _upg
