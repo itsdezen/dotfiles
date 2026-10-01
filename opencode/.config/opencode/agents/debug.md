@@ -1,6 +1,6 @@
 ---
 description: Investigates bugs, reproduces failures, and applies focused fixes with approval.
-mode: primary
+mode: subagent
 permission:
   edit: ask
   bash: ask
