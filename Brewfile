@@ -63,12 +63,6 @@ cask "google-chrome"
 
 # ── AI Coding Agents ──────────────────────────────────────────────────────────
 
-# Claude Code - Anthropic's terminal-based AI coding assistant
-cask "claude-code@latest"
-
-# Codex - OpenAI's terminal-based coding agent
-cask "codex"
-
 # OpenCode - SST's terminal-based AI coding agent
 brew "opencode"
 

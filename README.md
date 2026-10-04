@@ -59,7 +59,6 @@ cd ~/Developer/dotfiles && ./sync.sh
 | `superfile` | `~/.config/superfile/` |
 | `btop` | `~/.config/btop/` |
 | `tmux` | `~/.tmux.conf` |
-| `claude` | `~/.claude/settings.json` |
 | `herdr` | `~/.config/herdr/config.toml` |
 | `opencode` | `~/.config/opencode/opencode.jsonc`, `~/.config/opencode/cli.json`, `~/.config/opencode/agents/` |
 
@@ -67,7 +66,6 @@ cd ~/Developer/dotfiles && ./sync.sh
 
 - **Unified theme** — Tokyo Night across nvim, Ghostty, superfile, herdr, opencode, and btop for a consistent look everywhere (starship and tmux are terminal-adaptive instead)
 - **Keyboard-driven window management** — Tili tiling window manager with built-in floating-window centering
-- **Terminal stack** — herdr shows Claude session state on agent pane borders
 - **OpenCode workflow** — native Build and read-only Plan modes, with runtime auto-approval available from the command palette
 - **Idempotent sync** — one script (`sync.sh`) installs Homebrew packages, symlinks every Stow package, and provisions mise runtimes
 - **Cleanup candidates report** — `sync.sh` flags installed Homebrew packages not in the Brewfile (never removes automatically)
