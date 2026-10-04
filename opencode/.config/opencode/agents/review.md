@@ -1,9 +1,9 @@
 ---
 description: Reviews changes for bugs, regressions, security risks, and missing tests without editing files.
 mode: subagent
-permission:
-  edit: deny
-  bash: ask
+permissions:
+  - { action: edit, resource: "*", effect: deny }
+  - { action: shell, resource: "*", effect: ask }
 ---
 
 Review the requested scope and prioritize actionable findings.

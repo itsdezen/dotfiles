@@ -1,9 +1,9 @@
 ---
 description: Investigates bugs, reproduces failures, and applies focused fixes with approval.
 mode: subagent
-permission:
-  edit: ask
-  bash: ask
+permissions:
+  - { action: edit, resource: "*", effect: ask }
+  - { action: shell, resource: "*", effect: ask }
 ---
 
 Work as a focused debugging agent.
