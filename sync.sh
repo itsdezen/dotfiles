@@ -201,9 +201,12 @@ cmd_sync() {
     command -v brew &>/dev/null || abort "Homebrew install failed"
     spin_ok "Homebrew installed"
   fi
-  skip "Homebrew $(brew --version | head -1 | awk '{print $2}')"
+  # pin brew to stable tags: dev commands (e.g. `brew trust`) enable developer
+  # mode, which makes `brew update` track the beta `main` branch
+  export HOMEBREW_UPDATE_TO_TAG=1
   brew tap itsdezen/tap &>/dev/null || true
   brew trust itsdezen/tap &>/dev/null || true
+  brew developer off &>/dev/null || true
   spin "Updating Homebrew"
   local _hb_updated=true
   brew update &>/dev/null || _hb_updated=false
@@ -214,6 +217,7 @@ cmd_sync() {
     git -C "$_hb_repo" checkout --quiet "$_hb_tag" &>/dev/null || true
   fi
   $_hb_updated && spin_ok "Homebrew updated" || spin_warn "Homebrew update failed"
+  skip "Homebrew $(brew --version | head -1 | awk '{print $2}')"
   run "Checking packages"
   local _bout
   _bout=$(SUDO_PROMPT="      Password: " brew bundle --file="$DOTFILES/Brewfile" -v 2>&1) || {
