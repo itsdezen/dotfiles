@@ -19,7 +19,10 @@ section() {
   printf "\n${P}${B}➤ %s${NC}\n" "$*"
 }
 section_end() {
-  [[ -n "$_section_t" ]] && printf "  ${D}%ds${NC}\n" "$(( SECONDS - _section_t ))"
+  [[ -n "$_section_t" ]] || return 0
+  local _d=$(( SECONDS - _section_t ))
+  # sub-3s durations are noise, not signal — stay silent
+  if (( _d >= 3 )); then printf "  ${D}%ds${NC}\n" "$_d"; fi
 }
 
 # ── spinner ──────────────────────────────────────────────────────────────────
@@ -74,6 +77,11 @@ NO_FOLD_PACKAGES=(herdr btop superfile)
 
 # ── stow helpers ────────────────────────────────────────────────────────────────
 
+# per-run stow results, aggregated by cmd_sync into a single summary line
+STOW_OK=()
+STOW_FAIL=()
+STOW_REPLACED=()
+
 is_no_fold() {
   local pkg="$1" p
   for p in "${NO_FOLD_PACKAGES[@]}"; do
@@ -84,7 +92,7 @@ is_no_fold() {
 
 stow_pkg() {
   local pkg="$1"
-  [[ -d "$DOTFILES/$pkg" ]] || { warn "package not found: $pkg"; return; }
+  [[ -d "$DOTFILES/$pkg" ]] || { warn "package not found: $pkg"; STOW_FAIL+=("$pkg"); return; }
   local fold_flag=""
   is_no_fold "$pkg" && fold_flag="--no-folding"
   # $fold_flag intentionally unquoted: word-splits away when empty (bash 3.2 on
@@ -103,13 +111,13 @@ stow_pkg() {
     rm -rf "$target"
   done <<<"$conflicts"
   if stow -t "$HOME" -R $fold_flag "$pkg" 2>/dev/null; then
-    ok "$pkg"
+    STOW_OK+=("$pkg")
     while IFS= read -r conflict; do
       [[ -n "$conflict" ]] || continue
-      item_rm "replaced ~/$conflict"
+      STOW_REPLACED+=("$conflict")
     done <<<"$conflicts"
   else
-    warn "$pkg — stow failed"
+    STOW_FAIL+=("$pkg")
   fi
 }
 
@@ -193,11 +201,9 @@ cmd_sync() {
   # ── system ────────────────────────────────────────────────────────────────────
   section "System"
   [[ "$(uname)" == "Darwin" ]] || abort "macOS only"
-  skip "macOS $(sw_vers -productVersion)"
-
   command -v git  &>/dev/null || abort "git missing — install xcode cli tools: xcode-select --install"
   command -v curl &>/dev/null || abort "curl missing — install xcode cli tools: xcode-select --install"
-  skip "git · curl"
+  skip "macOS $(sw_vers -productVersion) · git · curl"
   section_end
 
   # ── homebrew ──────────────────────────────────────────────────────────────────
@@ -225,8 +231,11 @@ cmd_sync() {
   if [[ -n "$_hb_tag" ]]; then
     git -C "$_hb_repo" checkout --quiet "$_hb_tag" &>/dev/null || true
   fi
-  $_hb_updated && spin_ok "Homebrew updated" || spin_warn "Homebrew update failed"
-  skip "Homebrew $(brew --version | head -1 | awk '{print $2}')"
+  local _hb_ver
+  _hb_ver="$(brew --version | head -1 | awk '{print $2}')"
+  if $_hb_updated; then spin_ok "Homebrew updated · $_hb_ver"; else spin_warn "Homebrew update failed · $_hb_ver"; fi
+  # not a spinner: brew bundle can prompt for a sudo password, which a
+  # redrawing spinner would clobber — the line stays until the result follows
   run "Checking packages"
   local _bout
   _bout=$(SUDO_PROMPT="      Password: " brew bundle --file="$DOTFILES/Brewfile" -v 2>&1) || {
@@ -349,6 +358,19 @@ cmd_sync() {
   command -v stow &>/dev/null || abort "stow not found — run: brew install stow"
   cd "$DOTFILES"
   for pkg in "${PACKAGES[@]}"; do stow_pkg "$pkg"; done
+  if (( ${#STOW_FAIL[@]} == 0 )); then
+    ok "stowed ${#STOW_OK[@]} packages"
+  else
+    warn "stowed ${#STOW_OK[@]}/${#PACKAGES[@]} — failed: ${STOW_FAIL[*]}"
+  fi
+  if (( ${#STOW_REPLACED[@]} > 0 )); then
+    local _repl
+    _repl="$(printf '%s\n' "${STOW_REPLACED[@]}")"
+    while IFS= read -r conflict; do
+      [[ -n "$conflict" ]] || continue
+      item_rm "replaced ~/$conflict"
+    done <<<"$_repl"
+  fi
   section_end
 
   # ── tmux plugins ──────────────────────────────────────────────────────────────
@@ -358,8 +380,6 @@ cmd_sync() {
     spin "Cloning TPM"
     git clone --quiet --depth 1 https://github.com/tmux-plugins/tpm "$TPM_DIR"
     spin_ok "TPM cloned"
-  else
-    skip "TPM"
   fi
   spin "Installing plugins"
   if "$TPM_DIR/bin/install_plugins" &>/dev/null; then
@@ -385,28 +405,38 @@ cmd_sync() {
   # ── runtimes ──────────────────────────────────────────────────────────────────
   section "Runtimes"
   command -v mise &>/dev/null || abort "mise not found"
-  spin "Installing runtimes"
-  local _mout
+  spin "Syncing runtimes"
+  local _mout _uout
   _mout=$(mise install --yes 2>&1) || abort "mise install failed: $_mout"
-  if echo "$_mout" | grep -q "all tools are installed"; then
-    spin_skip "Runtimes already installed"
-  else
-    spin_ok "Runtimes installed"
-  fi
-
-  spin "Upgrading runtimes"
-  local _uout
   _uout=$(mise upgrade --yes 2>&1) || abort "mise upgrade failed: $_uout"
-  if echo "$_uout" | grep -qi "up to date"; then
-    spin_skip "Runtimes already latest"
+  if echo "$_mout" | grep -q "all tools are installed" \
+    && echo "$_uout" | grep -qi "up to date"; then
+    spin_skip "Runtimes up to date"
   else
-    spin_ok "Runtimes upgraded"
+    spin_ok "Runtimes updated"
+    echo "$_mout" | grep -vq "all tools are installed" && item_new "installed missing runtimes"
+    echo "$_uout" | grep -vqi "up to date" && item_upd "upgraded outdated runtimes"
   fi
 
+  # compact inventory: backend-qualified names shortened (go:golang.org/x/tools/gopls
+  # → gopls), wrapped at entry boundaries so lines never break mid-runtime
   eval "$(mise env)"
-  mise ls --current 2>/dev/null | while read -r name version _; do
-    [[ -n "$name" ]] && skip "$name $version"
-  done
+  local _rtl _ent name version
+  _rtl=""
+  while read -r name version _; do
+    [[ -n "$name" ]] || continue
+    case "$name" in *:*) name="${name##*:}"; name="${name##*/}" ;; esac
+    _ent="$name $version"
+    if [[ -z "$_rtl" ]]; then
+      _rtl="$_ent"
+    elif (( ${#_rtl} + ${#_ent} + 3 > 76 )); then
+      printf "  ${D}%s${NC}\n" "$_rtl"
+      _rtl="$_ent"
+    else
+      _rtl+=" · $_ent"
+    fi
+  done < <(mise ls --current 2>/dev/null)
+  [[ -n "$_rtl" ]] && printf "  ${D}%s${NC}\n" "$_rtl"
   section_end
 
   # ── editor ────────────────────────────────────────────────────────────────────
@@ -468,7 +498,7 @@ cmd_sync() {
   fi
   section_end
 
-  printf "\n  ${G}✓${NC} done  ${D}$(( SECONDS - _t0 ))s total${NC}\n\n"
+  printf "\n  ${G}✓${NC} done ${D}· $(( SECONDS - _t0 ))s${NC}\n\n"
 }
 
 # ── entrypoint ──────────────────────────────────────────────────────────────────
