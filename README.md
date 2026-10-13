@@ -41,7 +41,7 @@ cd ~/Developer/dotfiles && ./sync.sh
 
 | Script | Description |
 |--------|-------------|
-| `./sync.sh` | Sync everything: Homebrew, dotfiles, runtimes, nvim/tmux plugins |
+| `./sync.sh` | Sync everything: Homebrew, dotfiles, runtimes, nvim/tmux plugins — and prune links left behind by dropped packages |
 | `./sync.sh bootstrap` | Fresh machine setup: Xcode CLI tools → clone → sync |
 | `./sync.sh uninstall` | Remove all dotfiles symlinks, zinit, and TPM |
 
@@ -72,6 +72,7 @@ cd ~/Developer/dotfiles && ./sync.sh
 - **Keyboard-driven window management** — Tili tiling window manager with built-in floating-window centering
 - **OpenCode** — default Build and Plan agents, plus an `/auto` plugin for runtime auto-approval without touching config
 - **Idempotent sync** — one script (`sync.sh`) installs Homebrew packages, symlinks every Stow package, and provisions mise runtimes
+- **Self-pruning symlinks** — dropping a package from `PACKAGES` doesn't unstow it elsewhere, so `sync.sh` prunes any link back into this repo whose target is gone or belongs to a package no longer listed
 - **Cleanup candidates report** — `sync.sh` flags installed Homebrew packages not in the Brewfile (never removes automatically)
 - **Auto-update prompt** — new shells periodically check the repo for remote commits and offer to pull + sync (Enter to accept); `dotfiles-update --force` checks on demand
 - **Runtimes managed centrally** — mise versions live in this repo instead of per-project

@@ -86,10 +86,19 @@ NO_FOLD_PACKAGES=(herdr btop superfile)
 STOW_OK=()
 STOW_FAIL=()
 STOW_REPLACED=()
+PRUNED=()
 
 is_no_fold() {
   local pkg="$1" p
   for p in "${NO_FOLD_PACKAGES[@]}"; do
+    [[ "$p" == "$pkg" ]] && return 0
+  done
+  return 1
+}
+
+is_package() {
+  local pkg="$1" p
+  for p in "${PACKAGES[@]}"; do
     [[ "$p" == "$pkg" ]] && return 0
   done
   return 1
@@ -136,6 +145,76 @@ unstow_pkg() {
   else
     warn "$pkg unstow failed"
   fi
+}
+
+# ── prune ───────────────────────────────────────────────────────────────────────
+
+# `stow -D` can only unwind a package that still exists on disk, so dropping one
+# from PACKAGES — or renaming/deleting a tracked file — strands its links in
+# $HOME as dangling symlinks (`stow` keeps no manifest to clean up later). Walk
+# the only two places packages ever link into — $HOME itself and ~/.config — and
+# drop links back into this repo that are broken or owned by a delisted package.
+
+# lexical (symlink-free) path normalisation — collapses //, /./ and /.., so a
+# link and $DOTFILES compare equal even when one is spelled with a trailing or
+# doubled slash (e.g. $TMPDIR-derived paths)
+prune_canon() {
+  printf '%s' "$1" | perl -e '
+    local $/; my $p = <STDIN>; chomp $p;
+    my @parts;
+    for my $c (split m{/}, $p) {
+      next if $c eq "" || $c eq ".";
+      $c eq ".." ? pop(@parts) : push(@parts, $c);
+    }
+    print "/", join("/", @parts);
+  '
+}
+
+# absolute path a link resolves to; works even when the target is gone, which is
+# what lets a dangling link be classified rather than skipped
+prune_abs_target() {
+  local link="$1" tgt
+  tgt="$(readlink "$link")" || return 0
+  [[ -n "$tgt" ]] || return 0
+  case "$tgt" in
+    /*) prune_canon "$tgt" ;;
+    *)  prune_canon "${link%/*}/$tgt" ;;
+  esac
+}
+
+# a delisted package leaves its now-empty ~/.config/<pkg>/ behind after its last
+# link is pruned — unwrap those, but never touch ~/.config itself
+prune_empty_dirs() {
+  local dir="$1" root="$HOME/.config"
+  while [[ "$dir" == "$root/"* && -d "$dir" && -z "$(ls -A "$dir" 2>/dev/null)" ]]; do
+    rmdir "$dir" 2>/dev/null || break
+    dir="$(dirname "$dir")"
+  done
+}
+
+prune_links() {
+  local link abs owner links repo_a repo_b
+  links="$( { find "$HOME" -maxdepth 1 -type l
+              find "$HOME/.config" -type l
+            } 2>/dev/null )"
+  [[ -n "$links" ]] || return 0
+  repo_a="$(prune_canon "$DOTFILES")"
+  repo_b="$(prune_canon "$DOTFILES_DIR")"
+  while IFS= read -r link; do
+    [[ -n "$link" && -L "$link" ]] || continue
+    abs="$(prune_abs_target "$link")"
+    case "$abs" in
+      "$repo_a"/*) owner="${abs#"$repo_a"/}" ;;
+      "$repo_b"/*) owner="${abs#"$repo_b"/}" ;;
+      *) continue ;;
+    esac
+    owner="${owner%%/*}"
+    # keep it only while the link is live and its package is still listed
+    if [[ -e "$link" ]] && is_package "$owner"; then continue; fi
+    rm -f "$link"
+    PRUNED+=("${link#"$HOME"/}")
+    prune_empty_dirs "$(dirname "$link")"
+  done <<<"$links"
 }
 
 # ── bootstrap ───────────────────────────────────────────────────────────────────
@@ -363,8 +442,11 @@ cmd_sync() {
   command -v stow &>/dev/null || abort "stow not found — run: brew install stow"
   cd "$DOTFILES"
   for pkg in "${PACKAGES[@]}"; do stow_pkg "$pkg"; done
+  prune_links
+  local _prune_note=""
+  if (( ${#PRUNED[@]} > 0 )); then _prune_note=" · pruned ${#PRUNED[@]}"; fi
   if (( ${#STOW_FAIL[@]} == 0 )); then
-    ok "stowed ${#STOW_OK[@]} packages"
+    ok "stowed ${#STOW_OK[@]} packages$_prune_note"
   else
     warn "stowed ${#STOW_OK[@]}/${#PACKAGES[@]} — failed: ${STOW_FAIL[*]}"
   fi
@@ -375,6 +457,12 @@ cmd_sync() {
       [[ -n "$conflict" ]] || continue
       item_rm "replaced ~/$conflict"
     done <<<"$_repl"
+  fi
+  if (( ${#PRUNED[@]} > 0 )); then
+    while IFS= read -r link; do
+      [[ -n "$link" ]] || continue
+      item_rm "pruned stale ~/$link"
+    done <<<"$(printf '%s\n' "${PRUNED[@]}")"
   fi
   section_end
 

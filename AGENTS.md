@@ -42,6 +42,7 @@ dotfiles/
 - Never create custom symlink scripts or backup files
 - Use `stow -t "$HOME" -R <package>` for all symlink operations
 - Detect conflicts with `stow -n`, remove conflicting files, then stow
+- Removing a package from `PACKAGES` leaves its links stranded on machines that already stowed it (`stow -D` needs the package on disk). `sync.sh` prunes those via `prune_links` — never hand-`rm` them
 
 ### 2. One script philosophy
 
