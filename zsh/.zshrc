@@ -130,6 +130,20 @@ if command -v direnv &>/dev/null; then
   eval "$(direnv hook zsh)"
 fi
 
+# ── fzf (fuzzy finder) ───────────────────────────────────────────────────────
+# Shell integration: ctrl-r history, ctrl-t file finder, alt-c directory.
+# Safe to load before zinit's turbo compinit — fzf wires its completion
+# widget lazily, only when a completion is first triggered.
+if command -v fzf &>/dev/null; then
+  source <(fzf --zsh)
+fi
+
+# ── zoxide (smarter cd) ──────────────────────────────────────────────────────
+# Learns cd habits; `z <dir>` jumps to the best frecency match
+if command -v zoxide &>/dev/null; then
+  eval "$(zoxide init zsh)"
+fi
+
 # ── Dotfiles auto-update ─────────────────────────────────────────────────────
 # Offers to pull + sync when the dotfiles repo is behind its remote.
 # Fetches at most once per $DOTFILES_UPDATE_INTERVAL (default 24h) so shell
