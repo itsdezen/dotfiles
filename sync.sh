@@ -274,7 +274,9 @@ cmd_sync() {
       /^Would uninstall formulae:/ { sect="formula"; next }
       /^Would untap:/              { sect="tap"; next }
       /^Would /                    { sect=""; next }
-      sect && NF { print sect"\t"$0 }
+      # package names never contain spaces — NF==1 drops trailing prose
+      # (e.g. the "Run `brew bundle cleanup --force`" hint brew appends)
+      sect && NF == 1 { print sect"\t"$0 }
     ' <<<"$_cout")
   # formulae pulled in as transitive deps of an unlisted formula (e.g. every
   # library ffmpeg-full links against) are noise — only surface leaves
