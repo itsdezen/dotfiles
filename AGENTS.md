@@ -26,8 +26,8 @@ dotfiles/
 ├── ghostty/      → ~/.config/ghostty/
 ├── mise/         → ~/.config/mise/config.toml
 ├── git/          → ~/.gitconfig, ~/.config/git/ignore
-├── superfile/    → ~/.config/superfile/
-├── btop/         → ~/.config/btop/
+├── superfile/    → ~/.config/superfile/config.toml, hotkeys.toml
+├── btop/         → ~/.config/btop/btop.conf
 ├── tmux/         → ~/.tmux.conf
 ├── herdr/        → ~/.config/herdr/config.toml
 └── opencode/     → ~/.config/opencode/opencode.jsonc, ~/.config/opencode/cli.json, ~/.config/opencode/plugins/auto/tui.tsx

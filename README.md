@@ -56,13 +56,15 @@ cd ~/Developer/dotfiles && ./sync.sh
 | `ghostty` | `~/.config/ghostty/` |
 | `mise` | `~/.config/mise/config.toml` |
 | `git` | `~/.gitconfig`, `~/.config/git/ignore` |
-| `superfile` | `~/.config/superfile/` |
-| `btop` | `~/.config/btop/` |
+| `superfile` | `~/.config/superfile/config.toml`, `~/.config/superfile/hotkeys.toml` |
+| `btop` | `~/.config/btop/btop.conf` |
 | `tmux` | `~/.tmux.conf` |
 | `herdr` | `~/.config/herdr/config.toml` |
 | `opencode` | `~/.config/opencode/` (whole directory, folded) |
 
 `opencode` is folded at the directory level on purpose. OpenCode persists `cli.json` with a temp-file + `rename`, which replaces a file-level symlink with a real file and silently detaches it from this repo — the change never shows in Git. Symlinking the directory makes those rewrites land on the tracked file, so TUI settings changes appear as normal Git changes. Runtime artifacts (`node_modules`, `service.json`, …) are ignored by the package's `.gitignore`.
+
+`herdr`, `btop`, and `superfile` are the opposite case — always stowed file-by-file (`--no-folding`), because their target dirs mix tracked config with app-generated state (`herdr` logs/sockets, `btop` `themes/`, `superfile` `theme/`) that must never land in this repo.
 
 ## Highlights
 

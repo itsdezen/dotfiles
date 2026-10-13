@@ -65,12 +65,12 @@ DOTFILES_DIR="$HOME/Developer/dotfiles"
 PACKAGES=(zsh mise git starship nvim ghostty superfile btop opencode herdr tili tmux)
 
 # packages whose target dir mixes static config with app-generated state
-# (e.g. herdr logs/sockets/session.json)
+# (herdr logs/sockets/session.json, btop themes/, superfile theme/)
 # — always stowed file-by-file so runtime-generated files never land in the repo
 # opencode is folded instead: its settings writer does temp-file + rename, which
 # replaces a file-level symlink with a real file. Folding the config directory
 # makes those rewrites land on the tracked cli.json; runtime files are gitignored.
-NO_FOLD_PACKAGES=(herdr)
+NO_FOLD_PACKAGES=(herdr btop superfile)
 
 # ── stow helpers ────────────────────────────────────────────────────────────────
 
