@@ -60,13 +60,15 @@ cd ~/Developer/dotfiles && ./sync.sh
 | `btop` | `~/.config/btop/` |
 | `tmux` | `~/.tmux.conf` |
 | `herdr` | `~/.config/herdr/config.toml` |
-| `opencode` | `~/.config/opencode/opencode.jsonc`, `~/.config/opencode/cli.json`, `~/.config/opencode/agents/` |
+| `opencode` | `~/.config/opencode/` (whole directory, folded) |
+
+`opencode` is folded at the directory level on purpose. OpenCode persists `cli.json` with a temp-file + `rename`, which replaces a file-level symlink with a real file and silently detaches it from this repo — the change never shows in Git. Symlinking the directory makes those rewrites land on the tracked file, so TUI settings changes appear as normal Git changes. Runtime artifacts (`node_modules`, `service.json`, …) are ignored by the package's `.gitignore`.
 
 ## Highlights
 
 - **Unified theme** — Tokyo Night across nvim, Ghostty, superfile, herdr, opencode, and btop for a consistent look everywhere (starship and tmux are terminal-adaptive instead)
 - **Keyboard-driven window management** — Tili tiling window manager with built-in floating-window centering
-- **OpenCode workflow** — native Build and read-only Plan modes, with runtime auto-approval available from the command palette
+- **OpenCode** — default Build and Plan agents, plus an `/auto` plugin for runtime auto-approval without touching config
 - **Idempotent sync** — one script (`sync.sh`) installs Homebrew packages, symlinks every Stow package, and provisions mise runtimes
 - **Cleanup candidates report** — `sync.sh` flags installed Homebrew packages not in the Brewfile (never removes automatically)
 - **Auto-update prompt** — new shells periodically check the repo for remote commits and offer to pull + sync (Enter to accept); `dotfiles-update --force` checks on demand
