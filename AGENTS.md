@@ -25,12 +25,12 @@ dotfiles/
 ├── starship/     → ~/.config/starship.toml
 ├── ghostty/      → ~/.config/ghostty/
 ├── mise/         → ~/.config/mise/config.toml
-├── git/          → ~/.gitconfig
+├── git/          → ~/.gitconfig, ~/.config/git/ignore
 ├── superfile/    → ~/.config/superfile/
 ├── btop/         → ~/.config/btop/
 ├── tmux/         → ~/.tmux.conf
 ├── herdr/        → ~/.config/herdr/config.toml
-└── opencode/     → ~/.config/opencode/opencode.jsonc, ~/.config/opencode/cli.json, ~/.config/opencode/agents/
+└── opencode/     → ~/.config/opencode/opencode.jsonc, ~/.config/opencode/cli.json, ~/.config/opencode/plugins/auto/tui.tsx
 ```
 
 ---
@@ -51,7 +51,7 @@ dotfiles/
 ### 3. Conventions
 
 - Stow package dirs: lowercase
-- Scripts: `set -euo pipefail`, helpers: `ok/run/warn/abort/section/section_end/spin/spin_ok/spin_warn`
+- Scripts: `set -euo pipefail`, helpers: `ok/skip/run/warn/item_new/item_upd/item_rm/abort/section/section_end/spin/spin_ok/spin_warn/spin_skip`
 - No banners, no prompts (except destructive ops in `sync.sh uninstall`, and the nvim lockfile auto-commit confirmation in `sync.sh sync`)
 - Commit style: emoji prefix (`🚀 🐞 🔧 ♻️ 📝 🗑️ ⬆️`)
 

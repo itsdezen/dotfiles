@@ -55,7 +55,7 @@ cd ~/Developer/dotfiles && ./sync.sh
 | `starship` | `~/.config/starship.toml` |
 | `ghostty` | `~/.config/ghostty/` |
 | `mise` | `~/.config/mise/config.toml` |
-| `git` | `~/.gitconfig` |
+| `git` | `~/.gitconfig`, `~/.config/git/ignore` |
 | `superfile` | `~/.config/superfile/` |
 | `btop` | `~/.config/btop/` |
 | `tmux` | `~/.tmux.conf` |
@@ -72,7 +72,7 @@ cd ~/Developer/dotfiles && ./sync.sh
 - **Idempotent sync** — one script (`sync.sh`) installs Homebrew packages, symlinks every Stow package, and provisions mise runtimes
 - **Cleanup candidates report** — `sync.sh` flags installed Homebrew packages not in the Brewfile (never removes automatically)
 - **Auto-update prompt** — new shells periodically check the repo for remote commits and offer to pull + sync (Enter to accept); `dotfiles-update --force` checks on demand
-- **Runtimes pinned centrally** — mise versions live in this repo instead of per-project
+- **Runtimes managed centrally** — mise versions live in this repo instead of per-project
 
 For exact settings of any given tool, read its config directly under the matching Stow package (e.g. `nvim/.config/nvim/init.lua`) — that file is always the source of truth.
 
