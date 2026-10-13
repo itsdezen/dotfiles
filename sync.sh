@@ -174,6 +174,12 @@ cmd_uninstall() {
     ok "zinit removed"
   fi
 
+  section "tmux plugins"
+  if [[ -d "$HOME/.tmux/plugins" ]]; then
+    rm -rf "$HOME/.tmux/plugins"
+    ok "TPM removed"
+  fi
+
   printf "\n  ${G}✓${NC} done\n"
   warn "Homebrew packages and mise runtimes were not removed"
   warn "To remove Homebrew: /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)\""
