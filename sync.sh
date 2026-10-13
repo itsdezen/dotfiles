@@ -420,8 +420,11 @@ cmd_sync() {
 
   # compact inventory: backend-qualified names shortened (go:golang.org/x/tools/gopls
   # → gopls), wrapped at entry boundaries so lines never break mid-runtime
+  # (no process substitution — every other redirect in this file is a herestring,
+  # and POSIX-mode sh rejects < <(...) outright)
   eval "$(mise env)"
-  local _rtl _ent name version
+  local _mls _rtl _ent name version
+  _mls="$(mise ls --current 2>/dev/null)"
   _rtl=""
   while read -r name version _; do
     [[ -n "$name" ]] || continue
@@ -435,7 +438,7 @@ cmd_sync() {
     else
       _rtl+=" · $_ent"
     fi
-  done < <(mise ls --current 2>/dev/null)
+  done <<<"$_mls"
   [[ -n "$_rtl" ]] && printf "  ${D}%s${NC}\n" "$_rtl"
   section_end
 
