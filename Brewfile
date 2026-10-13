@@ -54,7 +54,6 @@ brew "herdr"
 brew "tmux"
 
 cask "itsdezen/tap/fantasque-sans-mono-nerdfont"
-cask "font-maple-mono-nf"
 
 # ── Browser ───────────────────────────────────────────────────────────────────
 
