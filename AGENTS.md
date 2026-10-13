@@ -52,6 +52,7 @@ dotfiles/
 
 - Stow package dirs: lowercase
 - Scripts: `set -euo pipefail`, helpers: `ok/skip/run/warn/item_new/item_upd/item_rm/abort/section/section_end/spin/spin_ok/spin_warn/spin_skip`
+- `sync.sh` targets macOS `/bin/sh` (bash 3.2 in POSIX mode) — its `#!/bin/sh` shebang makes `./sync.sh` and `sh sync.sh` identical. Avoid syntax the POSIX parser rejects (process substitution, …); verify with `sh -n sync.sh` and `bash -n sync.sh`
 - No banners, no prompts (except destructive ops in `sync.sh uninstall`, and the nvim lockfile auto-commit confirmation in `sync.sh sync`)
 - Commit style: emoji prefix (`🚀 🐞 🔧 ♻️ 📝 🗑️ ⬆️`)
 

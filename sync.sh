@@ -1,4 +1,9 @@
-#!/usr/bin/env bash
+#!/bin/sh
+# shellcheck shell=bash
+# /bin/sh on macOS is bash 3.2 in POSIX mode — the canonical interpreter here, so
+# `./sync.sh` and `sh sync.sh` are identical. Stick to syntax its POSIX parser
+# accepts (no process substitution < <(...)); herestrings, arrays, and [[ ]] run
+# fine, so linting stays in bash dialect and `sh -n sync.sh` is the parity check.
 set -euo pipefail
 
 G='\033[0;32m'; Y='\033[1;33m'; R='\033[0;31m'; BL='\033[0;34m'; P='\033[0;35m'; D='\033[2m'; B='\033[1m'; NC='\033[0m'

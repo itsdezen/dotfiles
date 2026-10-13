@@ -24,7 +24,7 @@ Personal macOS development environment using **GNU Stow** for dotfiles managemen
 
 **Fresh machine** (installs Xcode CLI tools, clones repo, runs sync):
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/itsdezen/dotfiles/main/sync.sh) bootstrap
+sh <(curl -fsSL https://raw.githubusercontent.com/itsdezen/dotfiles/main/sync.sh) bootstrap
 ```
 
 **Existing machine:**
@@ -33,7 +33,7 @@ git clone https://github.com/itsdezen/dotfiles ~/Developer/dotfiles
 cd ~/Developer/dotfiles && ./sync.sh
 ```
 
-`sync.sh` is idempotent — safe to re-run anytime to sync/update.
+`sync.sh` is idempotent — safe to re-run anytime to sync/update. It uses a `#!/bin/sh` shebang, so `./sync.sh` and `sh sync.sh` are equivalent.
 
 **Docker/lazydocker** — run `colima start` once after install to bring up the container runtime VM before using `docker` or `lazydocker`.
 
