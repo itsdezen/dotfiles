@@ -178,4 +178,4 @@ dotfiles-update
 [[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
 
 # Unity CLI
-. "/Users/itsdezen/.unity/env"
+[ -f "$HOME/.unity/env" ] && source "$HOME/.unity/env"
