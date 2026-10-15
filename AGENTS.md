@@ -93,6 +93,12 @@ Before writing any preset name, verify it actually exists in that tool's install
 
 nvim's colorscheme plugin drives a custom transparent-background setup (transparent floats/sidebars/statusline plus manual `WinSeparator`/`LineNr` highlight overrides in `nvim/.config/nvim/lua/plugins/colorscheme.lua`). Whenever the unified theme change requires swapping this plugin, find the new plugin's equivalent transparency option and highlight-override API (most modern colorscheme plugins mirror tokyonight.nvim/catppuccin/gruvbox.nvim's `setup({...})` shape, exposed either as an `on_highlights(highlights, colors)` callback or a static `highlight_groups`/`overrides` table plus a `before_highlight(group, highlight, palette)` callback) and re-implement the same overrides against the new plugin's palette key names — never drop transparency silently just because the old option name doesn't exist on the new plugin.
 
+### 7. Secrets never in tracked config
+
+API keys and tokens never go into a tracked file — no package dir, no `sync.sh`, no repo-versioned config. They live in **`~/.config/zsh/env.local`**: a real file outside this repo, `chmod 600` (created and re-enforced by `sync.sh`), sourced by `zsh/.zshenv` so every shell context and everything it launches sees the same values.
+
+Append `export NAME=value` there (shortcut: `envlocal`) and consume it by env-var substitution. It must stay unstowed, gitignored, and never deleted by `sync.sh uninstall`.
+
 ---
 
 **Maintained by:** @itsdezen — https://github.com/itsdezen/dotfiles

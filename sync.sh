@@ -466,6 +466,30 @@ cmd_sync() {
   fi
   section_end
 
+  # ── local env ─────────────────────────────────────────────────────────────────
+  # Machine-local API keys and env vars live at ~/.config/zsh/env.local — outside
+  # this repo and never stowed, so secrets can't land in the working tree. Create
+  # it once from a template; later runs only enforce 600, so a stray chmod can
+  # never leave it world-readable. uninstall never touches it.
+  section "Local env"
+  ENV_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/zsh/env.local"
+  if [[ ! -f "$ENV_FILE" ]]; then
+    mkdir -p "$(dirname "$ENV_FILE")"
+    umask 077
+    cat >"$ENV_FILE" <<'ENVEOF'
+# ~/.config/zsh/env.local — machine-local secrets and env vars
+# NOT tracked by git · chmod 600 · sourced by ~/.zshenv in every zsh shell.
+# One per line:  export NAME=value
+# Consumed from config via env-var substitution (e.g. {env:NAME} in opencode).
+ENVEOF
+    chmod 600 "$ENV_FILE"
+    spin_ok "created ~/.config/zsh/env.local"
+  else
+    chmod 600 "$ENV_FILE"
+    skip "local env"
+  fi
+  section_end
+
   # ── tmux plugins ──────────────────────────────────────────────────────────────
   section "tmux plugins"
   TPM_DIR="$HOME/.tmux/plugins/tpm"

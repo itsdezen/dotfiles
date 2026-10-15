@@ -107,6 +107,7 @@ alias tn="tmux new -s"
 # Misc
 alias zrc="$EDITOR ~/.zshrc"
 alias reload="source ~/.zshrc"
+alias envlocal="$EDITOR ~/.config/zsh/env.local"
 
 # ── mise (Polyglot Version Manager) ─────────────────────────────────────────
 # Automatically loads versions from .node-version, .python-version, etc.

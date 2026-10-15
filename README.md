@@ -41,9 +41,9 @@ cd ~/Developer/dotfiles && ./sync.sh
 
 | Script | Description |
 |--------|-------------|
-| `./sync.sh` | Sync everything: Homebrew, dotfiles, runtimes, nvim/tmux plugins — and prune links left behind by dropped packages |
+| `./sync.sh` | Sync everything: Homebrew, dotfiles, runtimes, nvim/tmux plugins, the local env file (chmod 600) — and prune links left behind by dropped packages |
 | `./sync.sh bootstrap` | Fresh machine setup: Xcode CLI tools → clone → sync |
-| `./sync.sh uninstall` | Remove all dotfiles symlinks, zinit, and TPM |
+| `./sync.sh uninstall` | Remove all dotfiles symlinks, zinit, and TPM (never touches the local env file) |
 
 ## Stow Packages
 
@@ -66,16 +66,21 @@ cd ~/Developer/dotfiles && ./sync.sh
 
 `herdr`, `btop`, and `superfile` are the opposite case — always stowed file-by-file (`--no-folding`), because their target dirs mix tracked config with app-generated state (`herdr` logs/sockets, `btop` `themes/`, `superfile` `theme/`) that must never land in this repo.
 
+## Local environment & secrets
+
+API keys and machine-specific env vars live in **`~/.config/zsh/env.local`** — a real file outside this repo, `chmod 600`, created by `./sync.sh` when missing and sourced by `~/.zshenv` so every shell context and the tools it launches see the same values. Edit it with `envlocal`; `./sync.sh uninstall` never deletes it.
+
 ## Highlights
 
 - **Unified theme** — Tokyo Night across nvim, Ghostty, superfile, herdr, opencode, and btop for a consistent look everywhere (starship and tmux are terminal-adaptive instead)
 - **Keyboard-driven window management** — Tili tiling window manager with built-in floating-window centering
 - **OpenCode** — default Build and Plan agents, plus an `/auto` plugin for runtime auto-approval without touching config, and the Google Stitch MCP server (`stitch`) for design-to-code
-- **Idempotent sync** — one script (`sync.sh`) installs Homebrew packages, symlinks every Stow package, and provisions mise runtimes
+- **Idempotent sync** — one script (`sync.sh`) installs Homebrew packages, symlinks every Stow package, provisions mise runtimes, and creates the local secrets file
 - **Self-pruning symlinks** — dropping a package from `PACKAGES` doesn't unstow it elsewhere, so `sync.sh` prunes any link back into this repo whose target is gone or belongs to a package no longer listed
 - **Cleanup candidates report** — `sync.sh` flags installed Homebrew packages not in the Brewfile (never removes automatically)
 - **Auto-update prompt** — new shells periodically check the repo for remote commits and offer to pull + sync (Enter to accept); `dotfiles-update --force` checks on demand
 - **Runtimes managed centrally** — mise versions live in this repo instead of per-project
+- **Secrets stay out of the repo** — API keys live in `~/.config/zsh/env.local` (`chmod 600`, gitignored, never stowed), not in tracked config
 
 For exact settings of any given tool, read its config directly under the matching Stow package (e.g. `nvim/.config/nvim/init.lua`) — that file is always the source of truth.
 

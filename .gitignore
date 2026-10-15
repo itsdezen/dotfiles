@@ -7,6 +7,9 @@
 *.local
 *.secret
 .env*
+# Live secrets file — normally lives at ~/.config/zsh/env.local (outside this
+# repo), ignored here so an accidental copy inside the tree can never be staged.
+env.local
 
 # ── macOS ────────────────────────────────────────────────────────────────────
 .DS_Store
