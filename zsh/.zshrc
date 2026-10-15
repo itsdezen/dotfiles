@@ -176,3 +176,6 @@ dotfiles-update
 # ── Local overrides ──────────────────────────────────────────────────────────
 # This file is NOT committed to git — use for machine-specific config
 [[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
+
+# Unity CLI
+. "/Users/itsdezen/.unity/env"
