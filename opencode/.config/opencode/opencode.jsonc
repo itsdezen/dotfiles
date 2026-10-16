@@ -16,5 +16,18 @@
         "deepseek-v4-pro": { "disabled": true }
       }
     }
+  },
+  "mcp": {
+    "servers": {
+      "stitch": {
+        "type": "remote",
+        "url": "https://stitch.googleapis.com/mcp",
+        "oauth": false,
+        "headers": {
+          "X-Goog-Api-Key": "{env:STITCH_API_KEY}",
+          "Accept": "application/json"
+        }
+      }
+    }
   }
 }
