@@ -27,6 +27,20 @@
           "X-Goog-Api-Key": "{env:STITCH_API_KEY}",
           "Accept": "application/json"
         }
+      },
+      // GitHub's hosted MCP server. Auth is GITHUB_TOKEN from the shell env, which
+      // env.local exports from the machine-local token file, and the toolset
+      // allow-list keeps the tool catalog small enough not to eat the context.
+      // This relies on the background server being started from a shell that has
+      // the variable — restart it after a token change.
+      "github": {
+        "type": "remote",
+        "url": "https://api.githubcopilot.com/mcp/",
+        "oauth": false,
+        "headers": {
+          "Authorization": "Bearer {env:GITHUB_TOKEN}",
+          "X-MCP-Toolsets": "context,repos,issues,pull_requests"
+        }
       }
     }
   }

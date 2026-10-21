@@ -488,6 +488,26 @@ ENVEOF
     chmod 600 "$ENV_FILE"
     skip "local env"
   fi
+
+  # GitHub MCP token: OpenCode's background server does not inherit shell env when
+  # it is relaunched from the desktop, and its config can only read env vars or
+  # file contents — never a command — so the token lives in a 600 file refreshed
+  # here from the gh keyring. A new machine needs one `gh auth login` and one more
+  # sync; nothing to hand-edit. printf, not a plain redirection: a trailing
+  # newline would corrupt the Authorization header.
+  GH_TOKEN_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/zsh/github_token"
+  if command -v gh >/dev/null 2>&1 && gh auth token >/dev/null 2>&1; then
+    umask 077
+    printf '%s' "$(gh auth token)" >"$GH_TOKEN_FILE"
+    chmod 600 "$GH_TOKEN_FILE"
+    spin_ok "refreshed ~/.config/zsh/github_token"
+  elif [[ -f "$GH_TOKEN_FILE" ]]; then
+    chmod 600 "$GH_TOKEN_FILE"
+    skip "github token"
+  else
+    warn "GitHub MCP idle — run 'gh auth login', then ./sync.sh again"
+  fi
+
   section_end
 
   # ── tmux plugins ──────────────────────────────────────────────────────────────
