@@ -11,9 +11,9 @@ ok()      { printf "  ${G}✓${NC} %s\n" "$*"; }
 skip()    { printf "  ${D}◎${NC} %s\n" "$*"; }
 run()     { printf "  ${D}→${NC} %s\n" "$*"; }
 warn()    { printf "  ${Y}!${NC} %s\n" "$*"; }
-item_new() { printf "      ${G}+${NC} %s\n" "$*"; }
-item_upd() { printf "      ${Y}↑${NC} %s\n" "$*"; }
-item_rm()  { printf "      ${R}-${NC} %s\n" "$*"; }
+item_new() { printf "      ${G}+ %s${NC}\n" "$*"; }
+item_upd() { printf "      ${Y}↑ %s${NC}\n" "$*"; }
+item_rm()  { printf "      ${R}- %s${NC}\n" "$*"; }
 abort()   {
   [[ -n "$SPIN_PID" ]] && kill "$SPIN_PID" 2>/dev/null; SPIN_PID=""
   printf "\r\033[2K  ${R}✗${NC} %s\n" "$*" >&2
@@ -215,6 +215,17 @@ prune_links() {
     PRUNED+=("${link#"$HOME"/}")
     prune_empty_dirs "$(dirname "$link")"
   done <<<"$links"
+}
+
+# ── mise helpers ────────────────────────────────────────────────────────────────
+
+# current toolset as tab-separated `name<TAB>version` lines. The JSON form is the
+# stable one: the text table truncates versions containing spaces (rust reports
+# "stable (symlink)"), which would desync the before/after diff.
+mise_snapshot() {
+  # `|| true`: a broken snapshot must never be fatal under set -e
+  mise ls --current --json 2>/dev/null \
+    | jq -r 'to_entries[] | "\(.key)\t\(.value[0].version)"' 2>/dev/null || true
 }
 
 # ── bootstrap ───────────────────────────────────────────────────────────────────
@@ -542,41 +553,73 @@ ENVEOF
   # ── runtimes ──────────────────────────────────────────────────────────────────
   section "Runtimes"
   command -v mise &>/dev/null || abort "mise not found"
+  local _rt_before="" _rt_after="" _rt_diff="" _rt_inv="" _mout _uout
+  # not `command -v jq && …` — a failing AND-list is fatal under set -e
+  if command -v jq &>/dev/null; then _rt_before="$(mise_snapshot)"; fi
   spin "Syncing runtimes"
-  local _mout _uout
   _mout=$(mise install --yes 2>&1) || abort "mise install failed: $_mout"
   _uout=$(mise upgrade --yes 2>&1) || abort "mise upgrade failed: $_uout"
-  if echo "$_mout" | grep -q "all tools are installed" \
+  if [[ -n "$_rt_before" ]]; then
+    _rt_after="$(mise_snapshot)"
+    # a runtime present only afterwards was missing; one whose version moved was
+    # upgraded. Env vars instead of temp files, and no associative arrays — bash
+    # 3.2 on macOS has neither `declare -A` nor `mapfile`.
+    _rt_diff=$(RT_BEFORE="$_rt_before" RT_AFTER="$_rt_after" perl -e '
+        my (%old, %new);
+        for my $line (split /\n/, ($ENV{RT_BEFORE} // "")) {
+          my ($k, $v) = split /\t/, $line, 2;
+          $old{$k} = $v if defined $v;
+        }
+        for my $line (split /\n/, ($ENV{RT_AFTER} // "")) {
+          my ($k, $v) = split /\t/, $line, 2;
+          $new{$k} = $v if defined $v;
+        }
+        for my $k (sort keys %new) {
+          # `-` holds the old-version column on new rows: tab counts as IFS
+          # whitespace, so an empty field would collapse and shift the columns
+          if (!exists $old{$k})        { print "new\t$k\t-\t$new{$k}\n" }
+          elsif ($old{$k} ne $new{$k}) { print "upd\t$k\t$old{$k}\t$new{$k}\n" }
+        }
+      ')
+  fi
+  local _rt_old _rt_new
+  if [[ -n "$_rt_diff" ]]; then
+    spin_ok "Runtimes updated"
+    while IFS=$'\t' read -r kind name _rt_old _rt_new; do
+      [[ -n "$name" ]] || continue
+      # backend-qualified names shorten to the binary they provide
+      # (go:golang.org/x/tools/cmd/gopls → gopls)
+      case "$name" in *:*) name="${name##*:}"; name="${name##*/}" ;; esac
+      if [[ "$kind" == "new" ]]; then
+        item_new "$name $_rt_new"
+      else
+        item_upd "$name $_rt_old → $_rt_new"
+      fi
+    done <<<"$_rt_diff"
+  elif [[ -n "$_rt_before" ]]; then
+    spin_skip "Runtimes up to date"
+  elif echo "$_mout" | grep -q "all tools are installed" \
     && echo "$_uout" | grep -qi "up to date"; then
     spin_skip "Runtimes up to date"
   else
+    # no jq — mise's wording says *that* something changed, never which runtime
     spin_ok "Runtimes updated"
     echo "$_mout" | grep -vq "all tools are installed" && item_new "installed missing runtimes"
     echo "$_uout" | grep -vqi "up to date" && item_upd "upgraded outdated runtimes"
   fi
 
-  # compact inventory: backend-qualified names shortened (go:golang.org/x/tools/gopls
-  # → gopls), wrapped at entry boundaries so lines never break mid-runtime
-  # (no process substitution — every other redirect in this file is a herestring,
-  # and POSIX-mode sh rejects < <(...) outright)
+  # live inventory, one runtime per line: the name is the subject, the version
+  # stays dim so a long list never competes with the change lines above
   eval "$(mise env)"
-  local _mls _rtl _ent name version
-  _mls="$(mise ls --current 2>/dev/null)"
-  _rtl=""
-  while read -r name version _; do
+  _rt_inv="$(mise_snapshot)"
+  if [[ -z "$_rt_inv" ]]; then
+    _rt_inv="$(mise ls --current 2>/dev/null | awk 'NF >= 2 { print $1"\t"$2 }' || true)"
+  fi
+  while IFS=$'\t' read -r name version; do
     [[ -n "$name" ]] || continue
     case "$name" in *:*) name="${name##*:}"; name="${name##*/}" ;; esac
-    _ent="$name $version"
-    if [[ -z "$_rtl" ]]; then
-      _rtl="$_ent"
-    elif (( ${#_rtl} + ${#_ent} + 3 > 76 )); then
-      printf "  ${D}%s${NC}\n" "$_rtl"
-      _rtl="$_ent"
-    else
-      _rtl+=" · $_ent"
-    fi
-  done <<<"$_mls"
-  [[ -n "$_rtl" ]] && printf "  ${D}%s${NC}\n" "$_rtl"
+    printf "      ${BL}·${NC} %s ${D}%s${NC}\n" "$name" "$version"
+  done <<<"$_rt_inv"
   section_end
 
   # ── editor ────────────────────────────────────────────────────────────────────
