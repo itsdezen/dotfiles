@@ -42,8 +42,12 @@ cd ~/Developer/dotfiles && ./sync.sh
 | Script | Description |
 |--------|-------------|
 | `./sync.sh` | Sync everything: Homebrew, dotfiles, runtimes, nvim/tmux plugins, the local env file (chmod 600) — and prune links left behind by dropped packages |
+| `./sync.sh -v` | Same, but lists every change item and the full runtime inventory (default: one line per section) |
+| `./sync.sh --no-color` | Plain output for logs and CI (piped output is already colour-free) |
 | `./sync.sh bootstrap` | Fresh machine setup: Xcode CLI tools → clone → sync |
 | `./sync.sh uninstall` | Remove all dotfiles symlinks, zinit, and TPM (never touches the local env file) |
+
+`sync.sh` exits non-zero if any step failed (stow, plugin sync, clone), so it can gate CI or a wrapper script.
 
 ## Stow Packages
 
@@ -76,6 +80,7 @@ API keys and machine-specific env vars live in **`~/.config/zsh/env.local`** —
 - **Keyboard-driven window management** — Tili tiling window manager with built-in floating-window centering
 - **OpenCode** — default Build and Plan agents, plus an `/auto` plugin for runtime auto-approval without touching config
 - **Idempotent sync** — one script (`sync.sh`) installs Homebrew packages, symlinks every Stow package, provisions mise runtimes, and creates the local secrets file
+- **Compact sync output** — one `➤ Section` line per stage with counts and duration, change items nested underneath, runtime inventory behind `-v`; spinner steps are redrawn on one line and any failure makes the run exit non-zero
 - **Self-pruning symlinks** — dropping a package from `PACKAGES` doesn't unstow it elsewhere, so `sync.sh` prunes any link back into this repo whose target is gone or belongs to a package no longer listed
 - **Cleanup candidates report** — `sync.sh` flags installed Homebrew packages not in the Brewfile (never removes automatically)
 - **Auto-update prompt** — new shells periodically check the repo for remote commits and offer to pull + sync (Enter to accept); `dotfiles-update --force` checks on demand

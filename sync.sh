@@ -6,65 +6,244 @@
 # fine, so linting stays in bash dialect and `sh -n sync.sh` is the parity check.
 set -euo pipefail
 
-G='\033[0;32m'; Y='\033[1;33m'; R='\033[0;31m'; BL='\033[0;34m'; P='\033[0;35m'; D='\033[2m'; B='\033[1m'; NC='\033[0m'
-ok()      { printf "  ${G}✓${NC} %s\n" "$*"; }
-skip()    { printf "  ${D}◎${NC} %s\n" "$*"; }
-run()     { printf "  ${D}→${NC} %s\n" "$*"; }
-warn()    { printf "  ${Y}!${NC} %s\n" "$*"; }
-item_new() { printf "      ${G}+ %s${NC}\n" "$*"; }
-item_upd() { printf "      ${Y}↑ %s${NC}\n" "$*"; }
-item_rm()  { printf "      ${R}- %s${NC}\n" "$*"; }
-abort()   {
-  [[ -n "$SPIN_PID" ]] && kill "$SPIN_PID" 2>/dev/null; SPIN_PID=""
-  printf "\r\033[2K  ${R}✗${NC} %s\n" "$*" >&2
+# ── flags ──────────────────────────────────────────────────────────────────────
+
+_VERBOSE=false
+_CMD="sync"
+usage() {
+  cat <<EOF
+usage: $0 [-v|--verbose] [--no-color] [sync|bootstrap|uninstall]
+
+  sync              sync everything (default)
+  bootstrap         fresh machine: Xcode CLI tools → clone → sync
+  uninstall         remove dotfile symlinks, zinit and TPM
+  -v, --verbose     list every item: runtime inventory, long change lists
+  --no-color        plain output (NO_COLOR is honoured as well)
+EOF
+}
+for _arg in ${1+"$@"}; do
+  case "$_arg" in
+    -v|--verbose) _VERBOSE=true ;;
+    --no-color)   NO_COLOR=1 ;;
+    -h|--help)    usage; exit 0 ;;
+    sync|bootstrap|uninstall) _CMD="$_arg" ;;
+    *) usage >&2; exit 1 ;;
+  esac
+done
+
+# ── terminal ───────────────────────────────────────────────────────────────────
+
+if [[ -t 1 ]]; then _TTY=true; else _TTY=false; fi
+# colours are a tty affordance: piped output stays free of escape codes, and
+# NO_COLOR / TERM=dumb are respected
+if $_TTY && [[ -z "${NO_COLOR:-}" ]] && [[ "${TERM:-}" != "dumb" ]]; then
+  G='\033[0;32m'; Y='\033[1;33m'; R='\033[0;31m'; BL='\033[0;34m'; P='\033[0;35m'; D='\033[2m'; B='\033[1m'; NC='\033[0m'
+else
+  G=''; Y=''; R=''; BL=''; P=''; D=''; B=''; NC=''
+fi
+
+# ── state ──────────────────────────────────────────────────────────────────────
+#
+# One status vocabulary for every step, worst-wins per section:
+#   ✓ ok (something changed)   ◎ skip (nothing to do)   ! warn   ✗ fail
+# `step` opens a live spinner, `step_end` closes it and records the outcome; a
+# section is printed once, at section_end, as a single line plus its items. That
+# keeps output compact and makes a half-finished run impossible to misreport.
+
+_STEP_OPEN=0
+_STEP_MSG=""
+_SPIN_PID=""
+_SEC_NAME=""
+_SEC_T=0
+_SEC_STATUS=skip
+_SEC_SUM=""
+_SEC_ITEMS=()
+_SEC_EXTRA=()
+_MAX_ITEMS=10
+N_CHANGED=0; N_NOOP=0; N_WARN=0; N_FAIL=0
+_T0=$SECONDS
+
+ok()   { printf "  ${G}✓${NC} %s\n" "$*"; }
+skip() { printf "  ${D}◎${NC} %s\n" "$*"; }
+run()  { printf "  ${D}→${NC} %s\n" "$*"; }
+info() { printf "  ${BL}·${NC} %s\n" "$*"; }
+warn() { printf "  ${Y}!${NC} %s\n" "$*"; }
+
+_spin_stop() {
+  if [[ -n "$_SPIN_PID" ]]; then
+    kill "$_SPIN_PID" 2>/dev/null || true
+    _SPIN_PID=""
+  fi
+}
+
+# close the live line, whatever opened it
+_live_clear() {
+  _spin_stop
+  if (( _STEP_OPEN )); then
+    $_TTY && printf "\r\033[2K"
+    _STEP_OPEN=0
+  fi
+}
+
+# a failing step must never leave the spinner running or the run mislabelled
+_on_exit() {
+  if (( _STEP_OPEN )); then
+    _live_clear
+    printf "  ${R}✗${NC} %s\n" "${_SEC_NAME:+$_SEC_NAME · }${_STEP_MSG} — interrupted"
+  fi
+}
+trap '_on_exit' EXIT
+
+abort() {
+  _live_clear
+  printf "  ${R}✗${NC} %s\n" "${_SEC_NAME:+$_SEC_NAME · }$*"
   exit 1
 }
-section() {
-  _section_t=$SECONDS
-  printf "\n${P}${B}➤ %s${NC}\n" "$*"
-}
-section_end() {
-  [[ -n "$_section_t" ]] || return 0
-  local _d=$(( SECONDS - _section_t ))
-  # sub-3s durations are noise, not signal — stay silent
-  if (( _d >= 3 )); then printf "  ${D}%ds${NC}\n" "$_d"; fi
-}
 
-# ── spinner ──────────────────────────────────────────────────────────────────
+# ── step / section rendering ───────────────────────────────────────────────────
 
-SPIN_PID=""
-_section_t=""
-[[ -t 1 ]] && _TTY=true || _TTY=false
-trap '[[ -n "$SPIN_PID" ]] && kill "$SPIN_PID" 2>/dev/null' EXIT
-
-spin() {
-  if ! $_TTY; then run "$1"; return; fi
-  local msg="$1" i=0 frames='|/-\'
-  printf "  ${BL}|${NC} %s" "$msg"
+step() {
+  _STEP_MSG="$*"; _STEP_OPEN=1
+  $_TTY || return 0
+  local i=0 frames='|/-\'
+  printf "  ${BL}|${NC} %s" "$*"
   ( while true; do
-      printf "\r  ${BL}%s${NC} %s" "${frames:$i:1}" "$msg"
-      i=$(( (i+1) % 4 )); sleep 0.05
+      printf "\r  ${BL}%s${NC} %s" "${frames:$i:1}" "$*"
+      i=$(( (i+1) % 4 )); sleep 0.08
     done ) &
-  SPIN_PID=$!
-  disown "$SPIN_PID"
+  _SPIN_PID=$!
+  disown "$_SPIN_PID" 2>/dev/null || true
 }
 
-spin_ok() {
-  if ! $_TTY; then ok "$*"; return; fi
-  [[ -n "$SPIN_PID" ]] && kill "$SPIN_PID" 2>/dev/null; SPIN_PID=""
-  printf "\r\033[2K  ${G}✓${NC} %s\n" "$*"
+# for commands that may prompt on the terminal (sudo, git askpass): a static
+# line, never redrawn, so the prompt is not clobbered
+step_still() {
+  _STEP_MSG="$*"; _STEP_OPEN=1
+  $_TTY && printf "  ${D}→${NC} %s" "$*"
+  return 0
 }
 
-spin_warn() {
-  if ! $_TTY; then warn "$*"; return; fi
-  [[ -n "$SPIN_PID" ]] && kill "$SPIN_PID" 2>/dev/null; SPIN_PID=""
-  printf "\r\033[2K  ${Y}!${NC} %s\n" "$*"
+_sec_status() {
+  case "$1" in
+    fail) _SEC_STATUS=fail ;;
+    warn) [[ "$_SEC_STATUS" == fail ]] || _SEC_STATUS=warn ;;
+    ok)   [[ "$_SEC_STATUS" == fail || "$_SEC_STATUS" == warn ]] || _SEC_STATUS=ok ;;
+    *)    : ;;
+  esac
 }
 
-spin_skip() {
-  if ! $_TTY; then skip "$*"; return; fi
-  [[ -n "$SPIN_PID" ]] && kill "$SPIN_PID" 2>/dev/null; SPIN_PID=""
-  printf "\r\033[2K  ${D}◎${NC} %s\n" "$*"
+_sec_sum() {
+  if [[ -n "$_SEC_SUM" ]]; then _SEC_SUM="$_SEC_SUM · $1"; else _SEC_SUM="$1"; fi
+}
+
+step_end() {
+  local st="$1"; shift
+  _live_clear
+  case "$st" in
+    ok)   N_CHANGED=$(( N_CHANGED + 1 )) ;;
+    skip) N_NOOP=$(( N_NOOP + 1 )) ;;
+    warn) N_WARN=$(( N_WARN + 1 )) ;;
+    fail) N_FAIL=$(( N_FAIL + 1 )) ;;
+  esac
+  _sec_status "$st"
+  [[ -n "$*" ]] && _sec_sum "$*"
+  return 0
+}
+
+spin()      { step "$@"; }
+spin_still(){ step_still "$@"; }
+spin_ok()   { step_end ok "$@"; }
+spin_skip() { step_end skip "$@"; }
+spin_warn() { step_end warn "$@"; }
+spin_fail() { step_end fail "$@"; }
+
+section() {
+  _SEC_NAME="$*"
+  _SEC_T=$SECONDS
+  _SEC_STATUS=skip
+  _SEC_SUM=""
+  _SEC_ITEMS=()
+  _SEC_EXTRA=()
+}
+
+_item() {
+  local line
+  printf -v line "    %s%s %s%s" "$2" "$1" "$3" "$NC"
+  if [[ -n "$_SEC_NAME" ]]; then _SEC_ITEMS+=("$line"); else printf "%s\n" "$line"; fi
+}
+
+item_new()  { _item '+' "$G"  "$*"; }
+item_upd()  { _item '↑' "$Y"  "$*"; }
+item_rm()   { _item '-' "$R"  "$*"; }
+item_note() { _item '·' "$BL" "$*"; }
+
+# verbose-only detail (runtime inventory) — never truncated by the item cap
+_item_extra() {
+  local line
+  printf -v line "    ${BL}· %s${NC}" "$*"
+  if [[ -n "$_SEC_NAME" ]]; then _SEC_EXTRA+=("$line"); else printf "%s\n" "$line"; fi
+}
+
+_flush_items() {
+  local line i=0 n=${#_SEC_ITEMS[@]}
+  for line in ${_SEC_ITEMS[@]+"${_SEC_ITEMS[@]}"}; do
+    i=$(( i + 1 ))
+    if ! $_VERBOSE && (( i > _MAX_ITEMS )); then
+      printf "    ${D}… +%d more · use -v${NC}\n" $(( n - _MAX_ITEMS ))
+      break
+    fi
+    printf "%s\n" "$line"
+  done
+  if $_VERBOSE; then
+    for line in ${_SEC_EXTRA[@]+"${_SEC_EXTRA[@]}"}; do printf "%s\n" "$line"; done
+  fi
+  _SEC_ITEMS=(); _SEC_EXTRA=()
+}
+
+section_end() {
+  [[ -n "$_SEC_NAME" ]] || return 0
+  local d=$(( SECONDS - _SEC_T )) glyph color sum
+  case "$_SEC_STATUS" in
+    fail) glyph='✗'; color="$R" ;;
+    warn) glyph='!'; color="$Y" ;;
+    ok)   glyph='✓'; color="$G" ;;
+    *)    glyph='◎'; color="$D" ;;
+  esac
+  sum="${_SEC_SUM:--}"
+  # no right-aligned timer column: padding every line out to a shared column
+  # costs ~15 columns of nothing on the common short line. The duration trails
+  # the summary instead, so a line is only as wide as what it says
+  printf "${P}${B}➤${NC} %-15s ${color}${glyph}${NC} %s" "$_SEC_NAME" "$sum"
+  if (( d >= 1 )); then printf "  ${D}%ds${NC}" "$d"; fi
+  printf "\n"
+  _flush_items
+  _SEC_NAME=""
+  return 0
+}
+
+# final tally; the exit code carries the outcome, so a broken run is not silent
+finish() {
+  local d=$(( SECONDS - _T0 )) parts=""
+  if (( N_CHANGED > 0 )); then parts="$parts · $N_CHANGED changed"; fi
+  if (( N_NOOP > 0 ));    then parts="$parts · $N_NOOP no-op"; fi
+  if (( N_WARN > 0 ));    then parts="$parts · $N_WARN warning"; fi
+  if (( N_FAIL > 0 )); then
+    printf "\n  ${R}✗${NC} failed in ${d}s · $N_FAIL failed${parts}\n\n"
+    exit 1
+  fi
+  printf "\n  ${G}✓${NC} done in ${d}s${parts}\n\n"
+}
+
+_plural() {
+  if [[ "$1" == 1 ]]; then printf '%s %s' "$1" "$2"; else printf '%s %ss' "$1" "$2"; fi
+}
+
+_join() {
+  local out="" a
+  for a in "$@"; do
+    if [[ -n "$a" ]]; then out="${out:+$out · }$a"; fi
+  done
+  printf '%s' "$out"
 }
 
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -106,7 +285,7 @@ is_package() {
 
 stow_pkg() {
   local pkg="$1"
-  [[ -d "$DOTFILES/$pkg" ]] || { warn "package not found: $pkg"; STOW_FAIL+=("$pkg"); return; }
+  [[ -d "$DOTFILES/$pkg" ]] || { STOW_FAIL+=("$pkg"); return 0; }
   local fold_flag=""
   is_no_fold "$pkg" && fold_flag="--no-folding"
   # $fold_flag intentionally unquoted: word-splits away when empty (bash 3.2 on
@@ -133,18 +312,15 @@ stow_pkg() {
   else
     STOW_FAIL+=("$pkg")
   fi
+  return 0
 }
 
 unstow_pkg() {
   local pkg="$1"
-  [[ -d "$DOTFILES/$pkg" ]] || return
+  [[ -d "$DOTFILES/$pkg" ]] || return 0
   local fold_flag=""
   is_no_fold "$pkg" && fold_flag="--no-folding"
-  if stow -t "$HOME" -D $fold_flag "$pkg" 2>/dev/null; then
-    ok "$pkg"
-  else
-    warn "$pkg unstow failed"
-  fi
+  stow -t "$HOME" -D $fold_flag "$pkg" 2>/dev/null
 }
 
 # ── prune ───────────────────────────────────────────────────────────────────────
@@ -170,16 +346,29 @@ prune_canon() {
   '
 }
 
-# absolute path a link resolves to; works even when the target is gone, which is
-# what lets a dangling link be classified rather than skipped
-prune_abs_target() {
-  local link="$1" tgt
-  tgt="$(readlink "$link")" || return 0
-  [[ -n "$tgt" ]] || return 0
-  case "$tgt" in
-    /*) prune_canon "$tgt" ;;
-    *)  prune_canon "${link%/*}/$tgt" ;;
-  esac
+# 12 packages × 1 perl each was the slowest silent part of a run: canon() the
+# whole link list in one process instead, keyed by the raw link path
+prune_resolve_all() {
+  local links="$1" repo_a="$2" repo_b="$3"
+  LINKS="$links" REPO_A="$repo_a" REPO_B="$repo_b" perl -e '
+    my $home = $ENV{HOME} // "";
+    my %raw;
+    for my $l (split /\n/, ($ENV{LINKS} // "")) {
+      next if $l eq "";
+      my $t = readlink($l);
+      next unless defined $t;
+      my $abs = $t =~ m{^/} ? $t : (($l =~ m{^(.*)/[^/]*$}) ? "$1/$t" : "/$t");
+      my @parts;
+      for my $c (split m{/}, $abs) {
+        next if $c eq "" || $c eq ".";
+        $c eq ".." ? pop(@parts) : push(@parts, $c);
+      }
+      $raw{$l} = "/" . join("/", @parts);
+    }
+    for my $l (sort keys %raw) {
+      print "$l\t$raw{$l}\n";
+    }
+  '
 }
 
 # a delisted package leaves its now-empty ~/.config/<pkg>/ behind after its last
@@ -200,9 +389,8 @@ prune_links() {
   [[ -n "$links" ]] || return 0
   repo_a="$(prune_canon "$DOTFILES")"
   repo_b="$(prune_canon "$DOTFILES_DIR")"
-  while IFS= read -r link; do
+  while IFS=$'\t' read -r link abs; do
     [[ -n "$link" && -L "$link" ]] || continue
-    abs="$(prune_abs_target "$link")"
     case "$abs" in
       "$repo_a"/*) owner="${abs#"$repo_a"/}" ;;
       "$repo_b"/*) owner="${abs#"$repo_b"/}" ;;
@@ -214,7 +402,8 @@ prune_links() {
     rm -f "$link"
     PRUNED+=("${link#"$HOME"/}")
     prune_empty_dirs "$(dirname "$link")"
-  done <<<"$links"
+  done <<<"$(prune_resolve_all "$links" "$repo_a" "$repo_b")"
+  return 0
 }
 
 # ── mise helpers ────────────────────────────────────────────────────────────────
@@ -235,23 +424,27 @@ cmd_bootstrap() {
 
   section "Xcode CLI Tools"
   if ! xcode-select -p &>/dev/null 2>&1; then
-    spin "Installing Xcode CLI Tools"
+    step "Installing Xcode CLI Tools"
     xcode-select --install 2>/dev/null || true
-    until xcode-select -p &>/dev/null 2>&1; do sleep 5; done
-    spin_ok "Xcode CLI Tools installed"
+    local _waited=0
+    until xcode-select -p &>/dev/null 2>&1; do
+      sleep 5; _waited=$(( _waited + 5 ))
+      (( _waited >= 1200 )) && abort "still waiting after 20 min — finish the installer dialog, then re-run"
+    done
+    if (( _waited > 0 )); then spin_ok "installed (${_waited}s)"; else spin_ok "installed"; fi
   else
-    skip "Xcode CLI Tools"
+    spin_skip "already installed"
   fi
   section_end
 
   section "Dotfiles"
   if [[ -d "$DOTFILES_DIR" ]]; then
-    skip "Already cloned — $DOTFILES_DIR"
+    spin_skip "already cloned"
   else
+    step "Cloning dotfiles"
     mkdir -p "$HOME/Developer"
-    spin "Cloning dotfiles"
-    git clone --quiet "$DOTFILES_REPO" "$DOTFILES_DIR"
-    spin_ok "Dotfiles cloned"
+    git clone --quiet "$DOTFILES_REPO" "$DOTFILES_DIR" || abort "clone failed: $DOTFILES_REPO"
+    spin_ok "cloned to $DOTFILES_DIR"
   fi
   section_end
 
@@ -263,116 +456,157 @@ cmd_bootstrap() {
 cmd_uninstall() {
   printf "${Y}!${NC} Remove all dotfiles symlinks? [y/N] "
   read -r resp
+  $_TTY || printf "\n"
   [[ "$resp" =~ ^[Yy]$ ]] || { ok "aborted"; exit 0; }
 
   section "Dotfiles"
   command -v stow &>/dev/null || abort "stow not found"
   cd "$DOTFILES"
-  for pkg in "${PACKAGES[@]}"; do unstow_pkg "$pkg"; done
+  local n=0 failed=0 pkg
+  step "Unstowing ${#PACKAGES[@]} packages"
+  for pkg in "${PACKAGES[@]}"; do
+    if unstow_pkg "$pkg"; then n=$(( n + 1 )); else failed=$(( failed + 1 )); item_rm "$pkg"; fi
+  done
+  if (( failed == 0 )); then
+    spin_ok "$(_plural "$n" package) unstowed"
+  else
+    spin_fail "$n/${#PACKAGES[@]} unstowed — $failed failed"
+  fi
+  section_end
 
   section "Shell"
   ZINIT_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/zinit"
   if [[ -d "$ZINIT_HOME" ]]; then
+    step "Removing zinit"
     rm -rf "$ZINIT_HOME"
-    ok "zinit removed"
+    spin_ok "zinit removed"
+  else
+    spin_skip "zinit not installed"
   fi
+  section_end
 
   section "tmux plugins"
   if [[ -d "$HOME/.tmux/plugins" ]]; then
+    step "Removing TPM and plugins"
     rm -rf "$HOME/.tmux/plugins"
-    ok "TPM removed"
+    spin_ok "TPM removed"
+  else
+    spin_skip "TPM not installed"
   fi
+  section_end
 
-  printf "\n  ${G}✓${NC} done\n"
   warn "Homebrew packages and mise runtimes were not removed"
   warn "To remove Homebrew: /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)\""
+  finish
 }
 
 # ── sync ────────────────────────────────────────────────────────────────────────
 
 cmd_sync() {
-  local _t0; _t0=$SECONDS
+  _T0=$SECONDS
+  STOW_OK=(); STOW_FAIL=(); STOW_REPLACED=(); PRUNED=()
+  N_CHANGED=0; N_NOOP=0; N_WARN=0; N_FAIL=0
 
   # ── system ────────────────────────────────────────────────────────────────────
   section "System"
   [[ "$(uname)" == "Darwin" ]] || abort "macOS only"
   command -v git  &>/dev/null || abort "git missing — install xcode cli tools: xcode-select --install"
   command -v curl &>/dev/null || abort "curl missing — install xcode cli tools: xcode-select --install"
-  skip "macOS $(sw_vers -productVersion) · git · curl"
+  spin_skip "macOS $(sw_vers -productVersion) · git · curl"
   section_end
 
   # ── homebrew ──────────────────────────────────────────────────────────────────
   section "Homebrew"
   if ! command -v brew &>/dev/null; then
-    spin "Installing Homebrew"
+    step "Installing Homebrew"
     NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" >/dev/null
     [[ -f /opt/homebrew/bin/brew ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
     [[ -f /usr/local/bin/brew    ]] && eval "$(/usr/local/bin/brew shellenv)"
     command -v brew &>/dev/null || abort "Homebrew install failed"
-    spin_ok "Homebrew installed"
+    spin_ok "installed"
   fi
   # pin brew to stable tags: dev commands (e.g. `brew trust`) enable developer
   # mode, which makes `brew update` track the beta `main` branch
   export HOMEBREW_UPDATE_TO_TAG=1
+  local _hb_updated=true _hbout _hb_repo _hb_tag _hb_ver
+  step "Updating Homebrew"
   brew tap itsdezen/tap &>/dev/null || true
   brew trust itsdezen/tap &>/dev/null || true
   brew developer off &>/dev/null || true
-  spin "Updating Homebrew"
-  local _hb_updated=true
-  brew update &>/dev/null || _hb_updated=false
-  local _hb_repo _hb_tag
+  _hbout=$(brew update 2>&1) || _hb_updated=false
   _hb_repo="$(brew --repository)"
   _hb_tag="$(git -C "$_hb_repo" tag --list --sort=-version:refname | grep -m1 -E '^[0-9]+\.[0-9]+\.[0-9]+$' || true)"
   if [[ -n "$_hb_tag" ]]; then
     git -C "$_hb_repo" checkout --quiet "$_hb_tag" &>/dev/null || true
   fi
-  local _hb_ver
   _hb_ver="$(brew --version | head -1 | awk '{print $2}')"
-  if $_hb_updated; then spin_ok "Homebrew updated · $_hb_ver"; else spin_warn "Homebrew update failed · $_hb_ver"; fi
-  # not a spinner: brew bundle can prompt for a sudo password, which a
-  # redrawing spinner would clobber — the line stays until the result follows
-  run "Checking packages"
-  local _bout
-  _bout=$(SUDO_PROMPT="      Password: " brew bundle --file="$DOTFILES/Brewfile" -v 2>&1) || {
+  # `brew update` is a no-op most runs; report that as such instead of always
+  # claiming an update (state precision, not just cosmetics)
+  if ! $_hb_updated; then
+    spin_warn "update failed $_hb_ver"
+  elif grep -qi "already up-to-date" <<<"$_hbout"; then
+    spin_skip "$_hb_ver"
+  else
+    spin_ok "updated $_hb_ver"
+  fi
+
+  # brew bundle can prompt for a sudo password, so no redrawing spinner here: a
+  # static line is printed instead, and stderr goes straight to the terminal so
+  # the prompt is visible (capturing it would hide it and look like a hang)
+  spin_still "Checking packages"
+  local _btmp _bout _bundle_ok=true _stale_cask
+  _btmp="$(mktemp)"
+  _bout=$(SUDO_PROMPT="    Password: " brew bundle --file="$DOTFILES/Brewfile" -v 2>"$_btmp") || _bundle_ok=false
+  if ! $_bundle_ok; then
     # a Brewfile cask rename (e.g. claude-code -> claude-code@latest) leaves the
     # old cask installed and conflicting; `brew bundle cleanup` would remove it,
     # but bundle aborts before reaching cleanup, so retry once after clearing it
-    local _stale_cask
+    _bout="$_bout
+$(cat "$_btmp")"
     _stale_cask=$(grep -oE "conflicts with '[^']+'" <<<"$_bout" | head -1 | sed -E "s/conflicts with '(.+)'/\1/")
     if [[ -n "$_stale_cask" ]] && ! grep -q "cask \"$_stale_cask\"" "$DOTFILES/Brewfile" && brew list --cask "$_stale_cask" &>/dev/null; then
-      warn "removing stale cask $_stale_cask (renamed in Brewfile)"
+      item_note "removing stale cask $_stale_cask (renamed in Brewfile)"
       brew uninstall --cask "$_stale_cask" &>/dev/null || true
-      _bout=$(SUDO_PROMPT="      Password: " brew bundle --file="$DOTFILES/Brewfile" -v 2>&1) || abort "brew bundle failed: $_bout"
-    else
-      abort "brew bundle failed: $_bout"
+      : >"$_btmp"
+      _bout=$(SUDO_PROMPT="    Password: " brew bundle --file="$DOTFILES/Brewfile" -v 2>"$_btmp") || _bundle_ok=false
     fi
-  }
+    if ! $_bundle_ok; then
+      spin_fail "brew bundle failed"
+      section_end
+      printf '%s\n' "$_bout" | tail -n 8 | while IFS= read -r _line; do
+        printf "    ${D}%s${NC}\n" "$_line"
+      done
+      rm -f "$_btmp"
+      finish
+    fi
+  fi
+  rm -f "$_btmp"
   # depends on exact wording of `brew bundle -v` output — a Homebrew wording
   # change silently drops install/upgrade counts back to "up to date"
-  local _using _inst _upg
+  local _using _inst _upg _n_inst=0 _n_upg=0
   _using=$(grep -cE '^Using ' <<<"$_bout" || true)
   _inst=$(grep -E '^Installing .+\. It is not currently installed\.$' <<<"$_bout" \
     | sed -E 's/^Installing ([^ ]+) ([a-zA-Z_-]+).*/\1\t\2/' || true)
   _upg=$(grep -E '^Upgrading .+\. It is installed but .*up-to-date\.$' <<<"$_bout" \
     | sed -E 's/^Upgrading ([^ ]+) ([a-zA-Z_-]+).*/\1\t\2/' || true)
-  if [[ -n "$_inst$_upg" ]]; then
-    spin_ok "Packages updated"
-    while IFS=$'\t' read -r name kind; do
-      [[ -z "$name" ]] && continue
-      if [[ "$kind" == "tap" ]]; then item_new "tapped $name"; else item_new "installed $name ($kind)"; fi
-    done <<<"$_inst"
-    while IFS=$'\t' read -r name kind; do
-      [[ -z "$name" ]] && continue
-      item_upd "upgraded $name ($kind)"
-    done <<<"$_upg"
+  while IFS=$'\t' read -r name kind; do
+    [[ -z "$name" ]] && continue
+    _n_inst=$(( _n_inst + 1 ))
+    if [[ "$kind" == "tap" ]]; then item_new "tap $name"; elif [[ "$kind" == "cask" ]]; then item_new "$name (cask)"; else item_new "$name"; fi
+  done <<<"$_inst"
+  while IFS=$'\t' read -r name kind; do
+    [[ -z "$name" ]] && continue
+    _n_upg=$(( _n_upg + 1 ))
+    if [[ "$kind" == "cask" ]]; then item_upd "$name (cask)"; else item_upd "$name"; fi
+  done <<<"$_upg"
+  if (( _n_inst + _n_upg > 0 )); then
+    spin_ok "$(_join "$(_plural "$_n_inst" package) installed" "$(_plural "$_n_upg" package) upgraded")"
   else
-    spin_skip "Packages up to date ($_using)"
+    spin_skip "$_using current"
   fi
-
-  spin "Checking for cleanup candidates"
-  local _cout
+  step "Checking cleanup candidates"
+  local _cout _cleanup_list
   _cout=$(brew bundle cleanup --file="$DOTFILES/Brewfile" 2>&1) || true
-  local _cleanup_list
   _cleanup_list=$(awk '
       /^Would uninstall casks:/    { sect="cask"; next }
       /^Would uninstall formulae:/ { sect="formula"; next }
@@ -398,22 +632,23 @@ cmd_sync() {
     _cleanup_list="${_filtered%$'\n'}"
   fi
   if [[ -n "$_cleanup_list" ]]; then
-    spin_warn "$(wc -l <<<"$_cleanup_list" | tr -d ' ') package(s) not in Brewfile"
+    local _rm_formulae _rm_casks _rm_taps _n_rm=0
     while IFS=$'\t' read -r kind name; do
       [[ -z "$name" ]] && continue
-      item_rm "$name ($kind)"
+      _n_rm=$(( _n_rm + 1 ))
+      if [[ "$kind" == "cask" ]]; then item_rm "$name (cask)"; elif [[ "$kind" == "formula" ]]; then item_rm "$name"; else item_rm "$name (tap)"; fi
     done <<<"$_cleanup_list"
     # NOT `brew bundle cleanup --force` — that acts on the unfiltered list
     # (every transitive dep too), not just the leaves shown above
-    local _rm_formulae _rm_casks _rm_taps
     _rm_formulae=$(awk -F'\t' '$1=="formula"{printf "%s ", $2}' <<<"$_cleanup_list")
     _rm_casks=$(awk -F'\t' '$1=="cask"{printf "%s ", $2}' <<<"$_cleanup_list")
     _rm_taps=$(awk -F'\t' '$1=="tap"{printf "%s ", $2}' <<<"$_cleanup_list")
-    [[ -n "$_rm_formulae" ]] && warn "run 'brew uninstall ${_rm_formulae% } && brew autoremove' to remove"
-    [[ -n "$_rm_casks"    ]] && warn "run 'brew uninstall --cask ${_rm_casks% }' to remove"
-    [[ -n "$_rm_taps"     ]] && warn "run 'brew untap ${_rm_taps% }' to remove"
+    spin_warn "$(_plural "$_n_rm" package) not in Brewfile"
+    if [[ -n "$_rm_formulae" ]]; then item_note "brew uninstall ${_rm_formulae% } && brew autoremove"; fi
+    if [[ -n "$_rm_casks"    ]]; then item_note "brew uninstall --cask ${_rm_casks% }"; fi
+    if [[ -n "$_rm_taps"     ]]; then item_note "brew untap ${_rm_taps% }"; fi
   else
-    spin_skip "No cleanup candidates"
+    spin_skip "clean"
   fi
   section_end
 
@@ -425,7 +660,8 @@ cmd_sync() {
   _touched_formulae=$(printf '%s\n%s\n' "$_inst" "$_upg" | grep -E $'\tformula$' | cut -f1 || true)
   if [[ -n "$_touched_formulae" ]]; then
     section "Code signing"
-    local _fixed=0
+    local _fixed=0 _bad=0 _checked=0
+    step "Checking signatures"
     while read -r name; do
       [[ -z "$name" ]] && continue
       local _bin_dir _f _spctl_out
@@ -434,17 +670,25 @@ cmd_sync() {
       for _f in "$_bin_dir"/*; do
         [[ -f "$_f" && -x "$_f" ]] || continue
         file "$_f" 2>/dev/null | grep -q "Mach-O" || continue
+        _checked=$(( _checked + 1 ))
         _spctl_out=$(spctl -a -vv "$_f" 2>&1) || true
         [[ "$_spctl_out" == *"invalid signature"* ]] || continue
         if codesign --force -s - "$_f" &>/dev/null; then
           item_upd "re-signed $name ($(basename "$_f"))"
-          _fixed=$((_fixed + 1))
+          _fixed=$(( _fixed + 1 ))
         else
-          warn "could not re-sign $name ($(basename "$_f")) — it may fail to run"
+          item_note "could not re-sign $name ($(basename "$_f")) — it may fail to run"
+          _bad=$(( _bad + 1 ))
         fi
       done
     done <<<"$_touched_formulae"
-    (( _fixed > 0 )) && ok "Fixed $_fixed binary(ies)" || skip "No tainted signatures found"
+    if (( _fixed > 0 )); then
+      spin_ok "$(_plural "$_fixed" binary) re-signed"
+    elif (( _bad > 0 )); then
+      spin_warn "$(_plural "$_bad" binary) could not be re-signed"
+    else
+      spin_skip "no tainted signatures ($_checked checked)"
+    fi
     section_end
   fi
 
@@ -452,28 +696,36 @@ cmd_sync() {
   section "Dotfiles"
   command -v stow &>/dev/null || abort "stow not found — run: brew install stow"
   cd "$DOTFILES"
+  step "Stowing ${#PACKAGES[@]} packages"
   for pkg in "${PACKAGES[@]}"; do stow_pkg "$pkg"; done
-  prune_links
-  local _prune_note=""
-  if (( ${#PRUNED[@]} > 0 )); then _prune_note=" · pruned ${#PRUNED[@]}"; fi
+  local _n_repl=${#STOW_REPLACED[@]}
   if (( ${#STOW_FAIL[@]} == 0 )); then
-    ok "stowed ${#STOW_OK[@]} packages$_prune_note"
+    if (( _n_repl > 0 )); then
+      spin_ok "$(_plural "${#STOW_OK[@]}" package) stowed · $_n_repl replaced"
+    else
+      spin_ok "$(_plural "${#STOW_OK[@]}" package) stowed"
+    fi
   else
-    warn "stowed ${#STOW_OK[@]}/${#PACKAGES[@]} — failed: ${STOW_FAIL[*]}"
+    spin_fail "${#STOW_OK[@]}/${#PACKAGES[@]} stowed — failed: ${STOW_FAIL[*]}"
   fi
-  if (( ${#STOW_REPLACED[@]} > 0 )); then
-    local _repl
-    _repl="$(printf '%s\n' "${STOW_REPLACED[@]}")"
-    while IFS= read -r conflict; do
-      [[ -n "$conflict" ]] || continue
-      item_rm "replaced ~/$conflict"
-    done <<<"$_repl"
+  if (( _n_repl > 0 )); then
+    local _conflict
+    while IFS= read -r _conflict; do
+      [[ -n "$_conflict" ]] || continue
+      item_rm "replaced ~/$_conflict"
+    done <<<"$(printf '%s\n' "${STOW_REPLACED[@]}")"
   fi
+  step "Pruning stale links"
+  prune_links
   if (( ${#PRUNED[@]} > 0 )); then
-    while IFS= read -r link; do
-      [[ -n "$link" ]] || continue
-      item_rm "pruned stale ~/$link"
+    local _link
+    while IFS= read -r _link; do
+      [[ -n "$_link" ]] || continue
+      item_rm "pruned ~/$_link"
     done <<<"$(printf '%s\n' "${PRUNED[@]}")"
+    spin_ok "$(_plural "${#PRUNED[@]}" stale link) pruned"
+  else
+    spin_skip "no stale links"
   fi
   section_end
 
@@ -483,8 +735,11 @@ cmd_sync() {
   # it once from a template; later runs only enforce 600, so a stray chmod can
   # never leave it world-readable. uninstall never touches it.
   section "Local env"
+  local _umask
+  _umask=$(umask)
   ENV_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/zsh/env.local"
   if [[ ! -f "$ENV_FILE" ]]; then
+    step "Creating env.local"
     mkdir -p "$(dirname "$ENV_FILE")"
     umask 077
     cat >"$ENV_FILE" <<'ENVEOF'
@@ -494,10 +749,11 @@ cmd_sync() {
 # Consumed from config via env-var substitution (e.g. {env:NAME} in opencode).
 ENVEOF
     chmod 600 "$ENV_FILE"
+    umask "$_umask"
     spin_ok "created ~/.config/zsh/env.local"
   else
     chmod 600 "$ENV_FILE"
-    skip "local env"
+    spin_skip "env.local (600)"
   fi
 
   # GitHub MCP token: OpenCode's background server does not inherit shell env when
@@ -508,32 +764,35 @@ ENVEOF
   # newline would corrupt the Authorization header.
   GH_TOKEN_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/zsh/github_token"
   if command -v gh >/dev/null 2>&1 && gh auth token >/dev/null 2>&1; then
+    step "Refreshing GitHub token"
     umask 077
     printf '%s' "$(gh auth token)" >"$GH_TOKEN_FILE"
     chmod 600 "$GH_TOKEN_FILE"
-    spin_ok "refreshed ~/.config/zsh/github_token"
+    umask "$_umask"
+    spin_ok "token refreshed"
   elif [[ -f "$GH_TOKEN_FILE" ]]; then
     chmod 600 "$GH_TOKEN_FILE"
-    skip "github token"
+    spin_skip "github_token (cached)"
   else
-    warn "GitHub MCP idle — run 'gh auth login', then ./sync.sh again"
+    spin_warn "github token missing — run 'gh auth login', then ./sync.sh"
   fi
-
   section_end
 
   # ── tmux plugins ──────────────────────────────────────────────────────────────
   section "tmux plugins"
   TPM_DIR="$HOME/.tmux/plugins/tpm"
   if [[ ! -d "$TPM_DIR" ]]; then
-    spin "Cloning TPM"
-    git clone --quiet --depth 1 https://github.com/tmux-plugins/tpm "$TPM_DIR"
+    step "Cloning TPM"
+    git clone --quiet --depth 1 https://github.com/tmux-plugins/tpm "$TPM_DIR" || abort "TPM clone failed"
     spin_ok "TPM cloned"
-  fi
-  spin "Installing plugins"
-  if "$TPM_DIR/bin/install_plugins" &>/dev/null; then
-    spin_ok "Plugins synced"
   else
-    spin_warn "Plugin install failed"
+    spin_skip "TPM present"
+  fi
+  step "Installing plugins"
+  if "$TPM_DIR/bin/install_plugins" &>/dev/null; then
+    spin_ok "plugins synced"
+  else
+    spin_warn "plugin install failed"
   fi
   section_end
 
@@ -541,22 +800,22 @@ ENVEOF
   section "Shell"
   ZINIT_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/zinit/zinit.git"
   if [[ ! -d "$ZINIT_HOME" ]]; then
-    spin "Installing zinit"
+    step "Installing zinit"
     mkdir -p "$(dirname "$ZINIT_HOME")"
-    git clone --quiet https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+    git clone --quiet https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME" || abort "zinit clone failed"
     spin_ok "zinit installed"
   else
-    skip "zinit"
+    spin_skip "zinit present"
   fi
   section_end
 
   # ── runtimes ──────────────────────────────────────────────────────────────────
   section "Runtimes"
   command -v mise &>/dev/null || abort "mise not found"
-  local _rt_before="" _rt_after="" _rt_diff="" _rt_inv="" _mout _uout
+  local _rt_before="" _rt_after="" _rt_diff="" _rt_inv="" _mout _uout _rt_n=0 _rt_total=0
+  step "Syncing runtimes"
   # not `command -v jq && …` — a failing AND-list is fatal under set -e
   if command -v jq &>/dev/null; then _rt_before="$(mise_snapshot)"; fi
-  spin "Syncing runtimes"
   _mout=$(mise install --yes 2>&1) || abort "mise install failed: $_mout"
   _uout=$(mise upgrade --yes 2>&1) || abort "mise upgrade failed: $_uout"
   if [[ -n "$_rt_before" ]]; then
@@ -584,32 +843,21 @@ ENVEOF
   fi
   local _rt_old _rt_new
   if [[ -n "$_rt_diff" ]]; then
-    spin_ok "Runtimes updated"
     while IFS=$'\t' read -r kind name _rt_old _rt_new; do
       [[ -n "$name" ]] || continue
       # backend-qualified names shorten to the binary they provide
       # (go:golang.org/x/tools/cmd/gopls → gopls)
       case "$name" in *:*) name="${name##*:}"; name="${name##*/}" ;; esac
+      _rt_n=$(( _rt_n + 1 ))
       if [[ "$kind" == "new" ]]; then
         item_new "$name $_rt_new"
       else
         item_upd "$name $_rt_old → $_rt_new"
       fi
     done <<<"$_rt_diff"
-  elif [[ -n "$_rt_before" ]]; then
-    spin_skip "Runtimes up to date"
-  elif echo "$_mout" | grep -q "all tools are installed" \
-    && echo "$_uout" | grep -qi "up to date"; then
-    spin_skip "Runtimes up to date"
-  else
-    # no jq — mise's wording says *that* something changed, never which runtime
-    spin_ok "Runtimes updated"
-    echo "$_mout" | grep -vq "all tools are installed" && item_new "installed missing runtimes"
-    echo "$_uout" | grep -vqi "up to date" && item_upd "upgraded outdated runtimes"
   fi
-
-  # live inventory, one runtime per line: the name is the subject, the version
-  # stays dim so a long list never competes with the change lines above
+  # live inventory: buffered, counted, and only printed with -v — it is stable
+  # data, so it should not pad every run's output
   eval "$(mise env)"
   _rt_inv="$(mise_snapshot)"
   if [[ -z "$_rt_inv" ]]; then
@@ -618,27 +866,42 @@ ENVEOF
   while IFS=$'\t' read -r name version; do
     [[ -n "$name" ]] || continue
     case "$name" in *:*) name="${name##*:}"; name="${name##*/}" ;; esac
-    printf "      ${BL}·${NC} %s ${D}%s${NC}\n" "$name" "$version"
+    _rt_total=$(( _rt_total + 1 ))
+    _item_extra "$name $version"
   done <<<"$_rt_inv"
+  if (( _rt_n > 0 )); then
+    spin_ok "$(_plural "$_rt_n" runtime) changed"
+  elif [[ -n "$_rt_before" ]]; then
+    spin_skip "up to date ($_rt_total)"
+  elif echo "$_mout" | grep -q "all tools are installed" \
+    && echo "$_uout" | grep -qi "up to date"; then
+    spin_skip "up to date ($_rt_total)"
+  else
+    # no jq — mise's wording says *that* something changed, never which runtime
+    if ! echo "$_mout" | grep -q "all tools are installed"; then item_new "installed missing runtimes"; fi
+    if ! echo "$_uout" | grep -qi "up to date"; then item_upd "upgraded outdated runtimes"; fi
+    spin_ok "updated ($_rt_total)"
+  fi
   section_end
 
   # ── editor ────────────────────────────────────────────────────────────────────
   section "Editor"
   if command -v nvim &>/dev/null; then
     local lock="$DOTFILES/nvim/.config/nvim/lazy-lock.json"
-    local lock_before=""
-    [[ -f "$lock" ]] && lock_before="$(mktemp)" && cp "$lock" "$lock_before"
-    local lock_dirty_before=false
+    local lock_before="" lock_dirty_before=false
+    if [[ -f "$lock" ]]; then
+      lock_before="$(mktemp)"
+      cp "$lock" "$lock_before"
+    fi
     git -C "$DOTFILES" diff --quiet -- nvim/.config/nvim/lazy-lock.json 2>/dev/null || lock_dirty_before=true
-    spin "Syncing plugins"
     local nvim_log _nvim_sync_ok=true
+    step "Syncing plugins"
     nvim_log="$(nvim --headless "+Lazy! sync" +qa 2>&1)" || _nvim_sync_ok=false
+    local _plugin_diff="" _n_plug=0 _nvim_tail=""
     if ! $_nvim_sync_ok; then
-      spin_warn "Plugin sync failed"
-      while IFS= read -r _line; do warn "  $_line"; done <<<"$(tail -n 5 <<<"$nvim_log")"
-      rm -f "$lock_before"
+      spin_fail "plugin sync failed"
+      _nvim_tail="$(printf '%s\n' "$nvim_log" | tail -n 5)"
     else
-      local _plugin_diff=""
       if [[ -n "$lock_before" && -f "$lock" ]] && command -v jq &>/dev/null; then
         _plugin_diff=$(jq -sr '
             (.[0] // {}) as $old | (.[1] // {}) as $new |
@@ -648,20 +911,21 @@ ENVEOF
             | "\(if $o == "" then "new" else "upd" end)\t\($k)\t\($o[0:7])\t\($n[0:7])"
           ' "$lock_before" "$lock" 2>/dev/null) || true
       fi
-      rm -f "$lock_before"
-      if [[ -n "$_plugin_diff" ]]; then
-        spin_ok "Plugins synced"
-        while IFS=$'\t' read -r kind name old new; do
-          [[ -z "$name" ]] && continue
-          if [[ "$kind" == "new" ]]; then item_new "$name  $new"; else item_upd "$name  $old → $new"; fi
-        done <<<"$_plugin_diff"
+      local kind name old new
+      while IFS=$'\t' read -r kind name old new; do
+        [[ -z "$name" ]] && continue
+        _n_plug=$(( _n_plug + 1 ))
+        if [[ "$kind" == "new" ]]; then item_new "$name  $new"; else item_upd "$name  $old → $new"; fi
+      done <<<"$_plugin_diff"
+      if (( _n_plug > 0 )); then
+        spin_ok "$(_plural "$_n_plug" plugin) changed"
       else
-        spin_skip "Plugins up to date"
+        spin_skip "plugins up to date"
       fi
-      if ! $lock_dirty_before && ! git -C "$DOTFILES" diff --quiet -- nvim/.config/nvim/lazy-lock.json 2>/dev/null; then
+      if [[ -n "$lock_before" ]] && ! $lock_dirty_before && ! git -C "$DOTFILES" diff --quiet -- nvim/.config/nvim/lazy-lock.json 2>/dev/null; then
         local _commit_resp="y"
         if $_TTY; then
-          printf "      ${Y}?${NC} commit lockfile update? [Y/n] "
+          printf "    ${Y}?${NC} commit lockfile update? [Y/n] "
           read -r _commit_resp
         fi
         if [[ -z "$_commit_resp" || "$_commit_resp" =~ ^[Yy]$ ]]; then
@@ -669,26 +933,34 @@ ENVEOF
             && git -C "$DOTFILES" commit -m "⬆️ nvim: update plugin lockfile" >/dev/null 2>&1; then
             item_new "committed lockfile update"
           else
-            warn "lockfile changed but auto-commit failed"
+            item_note "lockfile changed but auto-commit failed"
           fi
         else
-          skip "lockfile commit skipped"
+          item_note "lockfile commit skipped"
         fi
       fi
     fi
+    rm -f "$lock_before"
   else
-    warn "Neovim not found — skipping"
+    spin_warn "neovim not found — skipped"
   fi
   section_end
+  # failure detail belongs *under* the section line, not above it
+  if [[ -n "${_nvim_tail:-}" ]]; then
+    while IFS= read -r _line; do
+      [[ -n "$_line" ]] || continue
+      printf "    ${D}%s${NC}\n" "$_line"
+    done <<<"$_nvim_tail"
+  fi
 
-  printf "\n  ${G}✓${NC} done ${D}· $(( SECONDS - _t0 ))s${NC}\n\n"
+  finish
 }
 
 # ── entrypoint ──────────────────────────────────────────────────────────────────
 
-case "${1:-sync}" in
+case "$_CMD" in
   sync)      cmd_sync ;;
   bootstrap) cmd_bootstrap ;;
   uninstall) cmd_uninstall ;;
-  *) printf "usage: %s [sync|bootstrap|uninstall]\n" "$0"; exit 1 ;;
+  *) usage >&2; exit 1 ;;
 esac
