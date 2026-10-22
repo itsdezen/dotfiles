@@ -115,14 +115,6 @@ step() {
   disown "$_SPIN_PID" 2>/dev/null || true
 }
 
-# for commands that may prompt on the terminal (sudo, git askpass): a static
-# line, never redrawn, so the prompt is not clobbered
-step_still() {
-  _STEP_MSG="$*"; _STEP_OPEN=1
-  $_TTY && printf "  ${D}→${NC} %s" "$*"
-  return 0
-}
-
 _sec_status() {
   case "$1" in
     fail) _SEC_STATUS=fail ;;
@@ -151,7 +143,6 @@ step_end() {
 }
 
 spin()      { step "$@"; }
-spin_still(){ step_still "$@"; }
 spin_ok()   { step_end ok "$@"; }
 spin_skip() { step_end skip "$@"; }
 spin_warn() { step_end warn "$@"; }
@@ -166,21 +157,23 @@ section() {
   _SEC_EXTRA=()
 }
 
+# Colors reach `line` as escape *text* (that is how they are defined), so they
+# must go through %b — %s would store the literal "\033[1;33m" and print it raw.
 _item() {
   local line
-  printf -v line "    %s%s %s%s" "$2" "$1" "$3" "$NC"
+  printf -v line "    %b%s %s%b" "$1" "$2" "$3" "$NC"
   if [[ -n "$_SEC_NAME" ]]; then _SEC_ITEMS+=("$line"); else printf "%s\n" "$line"; fi
 }
 
-item_new()  { _item '+' "$G"  "$*"; }
-item_upd()  { _item '↑' "$Y"  "$*"; }
-item_rm()   { _item '-' "$R"  "$*"; }
-item_note() { _item '·' "$BL" "$*"; }
+item_new()  { _item "$G"  '+' "$*"; }
+item_upd()  { _item "$Y"  '↑' "$*"; }
+item_rm()   { _item "$R"  '-' "$*"; }
+item_note() { _item "$BL" '·' "$*"; }
 
 # verbose-only detail (runtime inventory) — never truncated by the item cap
 _item_extra() {
   local line
-  printf -v line "    ${BL}· %s${NC}" "$*"
+  printf -v line "    %b· %s%b" "$BL" "$*" "$NC"
   if [[ -n "$_SEC_NAME" ]]; then _SEC_EXTRA+=("$line"); else printf "%s\n" "$line"; fi
 }
 
@@ -213,7 +206,9 @@ section_end() {
   # no right-aligned timer column: padding every line out to a shared column
   # costs ~15 columns of nothing on the common short line. The duration trails
   # the summary instead, so a line is only as wide as what it says
-  printf "${P}${B}➤${NC} %-15s ${color}${glyph}${NC} %s" "$_SEC_NAME" "$sum"
+  # section lines sit one indent step in, so they line up with the step and item
+  # rows below them instead of hanging off the left margin
+  printf "  ${P}${B}➤${NC} %-15s ${color}${glyph}${NC} %s" "$_SEC_NAME" "$sum"
   if (( d >= 1 )); then printf "  ${D}%ds${NC}" "$d"; fi
   printf "\n"
   _flush_items
@@ -550,10 +545,30 @@ cmd_sync() {
     spin_ok "updated $_hb_ver"
   fi
 
-  # brew bundle can prompt for a sudo password, so no redrawing spinner here: a
-  # static line is printed instead, and stderr goes straight to the terminal so
-  # the prompt is visible (capturing it would hide it and look like a hang)
-  spin_still "Checking packages"
+  # `brew bundle` can make sudo ask for a password: a cask with a pkg installer,
+  # or one replacing an /Applications bundle owned by root. sudo writes that
+  # prompt straight to /dev/tty (not stderr), i.e. wherever the cursor happens to
+  # be — so it needs a line that is already terminated, never the spinner's line,
+  # or the two overwrite each other. Only casks can trigger sudo (formulae
+  # install under the user's own prefix), so gate on pending cask work:
+  # authenticate up front on a clean line, then spin as usual.
+  local _cask_tmp _pending_casks
+  _cask_tmp="$(mktemp -d)"
+  brew list --cask 2>/dev/null | sort >"$_cask_tmp/installed" || true
+  # Brewfile tokens can be tap-qualified (itsdezen/tap/foo) while `brew list`
+  # prints the bare token, so strip the tap prefix before diffing
+  grep -E '^cask ' "$DOTFILES/Brewfile" \
+    | sed -E 's/^cask "([^"]+)".*/\1/; s|.*/||' | sort >"$_cask_tmp/wanted" || true
+  _pending_casks="$(comm -13 "$_cask_tmp/installed" "$_cask_tmp/wanted" 2>/dev/null || true)"
+  # bundle upgrades auto-updating casks only with --greedy (Homebrew/bundle/
+  # cask.rb: upgrading?), which sync never passes, so keep them out of this list
+  _pending_casks="$_pending_casks $(brew outdated --cask --quiet 2>/dev/null || true)"
+  rm -rf "$_cask_tmp"
+  if $_TTY && [[ -n "${_pending_casks//[[:space:]]/}" ]]; then
+    printf "  ${D}→${NC} Checking packages · cask work may ask for your password\n"
+    SUDO_PROMPT="    Password: " sudo -v || true
+  fi
+  step "Checking packages"
   local _btmp _bout _bundle_ok=true _stale_cask
   _btmp="$(mktemp)"
   _bout=$(SUDO_PROMPT="    Password: " brew bundle --file="$DOTFILES/Brewfile" -v 2>"$_btmp") || _bundle_ok=false

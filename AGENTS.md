@@ -52,10 +52,10 @@ dotfiles/
 ### 3. Conventions
 
 - Stow package dirs: lowercase
-- Scripts: `set -euo pipefail`, helpers: `ok/skip/run/info/warn/abort/finish`, `section/section_end`, `step/spin/spin_still/spin_ok/spin_skip/spin_warn/spin_fail`, `item_new/item_upd/item_rm/item_note`
+- Scripts: `set -euo pipefail`, helpers: `ok/skip/run/info/warn/abort/finish`, `section/section_end`, `step/spin/spin_ok/spin_skip/spin_warn/spin_fail`, `item_new/item_upd/item_rm/item_note`
 - Output contract: `item_*` buffer into the open section and flush at `section_end`, so each stage prints exactly one `➤ Section` line (status, counts, duration) with its change items nested below; runtime inventory only with `-v`; non-TTY output is colour-free and spinner frames are dropped; `abort` clears the live line and reports the section, and any failed step makes `sync.sh` exit non-zero
 - `sync.sh` targets macOS `/bin/sh` (bash 3.2 in POSIX mode) — its `#!/bin/sh` shebang makes `./sync.sh` and `sh sync.sh` identical. Avoid syntax the POSIX parser rejects (process substitution, …); verify with `sh -n sync.sh` and `bash -n sync.sh`
-- No banners, no prompts (except destructive ops in `sync.sh uninstall`, and the nvim lockfile auto-commit confirmation in `sync.sh sync`)
+- No banners, no prompts (except destructive ops in `sync.sh uninstall`, the nvim lockfile auto-commit confirmation in `sync.sh sync`, and the sudo password `brew bundle` can need for a cask — asked once, up front, never mid-spinner)
 - Commit style: emoji prefix (`🚀 🐞 🔧 ♻️ 📝 🗑️ ⬆️`)
 
 ### 4. When adding features

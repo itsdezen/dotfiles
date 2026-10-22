@@ -49,6 +49,8 @@ cd ~/Developer/dotfiles && ./sync.sh
 
 `sync.sh` exits non-zero if any step failed (stow, plugin sync, clone), so it can gate CI or a wrapper script.
 
+Only casks can make Homebrew ask for a password (`pkg` installers, or replacing an app bundle owned by root), so `sync.sh` checks for pending cask work and — if there is any — asks once before the Homebrew step rather than interrupting the spinner mid-run.
+
 ## Stow Packages
 
 | Package | Symlinks to |
