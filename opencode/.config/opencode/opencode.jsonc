@@ -1,5 +1,12 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  // Default to the OpenCode Go workhorse; Plan adds max thinking.
+  "model": "opencode-go/deepseek-v4.1-flash",
+  "agents": {
+    "plan": {
+      "model": "opencode-go/deepseek-v4.1-flash#max"
+    }
+  },
   "mcp": {
     "servers": {
       "stitch": {
