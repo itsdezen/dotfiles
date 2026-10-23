@@ -1,22 +1,5 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  // These Go models exhaust their tight usage window in long agent loops.
-  // Keep them unavailable to every local OpenCode entry point, including TUI and `opencode run`.
-  "providers": {
-    "opencode-go": {
-      "models": {
-        "grok-4.6": { "disabled": true },
-        "grok-4.7": { "disabled": true },
-        "kimi-k3": { "disabled": true },
-        "glm-5.3": { "disabled": true },
-        "qwen3.8-max": { "disabled": true },
-        "kimi-k2.7-code": { "disabled": true },
-        "deepseek-v4-flash": { "disabled": true },
-        "deepseek-v4-flash-vision-exp": { "disabled": true },
-        "deepseek-v4-pro": { "disabled": true }
-      }
-    }
-  },
   "mcp": {
     "servers": {
       "stitch": {
