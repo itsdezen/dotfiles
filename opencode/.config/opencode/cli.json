@@ -10,7 +10,8 @@
     "sidebar": "auto",
     "scrollbar": false,
     "thinking": "hide",
-    "verbosity": "low"
+    "verbosity": "low",
+    "image_preview": true
   },
   "animations": true
 }
