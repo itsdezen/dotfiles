@@ -1,12 +1,10 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  // Default to the OpenCode Go workhorse; Plan adds max thinking.
+  // Default to the OpenCode Go workhorse. Thinking level is per session, not
+  // per agent: V2 stores the session's own model and variant, so overriding
+  // agents.plan.model (even with #max) has no effect. Cycle variants with
+  // Ctrl+T instead.
   "model": "opencode-go/deepseek-v4.1-flash",
-  "agents": {
-    "plan": {
-      "model": "opencode-go/deepseek-v4.1-flash#max"
-    }
-  },
   "mcp": {
     "servers": {
       "stitch": {
