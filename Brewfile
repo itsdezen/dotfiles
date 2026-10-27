@@ -121,3 +121,6 @@ brew "superfile"
 
 # Cloudflare WARP - VPN client
 cask "cloudflare-warp"
+
+# Tailscale - Mesh VPN based on WireGuard (CLI-only tailscaled, utun variant)
+brew "tailscale"

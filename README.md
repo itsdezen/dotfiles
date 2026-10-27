@@ -19,6 +19,7 @@ Personal macOS development environment using **GNU Stow** for dotfiles managemen
 - 🐳 **lazydocker** — terminal UI for docker, same author as lazygit
 - 📁 **superfile** — terminal file manager
 - 📊 **btop** — resource monitor (CPU, memory, disks, network, processes)
+- 🌐 **Tailscale** — mesh VPN via the CLI-only `tailscaled` variant (root LaunchDaemon, no GUI app)
 
 ## Quick Start
 
@@ -36,6 +37,8 @@ cd ~/Developer/dotfiles && ./sync.sh
 `sync.sh` is idempotent — safe to re-run anytime to sync/update. It uses a `#!/bin/sh` shebang, so `./sync.sh` and `sh sync.sh` are equivalent.
 
 **Docker/lazydocker** — run `colima start` once after install to bring up the container runtime VM before using `docker` or `lazydocker`.
+
+**Tailscale** — this repo installs the formula (`tailscaled`, utun variant, no menu bar app), not the cask. Installs need no password, but the daemon is a root service, so start it once with `sudo brew services start tailscale`, then `tailscale up` to log in. It restarts at boot.
 
 ## Scripts
 
