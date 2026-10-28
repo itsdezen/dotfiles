@@ -10,9 +10,9 @@ adjust-cell-height = 10%
 macos-titlebar-style = hidden
 window-padding-x = 10
 window-padding-y = 10
+copy-on-select = clipboard
+window-padding-balance = equal
 theme = TokyoNight Night
-font-synthetic-style = true
-window-vsync = true
 
 # opt+backspace defaults to ESC+DEL, which breaks in terminal vim (ESC exits insert mode)
 keybind = opt+backspace=text:\x17
