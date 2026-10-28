@@ -12,7 +12,7 @@ window-padding-x = 10
 window-padding-y = 10
 copy-on-select = clipboard
 window-padding-balance = equal
-theme = TokyoNight Night
+theme = Nord
 
 # opt+backspace defaults to ESC+DEL, which breaks in terminal vim (ESC exits insert mode)
 keybind = opt+backspace=text:\x17
