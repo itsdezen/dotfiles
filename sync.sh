@@ -318,6 +318,19 @@ unstow_pkg() {
   stow -t "$HOME" -D $fold_flag "$pkg" 2>/dev/null
 }
 
+# every symlink stow could own, resolved to its target. `stow -R` unlinks and
+# relinks even when nothing moved, so its exit code (or its action log) reports a
+# change on every single run; comparing this snapshot before and after is the
+# only honest answer to "did stowing change anything".
+stow_snapshot() {
+  local links
+  links="$( { find "$HOME" -maxdepth 1 -type l
+              find "$HOME/.config" -type l
+            } 2>/dev/null )"
+  [[ -n "$links" ]] || return 0
+  prune_resolve_all "$links" "$(prune_canon "$DOTFILES")" "$(prune_canon "$DOTFILES_DIR")"
+}
+
 # ── prune ───────────────────────────────────────────────────────────────────────
 
 # `stow -D` can only unwind a package that still exists on disk, so dropping one
@@ -399,6 +412,19 @@ prune_links() {
     prune_empty_dirs "$(dirname "$link")"
   done <<<"$(prune_resolve_all "$links" "$repo_a" "$repo_b")"
   return 0
+}
+
+# ── tmux helpers ────────────────────────────────────────────────────────────────
+
+# HEAD of every TPM-managed checkout, one `name<TAB>sha` line each. TPM's
+# install_plugins exits 0 whether or not it actually pulled anything, so this
+# snapshot is the only honest "did the plugins change" signal.
+tmux_plugin_heads() {
+  local d
+  for d in "$HOME"/.tmux/plugins/*/; do
+    [[ -d "$d/.git" ]] || continue
+    printf '%s\t%s\n' "$(basename "$d")" "$(git -C "$d" rev-parse HEAD 2>/dev/null || true)"
+  done
 }
 
 # ── mise helpers ────────────────────────────────────────────────────────────────
@@ -596,26 +622,51 @@ $(cat "$_btmp")"
     fi
   fi
   rm -f "$_btmp"
-  # depends on exact wording of `brew bundle -v` output — a Homebrew wording
-  # change silently drops install/upgrade counts back to "up to date"
-  local _using _inst _upg _n_inst=0 _n_upg=0
+  # `brew bundle -v` prints two shapes and *both* must parse, or the section
+  # claims "N current" while packages were in fact changed:
+  #   Homebrew 7 batches dependencies into a single `brew install` and prints
+  #   the actionable ones bare ("Upgrading mise"); only the non-batched path
+  #   still prints the older sentence form ("Upgrading mise formula. It is
+  #   installed but not up-to-date.").
+  # Colour is stripped first so a forced HOMEBREW_COLOR can't hide the anchors,
+  # and the batched form carries no kind word — infer it from the cask list (a
+  # tap-qualified name is matched by its last path component).
+  local _using _chg _casks _n_inst=0 _n_upg=0 st name kind label
   _using=$(grep -cE '^Using ' <<<"$_bout" || true)
-  _inst=$(grep -E '^Installing .+\. It is not currently installed\.$' <<<"$_bout" \
-    | sed -E 's/^Installing ([^ ]+) ([a-zA-Z_-]+).*/\1\t\2/' || true)
-  _upg=$(grep -E '^Upgrading .+\. It is installed but .*up-to-date\.$' <<<"$_bout" \
-    | sed -E 's/^Upgrading ([^ ]+) ([a-zA-Z_-]+).*/\1\t\2/' || true)
-  while IFS=$'\t' read -r name kind; do
-    [[ -z "$name" ]] && continue
-    _n_inst=$(( _n_inst + 1 ))
-    if [[ "$kind" == "tap" ]]; then item_new "tap $name"; elif [[ "$kind" == "cask" ]]; then item_new "$name (cask)"; else item_new "$name"; fi
-  done <<<"$_inst"
-  while IFS=$'\t' read -r name kind; do
-    [[ -z "$name" ]] && continue
-    _n_upg=$(( _n_upg + 1 ))
-    if [[ "$kind" == "cask" ]]; then item_upd "$name (cask)"; else item_upd "$name"; fi
-  done <<<"$_upg"
+  _casks="$(brew list --cask 2>/dev/null || true)"
+  _chg=$(printf '%s\n' "$_bout" | CASKS="$_casks" perl -ne '
+      s/\e\[[0-9;]*m//g;
+      my %cask = map { $_ => 1 } split /\n/, ($ENV{CASKS} // "");
+      my ($verb, $name, $kind);
+      if (/^(Installing|Upgrading) (\S+)(?: (formula|cask|tap))?(?: with [^.]+)?\. it is/i) {
+        ($verb, $name, $kind) = ($1, $2, $3 // "");
+      } elsif (/^(Installing|Upgrading) (\S+)$/) {
+        ($verb, $name, $kind) = ($1, $2, "");
+      } else {
+        next;
+      }
+      unless ($kind) {
+        my @parts = split m{/}, $name;
+        $kind = $cask{$name} || $cask{$parts[-1]} ? "cask" : "formula";
+      }
+      print(($verb eq "Installing" ? "new" : "upd"), "\t$name\t$kind\n");
+    ' || true)
+  while IFS=$'\t' read -r st name kind; do
+    [[ -n "$name" ]] || continue
+    label="$name"
+    [[ "$kind" == "cask" ]] && label="$name (cask)"
+    [[ "$kind" == "tap"  ]] && label="tap $name"
+    if [[ "$st" == "new" ]]; then
+      _n_inst=$(( _n_inst + 1 )); item_new "$label"
+    else
+      _n_upg=$(( _n_upg + 1 )); item_upd "$label"
+    fi
+  done <<<"$_chg"
   if (( _n_inst + _n_upg > 0 )); then
-    spin_ok "$(_join "$(_plural "$_n_inst" package) installed" "$(_plural "$_n_upg" package) upgraded")"
+    local _sum_parts=""
+    if (( _n_inst > 0 )); then _sum_parts="$(_plural "$_n_inst" package) installed"; fi
+    if (( _n_upg > 0 )); then _sum_parts="$(_join "$_sum_parts" "$(_plural "$_n_upg" package) upgraded")"; fi
+    spin_ok "$_sum_parts"
   else
     spin_skip "$_using current"
   fi
@@ -672,7 +723,7 @@ $(cat "$_btmp")"
   # kernel flags them as tainted and SIGKILLs them on first run — re-sign locally
   # to clear it (see: opencode getting killed right after a fresh install)
   local _touched_formulae
-  _touched_formulae=$(printf '%s\n%s\n' "$_inst" "$_upg" | grep -E $'\tformula$' | cut -f1 || true)
+  _touched_formulae=$(awk -F'\t' '$1 == "upd" && $3 == "formula" { print $2 }' <<<"$_chg" || true)
   if [[ -n "$_touched_formulae" ]]; then
     section "Code signing"
     local _fixed=0 _bad=0 _checked=0
@@ -711,14 +762,20 @@ $(cat "$_btmp")"
   section "Dotfiles"
   command -v stow &>/dev/null || abort "stow not found — run: brew install stow"
   cd "$DOTFILES"
+  local _links_before _links_after _links_changed=false
+  _links_before="$(stow_snapshot)"
   step "Stowing ${#PACKAGES[@]} packages"
   for pkg in "${PACKAGES[@]}"; do stow_pkg "$pkg"; done
+  _links_after="$(stow_snapshot)"
+  [[ "$_links_before" == "$_links_after" ]] || _links_changed=true
   local _n_repl=${#STOW_REPLACED[@]}
   if (( ${#STOW_FAIL[@]} == 0 )); then
     if (( _n_repl > 0 )); then
       spin_ok "$(_plural "${#STOW_OK[@]}" package) stowed · $_n_repl replaced"
-    else
+    elif $_links_changed; then
       spin_ok "$(_plural "${#STOW_OK[@]}" package) stowed"
+    else
+      spin_skip "$(_plural "${#STOW_OK[@]}" package) already stowed"
     fi
   else
     spin_fail "${#STOW_OK[@]}/${#PACKAGES[@]} stowed — failed: ${STOW_FAIL[*]}"
@@ -778,13 +835,25 @@ ENVEOF
   # sync; nothing to hand-edit. printf, not a plain redirection: a trailing
   # newline would corrupt the Authorization header.
   GH_TOKEN_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/zsh/github_token"
-  if command -v gh >/dev/null 2>&1 && gh auth token >/dev/null 2>&1; then
-    step "Refreshing GitHub token"
-    umask 077
-    printf '%s' "$(gh auth token)" >"$GH_TOKEN_FILE"
-    chmod 600 "$GH_TOKEN_FILE"
-    umask "$_umask"
-    spin_ok "token refreshed"
+  local _gh_token=""
+  # not `command -v gh && …` — a failing AND-list is fatal under set -e
+  if command -v gh >/dev/null 2>&1; then
+    _gh_token="$(gh auth token 2>/dev/null || true)"
+  fi
+  if [[ -n "$_gh_token" ]]; then
+    # rewrite only when the keyring hands back a different token: claiming
+    # "refreshed" on an unchanged token made every run look like it changed
+    if [[ -f "$GH_TOKEN_FILE" && "$(cat "$GH_TOKEN_FILE")" == "$_gh_token" ]]; then
+      chmod 600 "$GH_TOKEN_FILE"
+      spin_skip "token current"
+    else
+      step "Refreshing GitHub token"
+      umask 077
+      printf '%s' "$_gh_token" >"$GH_TOKEN_FILE"
+      chmod 600 "$GH_TOKEN_FILE"
+      umask "$_umask"
+      spin_ok "token refreshed"
+    fi
   elif [[ -f "$GH_TOKEN_FILE" ]]; then
     chmod 600 "$GH_TOKEN_FILE"
     spin_skip "github_token (cached)"
@@ -804,8 +873,15 @@ ENVEOF
     spin_skip "TPM present"
   fi
   step "Installing plugins"
+  local _tpm_before _tpm_after
+  _tpm_before="$(tmux_plugin_heads)"
   if "$TPM_DIR/bin/install_plugins" &>/dev/null; then
-    spin_ok "plugins synced"
+    _tpm_after="$(tmux_plugin_heads)"
+    if [[ "$_tpm_before" == "$_tpm_after" ]]; then
+      spin_skip "plugins up to date"
+    else
+      spin_ok "plugins synced"
+    fi
   else
     spin_warn "plugin install failed"
   fi
@@ -901,6 +977,7 @@ ENVEOF
 
   # ── editor ────────────────────────────────────────────────────────────────────
   section "Editor"
+  local _lock_commit=false
   if command -v nvim &>/dev/null; then
     local lock="$DOTFILES/nvim/.config/nvim/lazy-lock.json"
     local lock_before="" lock_dirty_before=false
@@ -937,22 +1014,12 @@ ENVEOF
       else
         spin_skip "plugins up to date"
       fi
-      if [[ -n "$lock_before" ]] && ! $lock_dirty_before && ! git -C "$DOTFILES" diff --quiet -- nvim/.config/nvim/lazy-lock.json 2>/dev/null; then
-        local _commit_resp="y"
-        if $_TTY; then
-          printf "    ${Y}?${NC} commit lockfile update? [Y/n] "
-          read -r _commit_resp
-        fi
-        if [[ -z "$_commit_resp" || "$_commit_resp" =~ ^[Yy]$ ]]; then
-          if git -C "$DOTFILES" add nvim/.config/nvim/lazy-lock.json 2>/dev/null \
-            && git -C "$DOTFILES" commit -m "⬆️ nvim: update plugin lockfile" >/dev/null 2>&1; then
-            item_new "committed lockfile update"
-          else
-            item_note "lockfile changed but auto-commit failed"
-          fi
-        else
-          item_note "lockfile commit skipped"
-        fi
+      if [[ -n "$lock_before" ]] && ! $lock_dirty_before \
+        && ! git -C "$DOTFILES" diff --quiet -- nvim/.config/nvim/lazy-lock.json 2>/dev/null; then
+        # asked after section_end (below): asked here, the prompt lands above
+        # the Editor header — orphaned under the previous section and before
+        # the plugin list it is asking about
+        _lock_commit=true
       fi
     fi
     rm -f "$lock_before"
@@ -966,6 +1033,31 @@ ENVEOF
       [[ -n "$_line" ]] || continue
       printf "    ${D}%s${NC}\n" "$_line"
     done <<<"$_nvim_tail"
+  fi
+  # the one interactive question in `sync`: by now the section line and its
+  # plugin list are on screen, so the answer has context, and the prompt can no
+  # longer be stranded above its own header
+  if $_lock_commit; then
+    local _commit_resp=n
+    # `-t 0`, not `-t 1`: a tty on stdout with a redirected stdin means nobody
+    # is there to answer — EOF must mean "skip", never "commit"
+    if [[ -t 0 ]]; then
+      printf "    ${Y}?${NC} commit lockfile update? [Y/n] "
+      # Ctrl-D is an answer too: close the prompt line so the note below it
+      # doesn't land on the same row
+      read -r _commit_resp || { _commit_resp=n; printf "\n"; }
+      [[ -z "$_commit_resp" ]] && _commit_resp=y
+    fi
+    if [[ "$_commit_resp" =~ ^[Yy]$ ]]; then
+      if git -C "$DOTFILES" add nvim/.config/nvim/lazy-lock.json 2>/dev/null \
+        && git -C "$DOTFILES" commit -m "⬆️ nvim: update plugin lockfile" >/dev/null 2>&1; then
+        item_new "committed lockfile update"
+      else
+        item_note "lockfile changed but auto-commit failed"
+      fi
+    else
+      item_note "lockfile commit skipped"
+    fi
   fi
 
   finish
