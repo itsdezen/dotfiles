@@ -154,8 +154,8 @@ menubar {
     // text drawn normally inside it.
     style "filled"
 
-    // "pill" (default): fully rounded ends. "rounded": a smaller, fixed
-    // corner radius, more like an ordinary button.
+    // "rounded" (default): a smaller, fixed corner radius, more like an
+    // ordinary button. "pill": fully rounded ends.
     shape "rounded"
 
     // Uppercases the workspace name shown in the badge itself — not the
@@ -362,11 +362,17 @@ workspace-rules {
 //              overrides tili's own guess at whether the window should
 //              float, tile, or be left completely untouched. Useful for an
 //              app tili misclassifies, without needing a source change.
-//   width      optional, in points. Falls back to `defaults.width-ratio`.
-//   height     optional, in points. Falls back to `defaults.height-ratio`.
+//   width      optional, in points. Falls back to `defaults.width`, then
+//              `defaults.width-ratio`, then the built-in 800pt default.
+//   height     optional, in points. Falls back to `defaults.height`, then
+//              `defaults.height-ratio`, then the built-in 600pt default.
+//   width-ratio  optional. Fraction of the monitor's usable width, e.g.
+//              `0.6` = 60%. Ignored when this rule also sets `width`.
+//   height-ratio optional. Same, for height.
 //   center     optional. Falls back to `defaults.center`.
-// `width`/`height`/`center` go in a `{ }` body after the rule, as shown
-// below — only meaningful when `mode` is "float" (the default).
+// `width`/`height`/`width-ratio`/`height-ratio`/`center` go in a `{ }` body
+// after the rule, as shown below — only meaningful when `mode` is "float"
+// (the default).
 floating-rules {
     rule app-id="com.apple.ActivityMonitor"
     rule app-id="com.apple.AddressBook"
@@ -409,9 +415,12 @@ floating-rules {
     // menu-bar-only utility panel that should never be touched.
     // rule app-id="com.example.menu-bar-panel" mode="ignore"
 
+    // Absolute points, so the window keeps the same physical size on every
+    // monitor. Ratios are still supported (`width-ratio`/`height-ratio`),
+    // but the absolute value wins whenever both are present.
     defaults {
         center #true
-        width-ratio 0.6
-        height-ratio 0.8
+        width 720
+        height 540
     }
 }
