@@ -20,7 +20,7 @@ dotfiles/
 ├── sync.sh
 ├── Brewfile
 ├── zsh/          → ~/.zshrc, ~/.zshenv, ~/.zprofile
-├── nvim/         → ~/.config/nvim/
+├── nvim/         → ~/.config/nvim/ (Neovim ≥ 0.12, plugins via built-in `vim.pack`)
 ├── tili/         → ~/.config/tili/
 ├── starship/     → ~/.config/starship.toml
 ├── ghostty/      → ~/.config/ghostty/
@@ -78,6 +78,7 @@ Trigger → what to update:
 | Change `sync.sh` behavior or helpers | `README.md` Scripts table; `AGENTS.md` Conventions helpers list |
 | New user-facing capability | `README.md` Highlights |
 | New AI rule or convention | `AGENTS.md` AI Assistant Rules |
+| Change nvim plugin manager / lockfile | `README.md` Stack + Highlights; `AGENTS.md` Directory Structure |
 
 **Verification step** — before marking a doc edit done:
 1. `grep` or `Read` the actual config file to confirm each stated fact
@@ -92,7 +93,7 @@ Every themed terminal tool in this repo stays synced to the single unified theme
 
 Before writing any preset name, verify it actually exists in that tool's installed theme list (grep the tool's bundled theme files/binary strings, or its docs) — never assume a name based on how another tool spells the same theme. A theme can ship multiple contrast/variant names (e.g. Gruvbox's Dark/Dark Hard/Light contrast levels); if a tool only exposes a subset of those names, that's fine — still use the unified theme for that tool with whichever variant name it has, don't skip it. If a tool has no preset at all matching the unified theme: try its ANSI-adaptive fallback first if it has one; if that fallback reads poorly, fall through to priority (3) above (closest built-in preset by feel) instead of shipping something hard to read or hand-authoring a one-off hex palette.
 
-nvim's colorscheme plugin drives a custom transparent-background setup (transparent floats/sidebars/statusline plus manual `WinSeparator`/`LineNr` highlight overrides in `nvim/.config/nvim/lua/plugins/colorscheme.lua`). Whenever the unified theme change requires swapping this plugin, find the new plugin's equivalent transparency option and highlight-override API (most modern colorscheme plugins mirror tokyonight.nvim/catppuccin/gruvbox.nvim's `setup({...})` shape, exposed either as an `on_highlights(highlights, colors)` callback or a static `highlight_groups`/`overrides` table plus a `before_highlight(group, highlight, palette)` callback) and re-implement the same overrides against the new plugin's palette key names — never drop transparency silently just because the old option name doesn't exist on the new plugin.
+nvim's colorscheme plugin drives a custom transparent-background setup (transparent floats/sidebars/statusline plus manual `WinSeparator`/`LineNr` highlight overrides in `nvim/.config/nvim/lua/plugins/ui.lua`). Whenever the unified theme change requires swapping this plugin, find the new plugin's equivalent transparency option and highlight-override API (most modern colorscheme plugins mirror tokyonight.nvim/catppuccin/gruvbox.nvim's `setup({...})` shape, exposed either as an `on_highlights(highlights, colors)` callback or a static `highlight_groups`/`overrides` table plus a `before_highlight(group, highlight, palette)` callback) and re-implement the same overrides against the new plugin's palette key names — never drop transparency silently just because the old option name doesn't exist on the new plugin.
 
 ### 7. Secrets never in tracked config
 

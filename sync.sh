@@ -979,26 +979,30 @@ ENVEOF
   section "Editor"
   local _lock_commit=false
   if command -v nvim &>/dev/null; then
-    local lock="$DOTFILES/nvim/.config/nvim/lazy-lock.json"
+    local lock="$DOTFILES/nvim/.config/nvim/nvim-pack-lock.json"
     local lock_before="" lock_dirty_before=false
     if [[ -f "$lock" ]]; then
       lock_before="$(mktemp)"
       cp "$lock" "$lock_before"
     fi
-    git -C "$DOTFILES" diff --quiet -- nvim/.config/nvim/lazy-lock.json 2>/dev/null || lock_dirty_before=true
+    git -C "$DOTFILES" diff --quiet -- nvim/.config/nvim/nvim-pack-lock.json 2>/dev/null || lock_dirty_before=true
     local nvim_log _nvim_sync_ok=true
     step "Syncing plugins"
-    nvim_log="$(nvim --headless "+Lazy! sync" +qa 2>&1)" || _nvim_sync_ok=false
+    # vim.pack has no :PackUpdate command — call the Lua API directly.
+    # force = true applies the update without the confirmation buffer, which
+    # a headless run cannot interact with.
+    nvim_log="$(nvim --headless -c 'lua vim.pack.update(nil, { force = true })' +qa 2>&1)" || _nvim_sync_ok=false
     local _plugin_diff="" _n_plug=0 _nvim_tail=""
     if ! $_nvim_sync_ok; then
       spin_fail "plugin sync failed"
       _nvim_tail="$(printf '%s\n' "$nvim_log" | tail -n 5)"
     else
       if [[ -n "$lock_before" && -f "$lock" ]] && command -v jq &>/dev/null; then
+        # vim.pack lockfile shape: {"plugins": {"<name>": {"rev": ..., "src": ...}}}
         _plugin_diff=$(jq -sr '
-            (.[0] // {}) as $old | (.[1] // {}) as $new |
+            (.[0].plugins // {}) as $old | (.[1].plugins // {}) as $new |
             ($new | keys[]) as $k
-            | ($old[$k].commit // "") as $o | ($new[$k].commit) as $n
+            | ($old[$k].rev // "") as $o | ($new[$k].rev) as $n
             | select($o != $n)
             | "\(if $o == "" then "new" else "upd" end)\t\($k)\t\($o[0:7])\t\($n[0:7])"
           ' "$lock_before" "$lock" 2>/dev/null) || true
@@ -1015,7 +1019,7 @@ ENVEOF
         spin_skip "plugins up to date"
       fi
       if [[ -n "$lock_before" ]] && ! $lock_dirty_before \
-        && ! git -C "$DOTFILES" diff --quiet -- nvim/.config/nvim/lazy-lock.json 2>/dev/null; then
+        && ! git -C "$DOTFILES" diff --quiet -- nvim/.config/nvim/nvim-pack-lock.json 2>/dev/null; then
         # asked after section_end (below): asked here, the prompt lands above
         # the Editor header — orphaned under the previous section and before
         # the plugin list it is asking about
@@ -1049,7 +1053,7 @@ ENVEOF
       [[ -z "$_commit_resp" ]] && _commit_resp=y
     fi
     if [[ "$_commit_resp" =~ ^[Yy]$ ]]; then
-      if git -C "$DOTFILES" add nvim/.config/nvim/lazy-lock.json 2>/dev/null \
+      if git -C "$DOTFILES" add nvim/.config/nvim/nvim-pack-lock.json 2>/dev/null \
         && git -C "$DOTFILES" commit -m "⬆️ nvim: update plugin lockfile" >/dev/null 2>&1; then
         item_new "committed lockfile update"
       else

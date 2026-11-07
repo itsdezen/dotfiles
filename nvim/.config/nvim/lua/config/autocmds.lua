@@ -52,20 +52,12 @@ vim.api.nvim_create_autocmd("BufReadPost", {
 vim.api.nvim_create_autocmd("FileType", {
   group = augroup("close_with_q"),
   pattern = {
-    "PlenaryTestPopup",
     "checkhealth",
-    "dap-float",
-    "dbout",
-    "gitsigns-blame",
     "grug-far",
     "help",
     "lspinfo",
-    "neotest-output",
-    "neotest-output-panel",
-    "neotest-summary",
     "notify",
     "qf",
-    "spectre_panel",
     "startuptime",
     "tsplayground",
   },
@@ -144,5 +136,27 @@ vim.api.nvim_create_autocmd("QuitPre", {
         vim.bo[buf].modified = false
       end
     end
+  end,
+})
+
+-- cursorline only in the active buffer
+vim.api.nvim_create_autocmd({ "VimEnter", "WinEnter", "BufWinEnter" }, {
+  group = augroup("cursorline"),
+  callback = function()
+    vim.opt_local.cursorline = true
+  end,
+})
+vim.api.nvim_create_autocmd("WinLeave", {
+  group = augroup("cursorline"),
+  callback = function()
+    vim.opt_local.cursorline = false
+  end,
+})
+
+-- turn off paste mode when leaving insert
+vim.api.nvim_create_autocmd("InsertLeave", {
+  group = augroup("paste"),
+  callback = function()
+    vim.opt.paste = false
   end,
 })

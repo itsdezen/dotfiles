@@ -1,103 +1,148 @@
-return {
-  {
-    "MagicDuck/grug-far.nvim",
-    opts = {},
-    cmd = { "GrugFar", "GrugFarWithin" },
-    keys = {
-      {
-        "<leader>sr",
-        function()
-          local grug = require("grug-far")
-          local ext = vim.bo.buftype == "" and vim.fn.expand("%:e")
-          grug.open({
-            transient = true,
-            prefills = { filesFilter = ext and ext ~= "" and "*." .. ext or nil },
-          })
-        end,
-        mode = { "n", "x" },
-        desc = "Search and replace",
+local pack = require("config.pack")
+
+-- Completion. Also an entrypoint: its plugin/ script sets the global LSP
+-- capabilities, which we would otherwise have to declare by hand.
+--
+-- The capabilities must exist before any LSP client attaches, so the setup
+-- runs eagerly; only blink's own runtime is deferred.
+pack.eager("blink.cmp", function()
+  require("blink.cmp").setup({
+    completion = {
+      documentation = { auto_show = true, auto_show_delay_ms = 200 },
+    },
+    cmdline = {
+      enabled = true,
+      keymap = { preset = "cmdline", ["<Right>"] = false, ["<Left>"] = false },
+      completion = {
+        list = { selection = { preselect = false } },
+        menu = {
+          auto_show = function(ctx) return vim.fn.getcmdtype() == ":" end,
+        },
       },
     },
-  },
-  {
-    "folke/flash.nvim",
-    event = "VeryLazy",
-    vscode = true,
-    opts = {},
-    keys = {
-      { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash" },
-      { "S", mode = { "n", "o", "x" }, function() require("flash").treesitter() end, desc = "Flash Treesitter" },
-      { "r", mode = "o", function() require("flash").remote() end, desc = "Remote Flash" },
-      { "R", mode = { "o", "x" }, function() require("flash").treesitter_search() end, desc = "Treesitter Search" },
-      { "<c-s>", mode = { "c" }, function() require("flash").toggle() end, desc = "Toggle Flash Search" },
-      {
-        "<c-space>",
-        mode = { "n", "o", "x" },
-        function()
-          require("flash").treesitter({ actions = { ["<c-space>"] = "next", ["<BS>"] = "prev" } })
+    keymap = { preset = "enter", ["<C-y>"] = { "select_and_accept" } },
+  })
+end)
+
+-- Auto-pairing.
+pack.eager("mini.pairs", function()
+  require("mini.pairs").setup({
+    modes = { insert = true, command = true, terminal = false },
+  })
+end)
+
+-- TODO highlighting.
+pack.eager("todo-comments", function()
+  require("todo-comments").setup()
+end)
+
+-- Formatting (on save and on demand).
+pack.eager("conform", function()
+  require("conform").setup({
+    default_format_opts = {
+      timeout_ms = 3000,
+      async = false,
+      quiet = false,
+      lsp_format = "fallback",
+    },
+    format_on_save = function(bufnr)
+      if vim.g.autoformat == false or vim.b[bufnr].autoformat == false then
+        return
+      end
+      return { timeout_ms = 3000, lsp_format = "fallback" }
+    end,
+    formatters_by_ft = {
+      lua = { "stylua" },
+      fish = { "fish_indent" },
+      sh = { "shfmt" },
+      javascript = { "biome-check", "prettier", stop_after_first = true },
+      javascriptreact = { "biome-check", "prettier", stop_after_first = true },
+      typescript = { "biome-check", "prettier", stop_after_first = true },
+      typescriptreact = { "biome-check", "prettier", stop_after_first = true },
+      json = { "biome-check", "prettier", stop_after_first = true },
+      css = { "biome-check", "prettier", stop_after_first = true },
+      vue = { "prettier" },
+      svelte = { "prettier" },
+      python = { "ruff_format" },
+      go = { "goimports", "gofumpt" },
+      rust = { "rustfmt" },
+    },
+    formatters = {
+      ["biome-check"] = {
+        condition = function(_, ctx)
+          return vim.fs.find(
+            { "biome.json", "biome.jsonc" },
+            { path = ctx.filename, upward = true }
+          )[1] ~= nil
         end,
-        desc = "Treesitter Incremental Selection",
       },
     },
-  },
-  {
-    "folke/trouble.nvim",
-    cmd = { "Trouble" },
-    opts = {},
-    keys = {
-      { "<leader>xx", "<cmd>Trouble diagnostics toggle<cr>", desc = "Diagnostics (Trouble)" },
-      { "<leader>xX", "<cmd>Trouble diagnostics toggle filter.buf=0<cr>", desc = "Buffer Diagnostics (Trouble)" },
-      { "<leader>cs", "<cmd>Trouble symbols toggle<cr>", desc = "Symbols (Trouble)" },
-      { "<leader>cS", "<cmd>Trouble lsp toggle<cr>", desc = "LSP references/definitions/... (Trouble)" },
-      { "<leader>xL", "<cmd>Trouble loclist toggle<cr>", desc = "Location List (Trouble)" },
-      { "<leader>xQ", "<cmd>Trouble qflist toggle<cr>", desc = "Quickfix List (Trouble)" },
-      {
-        "[q",
-        function()
-          if require("trouble").is_open() then
-            require("trouble").prev({ skip_groups = true, jump = true })
-          else
-            local ok, err = pcall(vim.cmd.cprev)
-            if not ok then vim.notify(err, vim.log.levels.ERROR) end
-          end
-        end,
-        desc = "Previous Trouble/Quickfix Item",
-      },
-      {
-        "]q",
-        function()
-          if require("trouble").is_open() then
-            require("trouble").next({ skip_groups = true, jump = true })
-          else
-            local ok, err = pcall(vim.cmd.cnext)
-            if not ok then vim.notify(err, vim.log.levels.ERROR) end
-          end
-        end,
-        desc = "Next Trouble/Quickfix Item",
-      },
+  })
+end)
+
+-- Git signs.
+pack.eager("gitsigns", function()
+  require("gitsigns").setup({
+    signs = {
+      add = { text = "▎" },
+      change = { text = "▎" },
+      delete = { text = "" },
+      topdelete = { text = "" },
+      changedelete = { text = "▎" },
+      untracked = { text = "▎" },
     },
-  },
-  {
-    "folke/todo-comments.nvim",
-    cmd = { "TodoTrouble", "TodoTelescope" },
-    event = { "BufReadPost", "BufNewFile", "BufWritePre" },
-    opts = {},
-    keys = {
-      { "]t", function() require("todo-comments").jump_next() end, desc = "Next Todo Comment" },
-      { "[t", function() require("todo-comments").jump_prev() end, desc = "Previous Todo Comment" },
-      { "<leader>xt", "<cmd>Trouble todo toggle<cr>", desc = "Todo (Trouble)" },
-      { "<leader>xT", "<cmd>Trouble todo toggle filter = {tag = {TODO,FIX,FIXME}}<cr>", desc = "Todo/Fix/Fixme (Trouble)" },
+    signs_staged = {
+      add = { text = "▎" },
+      change = { text = "▎" },
+      delete = { text = "" },
+      topdelete = { text = "" },
+      changedelete = { text = "▎" },
+      untracked = { text = "▎" },
     },
-  },
-  {
-    "folke/persistence.nvim",
-    event = "BufReadPre",
-    opts = {},
-    keys = {
-      { "<leader>qs", function() require("persistence").load() end, desc = "Restore session" },
-      { "<leader>qS", function() require("persistence").select() end, desc = "Select session" },
-      { "<leader>ql", function() require("persistence").load({ last = true }) end, desc = "Restore last session" },
-      { "<leader>qd", function() require("persistence").stop() end, desc = "Don't save current session" },
-    },
-  },
-}
+    on_attach = function(buffer)
+      local gs = package.loaded.gitsigns
+
+      local function map(mode, l, r, desc)
+        vim.keymap.set(mode, l, r, { buffer = buffer, desc = desc, silent = true })
+      end
+
+      map("n", "]h", function()
+        if vim.wo.diff then
+          vim.cmd.normal({ "]c", bang = true })
+        else
+          gs.nav_hunk("next")
+        end
+      end, "Next hunk")
+      map("n", "[h", function()
+        if vim.wo.diff then
+          vim.cmd.normal({ "[c", bang = true })
+        else
+          gs.nav_hunk("prev")
+        end
+      end, "Prev hunk")
+      map("n", "]H", function() gs.nav_hunk("last") end, "Last hunk")
+      map("n", "[H", function() gs.nav_hunk("first") end, "First hunk")
+      map({ "n", "x" }, "<leader>ghs", ":Gitsigns stage_hunk<CR>", "Stage hunk")
+      map({ "n", "x" }, "<leader>ghr", ":Gitsigns reset_hunk<CR>", "Reset hunk")
+      map({ "n", "x" }, "<leader>ghS", gs.stage_buffer, "Stage buffer")
+      map({ "n", "x" }, "<leader>ghu", gs.undo_stage_hunk, "Undo stage hunk")
+      map({ "n", "x" }, "<leader>ghR", gs.reset_buffer, "Reset buffer")
+      map({ "n", "x" }, "<leader>ghp", gs.preview_hunk_inline, "Preview hunk inline")
+      map({ "n", "x" }, "<leader>ghb", function() gs.blame_line({ full = true }) end, "Blame line")
+      map({ "n", "x" }, "<leader>ghB", function() gs.blame() end, "Blame buffer")
+      map({ "n", "x" }, "<leader>ghd", gs.diffthis, "Diff this")
+      map({ "n", "x" }, "<leader>ghD", function() gs.diffthis("~") end, "Diff this ~")
+      map({ "o", "x" }, "ih", ":<C-U>Gitsigns select_hunk<CR>", "Gitsigns select hunk")
+    end,
+  })
+end)
+
+-- Search and replace across files.
+pack.eager("grug-far", function()
+  require("grug-far").setup({})
+end)
+
+-- Open the real file when jumping into a dependency.
+pack.eager("gitlinker", function()
+  require("gitlinker").setup()
+end)

@@ -8,7 +8,7 @@ Personal macOS development environment using **GNU Stow** for dotfiles managemen
 - 🐚 **zsh + zinit + Starship** — shell, plugins, prompt
 - 🔧 **mise** — polyglot runtime manager (node, bun, pnpm, python, uv, rust, go)
 - 📦 **pnpm + bun** — JS package managers
-- ✏️ **Neovim** — primary code editor
+- ✏️ **Neovim** — primary code editor (≥ 0.12, plugins managed by the built-in `vim.pack`)
 - 👻 **Ghostty** — GPU-accelerated terminal emulator, default terminal
 - 🖥️ **herdr** — the agent multiplexer that lives in your terminal
 - 🔀 **tmux** — terminal multiplexer
@@ -44,8 +44,7 @@ cd ~/Developer/dotfiles && ./sync.sh
 
 | Script | Description |
 |--------|-------------|
-| `./sync.sh` | Sync everything: Homebrew, dotfiles, runtimes, nvim/tmux plugins, the local env file (chmod 600) — and prune links left behind by dropped packages |
-| `./sync.sh -v` | Same, but lists every change item and the full runtime inventory (default: one line per section) |
+| `./sync.sh` | Sync everything: Homebrew, dotfiles, runtimes, nvim/tmux plugins, the local env file (chmod 600) — and prune links left behind by dropped packages || `./sync.sh -v` | Same, but lists every change item and the full runtime inventory (default: one line per section) |
 | `./sync.sh --no-color` | Plain output for logs and CI (piped output is already colour-free) |
 | `./sync.sh bootstrap` | Fresh machine setup: Xcode CLI tools → clone → sync |
 | `./sync.sh uninstall` | Remove all dotfiles symlinks, zinit, and TPM (never touches the local env file) |
@@ -82,6 +81,8 @@ API keys and machine-specific env vars live in **`~/.config/zsh/env.local`** —
 ## Highlights
 
 - **Unified theme** — Nord across nvim, Ghostty, superfile, herdr, opencode, and btop for a consistent look everywhere (starship and tmux are terminal-adaptive instead)
+- **No third-party plugin manager** — nvim plugins are installed and pinned with Neovim's built-in `vim.pack`; the lockfile is committed so a fresh machine reproduces the same versions
+- **Native where Neovim already does the job** — LSP, diagnostics, inlay hints and code lenses use the built-in APIs instead of wrapper plugins
 - **Keyboard-driven window management** — Tili tiling window manager with built-in floating-window centering
 - **OpenCode** — default Build and Plan agents, plus an `/auto` plugin for runtime auto-approval without touching config
 - **Idempotent sync** — one script (`sync.sh`) installs Homebrew packages, symlinks every Stow package, provisions mise runtimes, and creates the local secrets file

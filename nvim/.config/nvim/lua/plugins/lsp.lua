@@ -1,223 +1,162 @@
-return {
-  {
-    "mason-org/mason.nvim",
-    cmd = "Mason",
-    keys = { { "<leader>cm", "<cmd>Mason<cr>", desc = "Mason" } },
-    build = ":MasonUpdate",
-    opts = {
-      ensure_installed = { "stylua", "shfmt" },
+local pack = require("config.pack")
+
+-- Mason manages the language servers and the tools.
+pack.eager("mason", function()
+  require("mason").setup({})
+end)
+
+-- Installs the tools that mise does not provide. Its `plugin/` script hooks
+-- VimEnter to run the check, so it is loaded as an entrypoint.
+pack.eager("mason-tool-installer", function()
+  require("mason-tool-installer").setup({
+    -- Only tools that mise does not already provide (see mise/config.toml).
+    ensure_installed = {
+      "tree-sitter-cli",
+      "lua-language-server",
+      "vtsls",
+      "bash-language-server",
+      "stylua",
+      "shfmt",
+      "prettierd",
+      "prettier",
     },
-  },
-  {
-    "mason-org/mason-lspconfig.nvim",
-    event = { "BufReadPre", "BufNewFile" },
-    dependencies = { "mason-org/mason.nvim", "neovim/nvim-lspconfig" },
-    opts = {
-      -- explicit vim.lsp.enable() list in nvim-lspconfig config below is the
-      -- single source of truth; disable mason-lspconfig's own auto-enable to
-      -- avoid it silently attaching unrelated mason packages as LSP clients
-      automatic_enable = false,
-      ensure_installed = { "lua_ls", "vtsls", "tailwindcss", "vue_ls", "svelte" },
-    },
-  },
-  {
-    "folke/lazydev.nvim",
-    ft = "lua",
-    opts = {
-      library = {
-        { path = "${3rd}/luv/library", words = { "vim%.uv" } },
-        { path = "snacks.nvim", words = { "Snacks" } },
-        { path = "bufferline.nvim", words = { "nvim_bufferline" } },
+    auto_update = false,
+    run_on_start = true,
+  })
+end)
+
+-- The server definitions have to exist before the first client attaches.
+pack.eager("nvim-lspconfig", function()
+  -- nvim-lspconfig v2 only ships `lsp/*.lua` config files; nothing to set up.
+  --
+  -- blink.cmp's plugin/ script is not sourced under vim.pack, so the global LSP
+  -- capabilities have to be declared here.
+  vim.lsp.config("*", {
+    capabilities = require("blink.cmp").get_lsp_capabilities({
+      workspace = {
+        fileOperations = {
+          didRename = true,
+          willRename = true,
+        },
+      },
+    }),
+  })
+
+  vim.lsp.config("lua_ls", {
+    settings = {
+      Lua = {
+        runtime = { version = "LuaJIT" },
+        workspace = {
+          checkThirdParty = false,
+          library = { vim.env.VIMRUNTIME },
+        },
+        diagnostics = {
+          disable = { "incomplete-signature-doc", "trailing-space" },
+        },
       },
     },
-  },
-  {
-    -- all servers registered via the Neovim 0.11+ vim.lsp.config/vim.lsp.enable API
-    "neovim/nvim-lspconfig",
-    config = function()
-      -- diagnostic signs/float/virtual_text already configured with the
-      -- personal icon set in config/options.lua -- not duplicated here.
+  })
 
-      vim.lsp.config("lua_ls", {
-        settings = {
-          Lua = {
-            workspace = { checkThirdParty = false },
-            codeLens = { enable = true },
-            completion = { callSnippet = "Replace" },
-            doc = { privateName = { "^_" } },
-            hint = {
-              enable = true,
-              setType = false,
-              paramType = true,
-              paramName = "Disable",
-              semicolon = "Disable",
-              arrayIndex = "Disable",
-            },
-          },
-        },
-      })
+  vim.lsp.config("vtsls", {
+    settings = {
+      complete_function_calls = true,
+      vtsls = {
+        autoUseWorkspaceTsdk = true,
+      },
+    },
+  })
 
-      vim.lsp.config("vtsls", {
-        settings = {
-          complete_function_calls = true,
-          vtsls = {
-            enableMoveToFileCodeAction = true,
-            autoUseWorkspaceTsdk = true,
-            experimental = {
-              maxInlayHintLength = 30,
-              completion = { enableServerSideFuzzyMatch = true },
-            },
-          },
-          typescript = {
-            updateImportsOnFileMove = { enabled = "always" },
-            suggest = { completeFunctionCalls = true },
-            inlayHints = {
-              enumMemberValues = { enabled = true },
-              functionLikeReturnTypes = { enabled = true },
-              parameterNames = { enabled = "literals" },
-              parameterTypes = { enabled = true },
-              propertyDeclarationTypes = { enabled = true },
-              variableTypes = { enabled = false },
-            },
-          },
-        },
-      })
+  vim.lsp.config("basedpyright", {
+    settings = {
+      python = {
+        analysis = { typeCheckingMode = "basic" },
+      },
+    },
+  })
 
-      vim.lsp.config("tailwindcss", {
-        filetypes_exclude = { "markdown" },
-        settings = {
-          tailwindCSS = {
-            includeLanguages = { elixir = "html-eex", eelixir = "html-eex", heex = "html-eex" },
-          },
-        },
-      })
+  vim.lsp.config("gopls", {
+    settings = {
+      gopls = {
+        gofumpt = true,
+        completeUnimported = true,
+        staticcheck = true,
+      },
+    },
+  })
 
-      vim.lsp.config("vue_ls", {})
-      vim.lsp.config("svelte", {})
+  vim.lsp.config("rust_analyzer", {
+    settings = {
+      ["rust-analyzer"] = {
+        check = { command = "clippy" },
+      },
+    },
+  })
 
-      -- basedpyright + ruff run together: basedpyright for hover/completion/types,
-      -- ruff for diagnostics/actions (its own hover disabled below)
-      vim.lsp.config("basedpyright", {
-        settings = { python = { analysis = { typeCheckingMode = "basic" } } },
-      })
-      vim.lsp.config("ruff", {
-        cmd_env = { RUFF_TRACE = "messages" },
-        init_options = { settings = { logLevel = "error" } },
-      })
+  -- The single source of truth for which servers are active.
+  vim.lsp.enable({
+    "lua_ls",
+    "vtsls",
+    "basedpyright",
+    "ruff",
+    "gopls",
+    "rust_analyzer",
+    "bashls",
+  })
+end)
 
-      vim.lsp.config("rust_analyzer", {
-        settings = { ["rust-analyzer"] = { check = { command = "clippy" } } },
-      })
+-- Inlay hints and code lenses are opt-in in Neovim 0.11+ (they default to
+-- disabled per buffer), so nothing enables them here.
+vim.api.nvim_create_autocmd("LspAttach", {
+  group = vim.api.nvim_create_augroup("LspKeys", { clear = true }),
+  callback = function(event)
+    local buf = event.buf
+    local client = vim.lsp.get_client_by_id(event.data.client_id)
 
-      vim.lsp.config("gopls", {
-        settings = {
-          gopls = {
-            gofumpt = true,
-            codelenses = {
-              gc_details = false,
-              generate = true,
-              regenerate_cgo = true,
-              run_govulncheck = true,
-              test = true,
-              tidy = true,
-              upgrade_dependency = true,
-              vendor = true,
-            },
-            hints = {
-              assignVariableTypes = true,
-              compositeLiteralFields = true,
-              compositeLiteralTypes = true,
-              constantValues = true,
-              functionTypeParameters = true,
-              parameterNames = true,
-              rangeVariableTypes = true,
-            },
-            analyses = { nilness = true, unusedparams = true, unusedwrite = true, useany = true },
-            usePlaceholders = true,
-            completeUnimported = true,
-            staticcheck = true,
-            directoryFilters = { "-.git", "-.vscode", "-.idea", "-.vscode-test", "-node_modules" },
-          },
-        },
-      })
+    local function has(method)
+      return client ~= nil and client:supports_method(method)
+    end
 
-      vim.lsp.enable({
-        "lua_ls", "vtsls", "tailwindcss", "vue_ls", "svelte",
-        "basedpyright", "ruff", "rust_analyzer", "gopls",
-      })
+    local function map(mode, lhs, rhs, desc, opts_)
+      opts_ = opts_ or {}
+      opts_.buffer = buf
+      opts_.desc = desc
+      opts_.silent = true
+      vim.keymap.set(mode, lhs, rhs, opts_)
+    end
 
-      -- disable ruff's hover in favor of basedpyright's
-      vim.api.nvim_create_autocmd("LspAttach", {
-        callback = function(args)
-          local client = vim.lsp.get_client_by_id(args.data.client_id)
-          if client and client.name == "ruff" then
-            client.server_capabilities.hoverProvider = false
-          end
-        end,
-      })
-
-      -- inlay hints (vue_ls's are noisy/unreliable, so skip vue)
-      vim.api.nvim_create_autocmd("LspAttach", {
-        callback = function(args)
-          local buf = args.buf
-          local client = vim.lsp.get_client_by_id(args.data.client_id)
-          if
-            client
-            and client:supports_method("textDocument/inlayHint")
-            and vim.bo[buf].filetype ~= "vue"
-          then
-            vim.lsp.inlay_hint.enable(true, { bufnr = buf })
-          end
-        end,
-      })
-
-      vim.api.nvim_create_autocmd("LspAttach", {
-        callback = function(event)
-          local buf = event.buf
-          local function has(method)
-            local client = vim.lsp.get_client_by_id(event.data.client_id)
-            return client and client:supports_method(method)
-          end
-          local function map(mode, lhs, rhs, desc, opts_)
-            opts_ = opts_ or {}
-            opts_.buffer = buf
-            opts_.desc = desc
-            vim.keymap.set(mode, lhs, rhs, opts_)
-          end
-          map("n", "<leader>cl", function() Snacks.picker.lsp_config() end, "Lsp Info")
-          if has("textDocument/definition") then
-            map("n", "gd", vim.lsp.buf.definition, "Goto Definition")
-          end
-          map("n", "gr", vim.lsp.buf.references, "References", { nowait = true })
-          map("n", "gI", vim.lsp.buf.implementation, "Goto Implementation")
-          map("n", "gy", vim.lsp.buf.type_definition, "Goto Type Definition")
-          map("n", "gD", vim.lsp.buf.declaration, "Goto Declaration")
-          map("n", "K", vim.lsp.buf.hover, "Hover")
-          if has("textDocument/signatureHelp") then
-            map("n", "gK", vim.lsp.buf.signature_help, "Signature Help")
-            map("i", "<c-k>", vim.lsp.buf.signature_help, "Signature Help")
-          end
-          if has("textDocument/codeAction") then
-            map({ "n", "x" }, "<leader>ca", vim.lsp.buf.code_action, "Code Action")
-          end
-          if has("textDocument/codeLens") then
-            map({ "n", "x" }, "<leader>cc", vim.lsp.codelens.run, "Run Codelens")
-            map("n", "<leader>cC", function() vim.lsp.codelens.enable(true, { bufnr = buf }) end, "Refresh & Display Codelens")
-          end
-          if has("workspace/willRenameFiles") or has("workspace/didRenameFiles") then
-            map("n", "<leader>cR", function() Snacks.rename.rename_file() end, "Rename File")
-          end
-          if has("textDocument/rename") then
-            map("n", "<leader>cr", vim.lsp.buf.rename, "Rename")
-          end
-          if has("textDocument/documentHighlight") then
-            map("n", "]]", function() Snacks.words.jump(vim.v.count1) end, "Next Reference")
-            map("n", "[[", function() Snacks.words.jump(-vim.v.count1) end, "Prev Reference")
-            map("n", "<a-n>", function() Snacks.words.jump(vim.v.count1, true) end, "Next Reference")
-            map("n", "<a-p>", function() Snacks.words.jump(-vim.v.count1, true) end, "Prev Reference")
-          end
-        end,
-      })
-    end,
-  },
-}
+    if has("textDocument/definition") then
+      map("n", "gd", vim.lsp.buf.definition, "Goto Definition")
+    end
+    if has("textDocument/references") then
+      map("n", "gr", vim.lsp.buf.references, "References", { nowait = true })
+    end
+    if has("textDocument/implementation") then
+      map("n", "gI", vim.lsp.buf.implementation, "Goto Implementation")
+    end
+    if has("textDocument/typeDefinition") then
+      map("n", "gy", vim.lsp.buf.type_definition, "Goto Type Definition")
+    end
+    if has("textDocument/declaration") then
+      map("n", "gD", vim.lsp.buf.declaration, "Goto Declaration")
+    end
+    if has("textDocument/hover") then
+      map("n", "K", vim.lsp.buf.hover, "Hover")
+    end
+    if has("textDocument/signatureHelp") then
+      map("n", "gK", vim.lsp.buf.signature_help, "Signature Help")
+      map("i", "<c-k>", vim.lsp.buf.signature_help, "Signature Help")
+    end
+    if has("textDocument/codeAction") then
+      map({ "n", "x" }, "<leader>ca", vim.lsp.buf.code_action, "Code Action")
+    end
+    if has("textDocument/rename") then
+      map("n", "<leader>cr", vim.lsp.buf.rename, "Rename")
+    end
+    if has("textDocument/documentHighlight") then
+      map("n", "]]", function() Snacks.words.jump(vim.v.count1) end, "Next Reference")
+      map("n", "[[", function() Snacks.words.jump(-vim.v.count1) end, "Prev Reference")
+      map("n", "<a-n>", function() Snacks.words.jump(vim.v.count1, true) end, "Next Reference")
+      map("n", "<a-p>", function() Snacks.words.jump(-vim.v.count1, true) end, "Prev Reference")
+    end
+  end,
+})
