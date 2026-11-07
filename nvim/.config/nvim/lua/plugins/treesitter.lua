@@ -1,16 +1,11 @@
-local pack = require("config.pack")
-
 -- The rewrite (main branch) only handles parser installation; highlighting
 -- and indentation are enabled by Neovim itself.
 --
 -- `treesitter-autoinstall` replaces the removed `ensure_installed` option and
 -- installs parsers on demand when a filetype is opened.
---
-pack.eager("nvim-treesitter", function()
-  require("treesitter-autoinstall").setup({
-    highlight = true,
-  })
-end)
+require("treesitter-autoinstall").setup({
+  highlight = true,
+})
 
 -- Indentation via treesitter. Highlight is handled by treesitter-autoinstall.
 vim.api.nvim_create_autocmd("FileType", {

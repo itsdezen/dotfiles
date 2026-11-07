@@ -4,6 +4,10 @@ local gh = function(x) return "https://github.com/" .. x end
 --
 -- `vim.pack` installs these on first run and pins them in nvim-pack-lock.json.
 -- `confirm = false` because this repo's policy is "no prompts" (AGENTS.md rule 3).
+--
+-- `load = true` sources each plugin's `plugin/` and `ftdetect/` scripts. Without
+-- it those stay unsourced until something calls `:packadd`, which silently
+-- breaks plugins that register their commands or autocmds there.
 vim.pack.add({
   -- UI
   { src = gh("gbprod/nord.nvim") },
@@ -28,20 +32,9 @@ vim.pack.add({
   { src = gh("neovim/nvim-lspconfig") },
   { src = gh("mason-org/mason.nvim") },
   { src = gh("WhoIsSethDaniel/mason-tool-installer.nvim") },
-}, { confirm = false })
+}, { confirm = false, load = true })
 
 require("plugins.ui")
 require("plugins.editor")
 require("plugins.lsp")
 require("plugins.treesitter")
-
--- Plugins whose `plugin/` scripts must be sourced for the config to work.
--- See lua/config/pack.lua for the reasoning.
---
--- This runs during init on purpose: autocmds that these scripts register
--- (notably mason-tool-installer's `VimEnter`) have to be in place before
--- VimEnter fires, otherwise they never run.
-local pack = require("config.pack")
-for _, name in ipairs(pack.entrypoints) do
-  pack.load(name)
-end
