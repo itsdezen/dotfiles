@@ -1027,6 +1027,38 @@ ENVEOF
       fi
     fi
     rm -f "$lock_before"
+
+    # vim.pack never deletes a plugin dropped from `vim.pack.add` — upstream's
+    # documented flow is `vim.pack.del()` by hand. That helper refuses names no
+    # longer in the lockfile, so once the committed lockfile is correct the only
+    # reliable cleanup left is comparing directories against it.
+    if $_nvim_sync_ok; then
+      step "Pruning plugins"
+      local _plug_dir="${XDG_DATA_HOME:-$HOME/.local/share}/nvim/site/pack/core/opt"
+      local _n_pruned=0 _pdir _pname
+      if [[ -f "$lock" ]] && command -v jq &>/dev/null; then
+        for _pdir in "$_plug_dir"/*; do
+          [[ -d "$_pdir" ]] || continue
+          _pname="${_pdir##*/}"
+          [[ -n "$_pname" ]] || continue
+          if jq -e --arg n "$_pname" '.plugins[$n]' "$lock" >/dev/null 2>&1; then
+            continue
+          fi
+          rm -rf "$_pdir"
+          _n_pruned=$(( _n_pruned + 1 ))
+          item_rm "$_pname"
+        done
+      fi
+      if (( _n_pruned > 0 )); then
+        spin_ok "$(_plural "$_n_pruned" plugin) pruned"
+      elif ! command -v jq &>/dev/null; then
+        spin_warn "jq not found — prune skipped"
+      elif [[ ! -f "$lock" ]]; then
+        spin_warn "lockfile not found — prune skipped"
+      else
+        spin_skip "no orphaned plugins"
+      fi
+    fi
   else
     spin_warn "neovim not found — skipped"
   fi
