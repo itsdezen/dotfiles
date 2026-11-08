@@ -115,6 +115,12 @@ settings {
     // more so at "high". Try "medium" first.
     animate "high"
 
+    // How long one frame transition takes when `animate` is on, in
+    // milliseconds. 200 (default) reads as a quick, visible transition;
+    // lower is snappier, higher is slower. Only meaningful with `animate`
+    // on.
+    animate-duration-ms 200
+
     // Per-app Accessibility messaging timeout. Lower keeps the daemon
     // responsive when an app is hung; too low can misclassify a slow app.
     ax-timeout-ms 500
