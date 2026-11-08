@@ -13,25 +13,17 @@ vim.pack.add({
   { src = gh("gbprod/nord.nvim") },
   { src = gh("nvim-mini/mini.icons") },
   { src = gh("folke/snacks.nvim") },
-  { src = gh("folke/trouble.nvim") },
+  { src = gh("folke/which-key.nvim") },
   { src = gh("nvim-lualine/lualine.nvim") },
-  { src = gh("rachartier/tiny-cmdline.nvim") },
   -- Editor
-  { src = gh("saghen/blink.cmp"), version = vim.version.range("^1") },
-  { src = gh("nvim-mini/mini.pairs") },
-  { src = gh("folke/todo-comments.nvim") },
   { src = gh("stevearc/conform.nvim") },
   { src = gh("lewis6991/gitsigns.nvim") },
-  { src = gh("MagicDuck/grug-far.nvim") },
-  { src = gh("linrongbin16/gitlinker.nvim") },
-  { src = gh("folke/which-key.nvim") },
+  { src = gh("esmuellert/codediff.nvim") },
   -- Treesitter
   { src = gh("nvim-treesitter/nvim-treesitter") },
   { src = gh("mks-h/treesitter-autoinstall.nvim") },
   -- LSP
   { src = gh("neovim/nvim-lspconfig") },
-  { src = gh("mason-org/mason.nvim") },
-  { src = gh("WhoIsSethDaniel/mason-tool-installer.nvim") },
 }, { confirm = false, load = true })
 
 require("plugins.ui")

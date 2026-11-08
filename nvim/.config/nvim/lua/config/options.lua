@@ -2,7 +2,6 @@ local opt = vim.opt
 
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
-vim.g.autoformat = true
 
 -- Behaviour
 opt.autowrite = true
@@ -11,7 +10,6 @@ opt.confirm = true
 opt.cursorline = true
 opt.expandtab = true
 opt.inccommand = "nosplit"
-opt.jumpoptions = "view"
 opt.linebreak = true
 opt.list = true
 opt.mouse = "a"
@@ -27,7 +25,6 @@ opt.sidescrolloff = 8
 opt.smartcase = true
 opt.smartindent = true
 opt.smoothscroll = true
-opt.spelllang = { "en" }
 opt.splitbelow = true
 opt.splitkeep = "screen"
 opt.splitright = true
@@ -38,12 +35,11 @@ opt.undofile = true
 opt.undolevels = 10000
 opt.updatetime = 200
 opt.virtualedit = "block"
-opt.wildmode = "longest:full,full"
 opt.winminwidth = 5
 opt.wrap = false
 
--- Completion
-opt.completeopt = "menu,menuone,noinsert,noselect"
+-- Completion (native `vim.lsp.completion`; no plugin)
+opt.completeopt = "menuone,noinsert,noselect"
 opt.pumblend = 10
 opt.pumheight = 10
 
@@ -68,7 +64,6 @@ opt.grepprg = "rg --vimgrep"
 opt.ignorecase = true
 opt.laststatus = 3
 opt.matchtime = 2
-opt.sessionoptions = { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp", "folds" }
 opt.showmatch = true
 opt.signcolumn = "yes"
 opt.winborder = "rounded"
@@ -103,39 +98,19 @@ opt.guicursor =
 -- be up), so it is called from VimEnter instead of during startup.
 --
 -- `msg.target = "msg"` is required: with `cmdheight = 0` the cmdline window is
--- hidden, so messages routed there would be invisible.
--- `msg.targets` is a per-kind table (kind -> "cmd" | "msg" | "pager").
+-- hidden, so messages routed there would be invisible. Everything else falls
+-- back to the `[""]` entry.
 local ui2_opts = {
   enable = true,
   msg = {
     target = "msg",
     targets = {
       [""] = "msg",
-      empty = "cmd",
-      bufwrite = "msg",
-      confirm = "cmd",
       emsg = "pager",
-      echo = "msg",
-      echomsg = "msg",
-      echoerr = "pager",
-      completion = "cmd",
-      list_cmd = "pager",
-      lua_error = "pager",
-      lua_print = "msg",
-      progress = "pager",
-      rpc_error = "pager",
-      quickfix = "msg",
       search_cmd = "msg",
-      search_count = "msg",
       shell_cmd = "pager",
       shell_err = "pager",
       shell_out = "pager",
-      shell_ret = "msg",
-      undo = "msg",
-      verbose = "pager",
-      wildlist = "msg",
-      wmsg = "msg",
-      typed_cmd = "cmd",
     },
     cmd = { height = 0.5 },
     dialog = { height = 0.5 },
@@ -151,19 +126,6 @@ vim.api.nvim_create_autocmd("VimEnter", {
   end,
 })
 
--- Snacks' dashboard takes over the whole screen and resets 'laststatus' to 0
--- while it is open. It restores the previous value on close, but it captures
--- that value when it opens -- which happens before lualine sets 'laststatus'
--- to 3 for the global statusline. The result is a missing statusline.
---
--- Re-apply it once the dashboard is gone.
-vim.api.nvim_create_autocmd("User", {
-  group = vim.api.nvim_create_augroup("Statusline", { clear = true }),
-  pattern = "SnacksDashboardClosed",
-  callback = function()
-    vim.o.laststatus = 3
-  end,
-})
 vim.diagnostic.config({
   underline = true,
   update_in_insert = false,

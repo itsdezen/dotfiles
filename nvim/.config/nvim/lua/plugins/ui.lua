@@ -27,21 +27,6 @@ require("lualine").setup({
     globalstatus = true,
     section_separators = { left = "", right = "" },
     component_separators = { left = "", right = "" },
-    disabled_filetypes = { statusline = { "dashboard", "alpha", "ministarter", "snacks_dashboard" } },
-    refresh = {
-      events = {
-        "WinEnter",
-        "BufEnter",
-        "BufWritePost",
-        "SessionLoadPost",
-        "FileChangedShellPost",
-        "VimResized",
-        "Filetype",
-        "CursorMoved",
-        "CursorMovedI",
-        "ModeChanged",
-      },
-    },
   },
   sections = {
     lualine_a = { "mode" },
@@ -73,86 +58,38 @@ require("lualine").setup({
   },
 })
 
--- Keymap hints: must answer the leader key immediately.
+-- Keymap hints: must answer the leader key immediately. Without these names
+-- which-key falls back to "+N keymaps" for every prefix.
 require("which-key").setup({
   preset = "helix",
   spec = {
-    {
-      mode = { "n", "x" },
-      { "<leader><tab>", group = "tabs" },
-      { "<leader>c", group = "code" },
-      { "<leader>f", group = "file/find" },
-      { "<leader>g", group = "git" },
-      { "<leader>gh", group = "hunks" },
-      { "<leader>q", group = "quit/session" },
-      { "<leader>s", group = "search" },
-      { "<leader>u", group = "ui" },
-      { "<leader>x", group = "diagnostics/quickfix" },
-      { "[", group = "prev" },
-      { "]", group = "next" },
-      { "g", group = "goto" },
-      { "gs", group = "surround" },
-      { "z", group = "fold" },
-      { "<leader>b", group = "buffer" },
-      { "<leader>w", group = "windows", proxy = "<c-w>" },
-    },
+    { "<leader>b", group = "buffer", mode = { "n", "x" } },
+    { "<leader>c", group = "code", mode = { "n", "x" } },
+    { "<leader>d", group = "diff", mode = { "n", "x" } },
+    { "<leader>f", group = "file/find", mode = { "n", "x" } },
+    { "<leader>g", group = "git", mode = { "n", "x" } },
+    { "<leader>gh", group = "hunks", mode = { "n", "x" } },
+    { "<leader>q", group = "quit", mode = { "n", "x" } },
+    { "<leader>s", group = "search", mode = { "n", "x" } },
+    { "<leader>u", group = "ui", mode = { "n", "x" } },
+    { "<leader>w", group = "windows", mode = { "n", "x" } },
+    { "<leader>x", group = "diagnostics/quickfix", mode = { "n", "x" } },
+    { "g", group = "goto", mode = { "n", "x" } },
+    { "[", group = "prev", mode = { "n", "x" } },
+    { "]", group = "next", mode = { "n", "x" } },
+    { "z", group = "fold", mode = { "n", "x" } },
   },
 })
 
 -- Snacks provides the file explorer, the pickers, the notifications and the
--- dashboard.
+-- floating terminal. Every module listed here is opt-in: dropping a key turns
+-- that module off (that is how the dashboard was removed).
 require("snacks").setup({
-  -- listing a module key here (even empty) is enough to enable it
-  dashboard = {
-    -- No "startup" section: it reads `lazy.stats`, which only exists with
-    -- lazy.nvim. This config uses Neovim's built-in `vim.pack`.
-    sections = {
-      { section = "header" },
-      { section = "keys", gap = 1, padding = 1 },
-    },
-    preset = {
-      header = [[
-██████╗ ███████╗███████╗███████╗███╗   ██╗
-██╔══██╗██╔════╝╚══███╔╝██╔════╝████╗  ██║
-██║  ██║█████╗    ███╔╝ █████╗  ██╔██╗ ██║
-██║  ██║██╔══╝   ███╔╝  ██╔══╝  ██║╚██╗██║
-██████╔╝███████╗███████╗███████╗██║ ╚████║
-╚═════╝ ╚══════╝╚══════╝╚══════╝╚═╝  ╚═══╝]],
-      keys = {
-        { icon = " ", key = "f", desc = "Find File", action = ":lua Snacks.dashboard.pick('files')" },
-        { icon = " ", key = "n", desc = "New File", action = ":ene | startinsert" },
-        { icon = " ", key = "g", desc = "Find Text", action = ":lua Snacks.dashboard.pick('live_grep')" },
-        { icon = " ", key = "r", desc = "Recent Files", action = ":lua Snacks.dashboard.pick('oldfiles')" },
-        { icon = " ", key = "c", desc = "Config", action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})" },
-        { icon = "󰒲 ", key = "h", desc = "Help", action = ":checkhealth" },
-        { icon = " ", key = "q", desc = "Quit", action = ":qa" },
-      },
-    },
-  },
   explorer = { replace_netrw = true },
-  indent = {
-    chunk = {
-      enabled = true,
-      char = {
-        corner_top = "╭",
-        corner_bottom = "╰",
-        arrow = "›",
-      },
-    },
-    animate = {
-      duration = { total = 300 },
-    },
-  },
+  indent = { chunk = { enabled = true } },
   input = {},
   notifier = {},
   picker = {
-    icons = {
-      tree = {
-        vertical = "│ ",
-        middle = "├╴",
-        last = "╰╴",
-      },
-    },
     sources = {
       explorer = {
         hidden = true,
@@ -165,14 +102,6 @@ require("snacks").setup({
       },
     },
   },
-  quickfile = {},
-  scope = {},
-  scroll = {},
-  -- NOTE: statuscolumn is disabled on purpose. It reads
-  -- `vim.g.statusline_winid`, which Neovim only sets while evaluating
-  -- 'statusline' -- never for 'statuscolumn' -- so the expression errors
-  -- out and the column stays empty.
-  statuscolumn = { enabled = false },
   words = {},
   terminal = {
     win = { position = "float", border = "rounded" },
@@ -180,17 +109,4 @@ require("snacks").setup({
   image = {
     backend = "kitty",
   },
-  styles = {
-    notification = { border = "rounded" },
-  },
 })
-
--- Trouble: diagnostics / symbols / TODO panels.
-require("trouble").setup()
-
--- Floating cmdline, positioned by the native ui2 system.
-require("tiny-cmdline").setup({
-  width = { value = "70%" },
-  position = { y = "20%" },
-})
-

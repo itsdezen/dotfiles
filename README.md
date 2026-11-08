@@ -6,7 +6,7 @@ Personal macOS development environment using **GNU Stow** for dotfiles managemen
 
 - 🍺 **Homebrew** — package management
 - 🐚 **zsh + zinit + Starship** — shell, plugins, prompt
-- 🔧 **mise** — polyglot runtime manager (node, bun, pnpm, python, uv, rust, go)
+- 🔧 **mise** — polyglot runtime manager (node, bun, pnpm, python, uv, rust, go) and the only source of Neovim's LSP servers, formatters and parser CLI
 - 📦 **pnpm + bun** — JS package managers
 - ✏️ **Neovim** — primary code editor (≥ 0.12, plugins managed by the built-in `vim.pack`)
 - 👻 **Ghostty** — GPU-accelerated terminal emulator, default terminal
@@ -82,7 +82,8 @@ API keys and machine-specific env vars live in **`~/.config/zsh/env.local`** —
 
 - **Unified theme** — Nord across nvim, Ghostty, superfile, herdr, opencode, and btop for a consistent look everywhere (starship and tmux are terminal-adaptive instead)
 - **No third-party plugin manager** — nvim plugins are installed and pinned with Neovim's built-in `vim.pack`; the lockfile is committed so a fresh machine reproduces the same versions
-- **Native where Neovim already does the job** — LSP, diagnostics, inlay hints and code lenses use the built-in APIs instead of wrapper plugins
+- **Native where Neovim already does the job** — LSP, inline completion, diagnostics, inlay hints and code lenses use the built-in APIs instead of wrapper plugins
+- **Thin Neovim surface** — 11 plugins, each kept on its defaults where possible; format-on-save is off so an agent's diff stays exactly as written
 - **Keyboard-driven window management** — Tili tiling window manager with built-in floating-window centering
 - **OpenCode** — default Build and Plan agents, plus an `/auto` plugin for runtime auto-approval without touching config
 - **Idempotent sync** — one script (`sync.sh`) installs Homebrew packages, symlinks every Stow package, provisions mise runtimes, and creates the local secrets file

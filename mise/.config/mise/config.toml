@@ -20,3 +20,13 @@ go = "latest"
 "go:github.com/go-delve/delve/cmd/dlv" = "latest"
 gofumpt = "latest"
 golangci-lint = "latest"
+
+# Neovim toolchain (previously installed by mason.nvim)
+lua-language-server = "latest"
+"npm:@vtsls/language-server" = "latest"
+"npm:bash-language-server" = "latest"
+"npm:@fsouza/prettierd" = "latest"
+"npm:tree-sitter-cli" = "latest"
+prettier = "latest"
+stylua = "latest"
+shfmt = "latest"

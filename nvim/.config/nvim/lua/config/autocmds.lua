@@ -53,7 +53,6 @@ vim.api.nvim_create_autocmd("FileType", {
   group = augroup("close_with_q"),
   pattern = {
     "checkhealth",
-    "grug-far",
     "help",
     "lspinfo",
     "notify",
@@ -72,30 +71,13 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
--- make it easier to close man-files when opened inline
-vim.api.nvim_create_autocmd("FileType", {
-  group = augroup("man_unlisted"),
-  pattern = { "man" },
-  callback = function(event)
-    vim.bo[event.buf].buflisted = false
-  end,
-})
-
--- wrap and check for spell in text filetypes
+-- wrap prose; spell only where it helps (markdown is deliberately excluded)
 vim.api.nvim_create_autocmd("FileType", {
   group = augroup("wrap_spell"),
-  pattern = { "text", "plaintex", "typst", "gitcommit", "markdown" },
+  pattern = { "text", "plaintex", "typst", "gitcommit" },
   callback = function()
     vim.opt_local.wrap = true
     vim.opt_local.spell = true
-  end,
-})
-
--- personal override: disable spell for markdown/mdx (runs after wrap_spell above)
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = { "markdown", "mdx" },
-  callback = function()
-    vim.opt_local.spell = false
   end,
 })
 
@@ -123,7 +105,7 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 -- Prevent "save Untitled?" prompt on quit. Snacks picker file previews flip
 -- their scratch buffer to buftype="" (bufhidden stays "hide", not "wipe") and
 -- mark it modified, so match by what it is: an unlisted, unnamed, modified
--- buffer — plugin scratch debris a user buffer (:enew is listed) never matches.
+-- buffer -- plugin scratch debris a user buffer (:enew is listed) never matches.
 vim.api.nvim_create_autocmd("QuitPre", {
   callback = function()
     for _, buf in ipairs(vim.api.nvim_list_bufs()) do
@@ -150,13 +132,5 @@ vim.api.nvim_create_autocmd("WinLeave", {
   group = augroup("cursorline"),
   callback = function()
     vim.opt_local.cursorline = false
-  end,
-})
-
--- turn off paste mode when leaving insert
-vim.api.nvim_create_autocmd("InsertLeave", {
-  group = augroup("paste"),
-  callback = function()
-    vim.opt.paste = false
   end,
 })
