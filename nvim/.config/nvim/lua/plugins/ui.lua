@@ -102,6 +102,7 @@ require("snacks").setup({
       },
     },
   },
+  scroll = {},
   words = {},
   terminal = {
     win = { position = "float", border = "rounded" },
