@@ -21,8 +21,6 @@ map("v", "<A-k>", ":<C-u>execute \"'<,'>move '<-\" . (v:count1 + 1)<cr>gv=gv", {
 -- buffers
 map("n", "<S-h>", "<cmd>bprevious<cr>", { desc = "Prev buffer" })
 map("n", "<S-l>", "<cmd>bnext<cr>", { desc = "Next buffer" })
-map("n", "[b", "<cmd>bprevious<cr>", { desc = "Prev buffer" })
-map("n", "]b", "<cmd>bnext<cr>", { desc = "Next buffer" })
 map("n", "<leader>bd", function() Snacks.bufdelete() end, { desc = "Delete buffer" })
 map("n", "<leader>bo", function() Snacks.bufdelete.other() end, { desc = "Delete other buffers" })
 
@@ -65,8 +63,6 @@ map("n", "<leader>xq", function()
   local ok, err = pcall(vim.fn.getqflist({ winid = 0 }).winid ~= 0 and vim.cmd.cclose or vim.cmd.copen)
   if not ok and err then vim.notify(err, vim.log.levels.ERROR) end
 end, { desc = "Quickfix list" })
-map("n", "[q", vim.cmd.cprev, { desc = "Previous quickfix" })
-map("n", "]q", vim.cmd.cnext, { desc = "Next quickfix" })
 
 -- diagnostics
 local diagnostic_goto = function(next, severity)
@@ -79,8 +75,6 @@ local diagnostic_goto = function(next, severity)
   end
 end
 map("n", "<leader>cd", vim.diagnostic.open_float, { desc = "Line diagnostics" })
-map("n", "]d", diagnostic_goto(true), { desc = "Next diagnostic" })
-map("n", "[d", diagnostic_goto(false), { desc = "Prev diagnostic" })
 map("n", "]e", diagnostic_goto(true, "ERROR"), { desc = "Next error" })
 map("n", "[e", diagnostic_goto(false, "ERROR"), { desc = "Prev error" })
 
@@ -88,6 +82,15 @@ map("n", "[e", diagnostic_goto(false, "ERROR"), { desc = "Prev error" })
 Snacks.toggle.option("spell", { name = "Spelling" }):map("<leader>us")
 Snacks.toggle.option("wrap", { name = "Wrap" }):map("<leader>uw")
 Snacks.toggle.diagnostics():map("<leader>ud")
+map("n", "<leader>ua", function()
+  vim.o.autocomplete = not vim.o.autocomplete
+end, { desc = "Toggle autocomplete" })
+map("n", "<leader>uh", function()
+  vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = 0 }), { bufnr = 0 })
+end, { desc = "Toggle inlay hints" })
+map("n", "<leader>uc", function()
+  vim.lsp.codelens.enable(not vim.lsp.codelens.is_enabled({ bufnr = 0 }), { bufnr = 0 })
+end, { desc = "Toggle code lens" })
 
 -- git
 if vim.fn.executable("lazygit") == 1 then
@@ -148,6 +151,6 @@ map("n", "<leader>cR", function() Snacks.rename.rename_file() end, { desc = "Ren
 -- which-key
 map("n", "<leader>?", function() require("which-key").show({ global = false }) end, { desc = "Buffer Keymaps (which-key)" })
 
--- native treesitter incremental selection (Neovim 0.12)
-map("n", "gan", function() vim.treesitter.select_parent(1) end, { desc = "Select parent node" })
-map("n", "gin", function() vim.treesitter.select_child(1) end, { desc = "Select child node" })
+-- native treesitter incremental selection (Neovim 0.12; visual an/in also work)
+map("n", "gan", function() vim.treesitter.select("parent", 1) end, { desc = "Select parent node" })
+map("n", "gin", function() vim.treesitter.select("child", 1) end, { desc = "Select child node" })

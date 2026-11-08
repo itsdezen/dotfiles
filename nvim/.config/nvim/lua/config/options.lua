@@ -9,7 +9,6 @@ opt.breakindent = true
 opt.confirm = true
 opt.cursorline = true
 opt.expandtab = true
-opt.inccommand = "nosplit"
 opt.linebreak = true
 opt.list = true
 opt.mouse = "a"
@@ -19,7 +18,7 @@ opt.ruler = false
 opt.scrolloff = 4
 opt.shiftround = true
 opt.shiftwidth = 2
-opt.shortmess:append({ W = true, I = true, c = true, C = true })
+opt.shortmess:append({ W = true, I = true, c = true })
 opt.showmode = false
 opt.sidescrolloff = 8
 opt.smartcase = true
@@ -38,8 +37,9 @@ opt.virtualedit = "block"
 opt.winminwidth = 5
 opt.wrap = false
 
--- Completion (native `vim.lsp.completion`; no plugin)
-opt.completeopt = "menuone,noinsert,noselect"
+-- Completion (native `vim.lsp.completion`; no plugin).
+-- "fuzzy" is fuzzy matching, "popup" shows the completionItem/resolve docs.
+opt.completeopt = "menuone,noselect,fuzzy,popup"
 opt.pumblend = 10
 opt.pumheight = 10
 
@@ -59,7 +59,8 @@ opt.foldmethod = "expr"
 opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 opt.foldtext = ""
 opt.formatoptions = "jcroqlnt"
-opt.grepformat = "%f:%l:%c:%m"
+-- Nvim's default grepprg already uses rg, but with -uu (hidden + ignored files).
+-- Drop -uu so :grep stays out of node_modules and .git.
 opt.grepprg = "rg --vimgrep"
 opt.ignorecase = true
 opt.laststatus = 3
@@ -126,17 +127,55 @@ vim.api.nvim_create_autocmd("VimEnter", {
   end,
 })
 
+-- ui2 renders its buffers as full-width, borderless strips glued to
+-- 'laststatus'. Turn the cmdline into a centered rounded box at the top of the
+-- editor. Every other float already inherits 'winborder' (= rounded) or passes
+-- "rounded" itself: LSP floats, snacks, which-key, codediff, gitsigns and the
+-- ui2 message window (border = nil -> 'winborder').
+-- ui2 only changes hide/height after creation, so this geometry persists.
+local ui2_group = vim.api.nvim_create_augroup("Ui2Floats", { clear = true })
+
+local function style_cmdline(win)
+  if not win or win <= 0 or not vim.api.nvim_win_is_valid(win) then return end
+  if vim.api.nvim_win_get_config(win).relative == "" then return end
+
+  local width = math.max(30, math.min(100, vim.o.columns - 20))
+  vim.api.nvim_win_set_config(win, {
+    border = "rounded",
+    width = width,
+    relative = "editor",
+    anchor = "NW",
+    -- ~10% from the top (at least 2 lines) so it doesn't hug the edge.
+    row = math.max(2, math.floor(vim.o.lines * 0.1)),
+    col = math.floor((vim.o.columns - width) / 2),
+  })
+end
+
+vim.api.nvim_create_autocmd("FileType", {
+  group = ui2_group,
+  pattern = "cmd",
+  callback = function()
+    style_cmdline(vim.api.nvim_get_current_win())
+  end,
+})
+
+vim.api.nvim_create_autocmd("VimResized", {
+  group = ui2_group,
+  callback = function()
+    local ui = package.loaded["vim._core.ui2"]
+    if ui then style_cmdline(ui.wins.cmd) end
+  end,
+})
+
 vim.diagnostic.config({
-  underline = true,
-  update_in_insert = false,
   virtual_text = {
     spacing = 4,
     source = "if_many",
     prefix = "●",
   },
   severity_sort = true,
+  -- No border here: floats inherit 'winborder'.
   float = {
-    border = "rounded",
     source = "if_many",
   },
   signs = {

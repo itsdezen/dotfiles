@@ -71,8 +71,11 @@ vim.lsp.enable({
   "bashls",
 })
 
--- LSP keymaps + native inline completion (`vim.lsp.completion` replaces
--- blink.cmp: autotrigger on insert, <C-n>/<C-p> to pick from the menu).
+-- LSP keymaps + native completion. Neovim 0.12 already maps K (hover),
+-- gra/grn/grr/gri/grt/grx and <C-S> (signature help), so only the gaps live
+-- here. `vim.lsp.completion` replaces blink.cmp: the `o` flag added to
+-- 'complete' makes the native 'omnifunc' (vim.lsp.omnifunc) a completion
+-- source, and 'completeopt' carries "fuzzy" and "popup".
 vim.api.nvim_create_autocmd("LspAttach", {
   group = vim.api.nvim_create_augroup("LspKeys", { clear = true }),
   callback = function(event)
@@ -86,13 +89,14 @@ vim.api.nvim_create_autocmd("LspAttach", {
 
     map("n", "gd", vim.lsp.buf.definition, "Goto Definition")
     map("n", "gD", vim.lsp.buf.declaration, "Goto Declaration")
-    map("n", "gr", vim.lsp.buf.references, "References")
-    map("n", "gI", vim.lsp.buf.implementation, "Goto Implementation")
-    map("n", "gy", vim.lsp.buf.type_definition, "Goto Type Definition")
-    map("n", "K", vim.lsp.buf.hover, "Hover")
     map("n", "gK", vim.lsp.buf.signature_help, "Signature Help")
-    map({ "n", "x" }, "<leader>ca", vim.lsp.buf.code_action, "Code Action")
-    map("n", "<leader>cr", vim.lsp.buf.rename, "Rename")
+
+    if client:supports_method("textDocument/completion") then
+      local complete = vim.bo[buf].complete
+      if not complete:find(",o", 1, true) and not complete:find("^o") then
+        vim.bo[buf].complete = complete .. ",o"
+      end
+    end
 
     vim.lsp.completion.enable(true, client.id, buf, { autotrigger = true })
 
