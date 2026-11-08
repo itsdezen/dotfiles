@@ -116,10 +116,10 @@ settings {
     animate "high"
 
     // How long one frame transition takes when `animate` is on, in
-    // milliseconds. 200 (default) reads as a quick, visible transition;
-    // lower is snappier, higher is slower. Only meaningful with `animate`
-    // on.
-    animate-duration-ms 200
+    // milliseconds. Default 120: quick and visible without delaying the
+    // window operation. Lower is snappier, higher is smoother. Only
+    // meaningful with `animate` on.
+    animate-duration-ms 120
 
     // Per-app Accessibility messaging timeout. Lower keeps the daemon
     // responsive when an app is hung; too low can misclassify a slow app.
