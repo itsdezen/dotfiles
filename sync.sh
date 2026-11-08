@@ -996,6 +996,33 @@ ENVEOF
     # latest revision of each plugin's branch is deliberate: --update-plugins.
     local _target=lockfile
     if $_UPDATE_PLUGINS; then _target=version; fi
+
+    # vim.pack "repairs" the lockfile on every startup: it walks the pack
+    # directory and adds an entry for any plugin it finds on disk, even one no
+    # longer in `vim.pack.add()` (pack.lua lock_sync). So a directory left over
+    # from an earlier plugin cut walks back into the lockfile before this
+    # script can diff it — which is why pruning by "not in the lockfile" misses
+    # it. Delete what is installed but not active instead (the recipe in
+    # `:h vim.pack` "Remove plugins from disk"), and do it before the update so
+    # the lockfile diff below reflects reality.
+    step "Pruning plugins"
+    local _prune_out _n_pruned=0 _pname _prune_ok=true
+    _prune_out="$(mktemp)"
+    NVIM_PACK_PRUNE_OUT="$_prune_out" nvim --headless -c 'lua local stale = {} for _, p in ipairs(vim.pack.get()) do if not p.active then stale[#stale + 1] = p.spec.name end end vim.fn.writefile(stale, vim.env.NVIM_PACK_PRUNE_OUT) if #stale > 0 then vim.pack.del(stale) end' +qa >/dev/null 2>&1 || _prune_ok=false
+    while IFS= read -r _pname; do
+      [[ -n "$_pname" ]] || continue
+      _n_pruned=$(( _n_pruned + 1 ))
+      item_rm "$_pname"
+    done <"$_prune_out"
+    rm -f "$_prune_out"
+    if ! $_prune_ok; then
+      spin_warn "prune failed"
+    elif (( _n_pruned > 0 )); then
+      spin_ok "$(_plural "$_n_pruned" plugin) pruned"
+    else
+      spin_skip "no orphaned plugins"
+    fi
+
     step "Syncing plugins"
     # vim.pack has no :PackUpdate command — call the Lua API directly.
     # force = true applies the update without the confirmation buffer, which
@@ -1038,38 +1065,6 @@ ENVEOF
       fi
     fi
     rm -f "$lock_before"
-
-    # vim.pack never deletes a plugin dropped from `vim.pack.add` — upstream's
-    # documented flow is `vim.pack.del()` by hand. That helper refuses names no
-    # longer in the lockfile, so once the committed lockfile is correct the only
-    # reliable cleanup left is comparing directories against it.
-    if $_nvim_sync_ok; then
-      step "Pruning plugins"
-      local _plug_dir="${XDG_DATA_HOME:-$HOME/.local/share}/nvim/site/pack/core/opt"
-      local _n_pruned=0 _pdir _pname
-      if [[ -f "$lock" ]] && command -v jq &>/dev/null; then
-        for _pdir in "$_plug_dir"/*; do
-          [[ -d "$_pdir" ]] || continue
-          _pname="${_pdir##*/}"
-          [[ -n "$_pname" ]] || continue
-          if jq -e --arg n "$_pname" '.plugins[$n]' "$lock" >/dev/null 2>&1; then
-            continue
-          fi
-          rm -rf "$_pdir"
-          _n_pruned=$(( _n_pruned + 1 ))
-          item_rm "$_pname"
-        done
-      fi
-      if (( _n_pruned > 0 )); then
-        spin_ok "$(_plural "$_n_pruned" plugin) pruned"
-      elif ! command -v jq &>/dev/null; then
-        spin_warn "jq not found — prune skipped"
-      elif [[ ! -f "$lock" ]]; then
-        spin_warn "lockfile not found — prune skipped"
-      else
-        spin_skip "no orphaned plugins"
-      fi
-    fi
   else
     spin_warn "neovim not found — skipped"
   fi

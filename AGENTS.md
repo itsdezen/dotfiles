@@ -43,7 +43,7 @@ dotfiles/
 - Use `stow -t "$HOME" -R <package>` for all symlink operations
 - Detect conflicts with `stow -n`, remove conflicting files, then stow
 - Removing a package from `PACKAGES` leaves its links stranded on machines that already stowed it (`stow -D` needs the package on disk). `sync.sh` prunes those via `prune_links` — never hand-`rm` them
-- Removing a plugin from `vim.pack.add` leaves its directory on disk: `vim.pack.update` never deletes, and `vim.pack.del` refuses names already gone from the lockfile. `sync.sh` prunes any pack dir the lockfile no longer lists — never hand-`rm` those either
+- Removing a plugin from `vim.pack.add` leaves its directory on disk, and `vim.pack` hides it: on every startup it walks the pack dir and re-adds a lockfile entry for any plugin it finds there (`lock_sync`/`lock_repair`), so the lockfile is **not** a reliable list of what is wanted. `sync.sh` prunes plugins that are installed but not active (`vim.pack.get()`) — never hand-`rm` those, and never infer staleness from the lockfile
 
 ### 2. One script philosophy
 
