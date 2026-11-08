@@ -139,7 +139,8 @@ local function style_cmdline(win)
   if not win or win <= 0 or not vim.api.nvim_win_is_valid(win) then return end
   if vim.api.nvim_win_get_config(win).relative == "" then return end
 
-  local width = math.max(30, math.min(100, vim.o.columns - 20))
+  -- Compact: ~half the screen, capped at 60 columns.
+  local width = math.min(60, math.max(30, math.floor(vim.o.columns * 0.5)))
   vim.api.nvim_win_set_config(win, {
     border = "rounded",
     width = width,
