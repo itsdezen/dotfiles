@@ -19,8 +19,17 @@ map("v", "<A-j>", ":<C-u>execute \"'<,'>move '>+\" . v:count1<cr>gv=gv", { desc 
 map("v", "<A-k>", ":<C-u>execute \"'<,'>move '<-\" . (v:count1 + 1)<cr>gv=gv", { desc = "Move up" })
 
 -- buffers
-map("n", "<S-h>", "<cmd>bprevious<cr>", { desc = "Prev buffer" })
-map("n", "<S-l>", "<cmd>bnext<cr>", { desc = "Next buffer" })
+map("n", "<S-h>", "<cmd>BufferLineCyclePrev<cr>", { desc = "Prev buffer" })
+map("n", "<S-l>", "<cmd>BufferLineCycleNext<cr>", { desc = "Next buffer" })
+map("n", "[b", "<cmd>BufferLineCyclePrev<cr>", { desc = "Prev buffer" })
+map("n", "]b", "<cmd>BufferLineCycleNext<cr>", { desc = "Next buffer" })
+map("n", "[B", "<cmd>BufferLineMovePrev<cr>", { desc = "Move buffer prev" })
+map("n", "]B", "<cmd>BufferLineMoveNext<cr>", { desc = "Move buffer next" })
+map("n", "<leader>bp", "<cmd>BufferLineTogglePin<cr>", { desc = "Toggle pin" })
+map("n", "<leader>bP", "<cmd>BufferLineGroupClose ungrouped<cr>", { desc = "Delete non-pinned buffers" })
+map("n", "<leader>br", "<cmd>BufferLineCloseRight<cr>", { desc = "Delete buffers to the right" })
+map("n", "<leader>bl", "<cmd>BufferLineCloseLeft<cr>", { desc = "Delete buffers to the left" })
+map("n", "<leader>bj", "<cmd>BufferLinePick<cr>", { desc = "Pick buffer" })
 map("n", "<leader>bd", function() Snacks.bufdelete() end, { desc = "Delete buffer" })
 map("n", "<leader>bo", function() Snacks.bufdelete.other() end, { desc = "Delete other buffers" })
 

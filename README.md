@@ -85,7 +85,7 @@ API keys and machine-specific env vars live in **`~/.config/zsh/env.local`** —
 - **Unified theme** — Nord across nvim, Ghostty, superfile, herdr, opencode, and btop for a consistent look everywhere (starship and tmux are terminal-adaptive instead)
 - **No third-party plugin manager** — nvim plugins are installed and pinned with Neovim's built-in `vim.pack`; the lockfile is committed and `sync.sh` restores every machine to exactly those revisions, so upgrading is a deliberate `--update-plugins` run rather than a side effect of syncing
 - **Native where Neovim already does the job** — LSP, fuzzy completion, the floating cmdline, diagnostics, inlay hints and code lenses use the built-in APIs instead of wrapper plugins
-- **Thin Neovim surface** — 11 plugins, each kept on its defaults where possible; format-on-save is off so an agent's diff stays exactly as written
+- **Thin Neovim surface** — 12 plugins, each kept on its defaults where possible; format-on-save is off so an agent's diff stays exactly as written
 - **Keyboard-driven window management** — Tili tiling window manager with built-in floating-window centering
 - **OpenCode** — default Build and Plan agents, plus an `/auto` plugin for runtime auto-approval without touching config
 - **Idempotent sync** — one script (`sync.sh`) installs Homebrew packages, symlinks every Stow package, provisions mise runtimes, and creates the local secrets file

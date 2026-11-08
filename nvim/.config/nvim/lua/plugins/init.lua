@@ -13,6 +13,7 @@ vim.pack.add({
   { src = gh("gbprod/nord.nvim") },
   { src = gh("nvim-mini/mini.icons") },
   { src = gh("folke/snacks.nvim") },
+  { src = gh("akinsho/bufferline.nvim") },
   { src = gh("folke/which-key.nvim") },
   { src = gh("nvim-lualine/lualine.nvim") },
   -- Editor

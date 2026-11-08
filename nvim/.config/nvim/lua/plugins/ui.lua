@@ -12,6 +12,11 @@ require("nord").setup({
     highlights.FloatBorder = { fg = colors.polar_night.brightest, bg = colors.none }
     highlights.WhichKeyFloat = { bg = colors.none }
     highlights.NormalNC = { fg = colors.snow_storm.origin, bg = colors.none }
+    -- The whole tabline row is painted with TabLineFill; clear its bg or the
+    -- bufferline gets an opaque strip. TabLineSel only feeds bufferline's
+    -- selected-indicator colour (no background is painted from it).
+    highlights.TabLineFill = { bg = colors.none }
+    highlights.TabLineSel = { fg = colors.frost.artic_water, bg = colors.none }
   end,
 })
 vim.cmd.colorscheme("nord")
@@ -19,6 +24,43 @@ vim.cmd.colorscheme("nord")
 -- Icons: needed by lualine and snacks right away.
 require("mini.icons").setup()
 require("mini.icons").mock_nvim_web_devicons()
+
+--- Nerd Font glyph by codepoint (LuaJIT has no \u{...} escape).
+local function glyph(hex) return vim.fn.nr2char(tonumber(hex, 16)) end
+local gh_icon = glyph("f408") .. " "
+
+-- Bufferline: the tabline is hidden while there is nothing to switch between
+-- (`always_show_bufferline = false`), and the offset keeps the tabs clear of the
+-- explorer sidebar. Colours are derived from the transparent Nord groups.
+require("bufferline").setup({
+  options = {
+    close_command = function(n) Snacks.bufdelete(n) end,
+    right_mouse_command = function(n) Snacks.bufdelete(n) end,
+    diagnostics = "nvim_lsp",
+    always_show_bufferline = false,
+    diagnostics_indicator = function(_, _, diag)
+      local icons = { Error = glyph("f057") .. " ", Warn = glyph("f071") .. " " }
+      local ret = (diag.error and icons.Error .. diag.error .. " " or "")
+        .. (diag.warning and icons.Warn .. diag.warning or "")
+      return vim.trim(ret)
+    end,
+    offsets = {
+      { filetype = "neo-tree", text = "Neo-tree", highlight = "Directory", text_align = "left" },
+      { filetype = "snacks_layout_box" },
+    },
+    get_element_icon = function(opts)
+      return ({ octo = gh_icon, gh = gh_icon, ["markdown.gh"] = gh_icon })[opts.filetype]
+    end,
+  },
+})
+
+-- Restored sessions add buffers before bufferline is up; refresh once they land.
+vim.api.nvim_create_autocmd({ "BufAdd", "BufDelete" }, {
+  group = vim.api.nvim_create_augroup("BufferLineRefresh", { clear = true }),
+  callback = function()
+    vim.schedule(function() pcall(nvim_bufferline) end)
+  end,
+})
 
 -- Statusline: visible from the first frame.
 require("lualine").setup({
