@@ -44,7 +44,9 @@ cd ~/Developer/dotfiles && ./sync.sh
 
 | Script | Description |
 |--------|-------------|
-| `./sync.sh` | Sync everything: Homebrew, dotfiles, runtimes, nvim/tmux plugins, the local env file (chmod 600) — and prune links left behind by dropped packages plus nvim plugin dirs the lockfile no longer lists || `./sync.sh -v` | Same, but lists every change item and the full runtime inventory (default: one line per section) |
+| `./sync.sh` | Sync everything: Homebrew, dotfiles, runtimes, nvim/tmux plugins pinned to the committed lockfile, the local env file (chmod 600) — and prune links left behind by dropped packages plus nvim plugin dirs the lockfile no longer lists |
+| `./sync.sh --update-plugins` | Also upgrade nvim plugins to the latest revision of their branch, then offer to commit the lockfile (default: plugins stay on the locked revisions) |
+| `./sync.sh -v` | Same, but lists every change item and the full runtime inventory (default: one line per section) |
 | `./sync.sh --no-color` | Plain output for logs and CI (piped output is already colour-free) |
 | `./sync.sh bootstrap` | Fresh machine setup: Xcode CLI tools → clone → sync |
 | `./sync.sh uninstall` | Remove all dotfiles symlinks, zinit, and TPM (never touches the local env file) |
@@ -81,7 +83,7 @@ API keys and machine-specific env vars live in **`~/.config/zsh/env.local`** —
 ## Highlights
 
 - **Unified theme** — Nord across nvim, Ghostty, superfile, herdr, opencode, and btop for a consistent look everywhere (starship and tmux are terminal-adaptive instead)
-- **No third-party plugin manager** — nvim plugins are installed and pinned with Neovim's built-in `vim.pack`; the lockfile is committed so a fresh machine reproduces the same versions
+- **No third-party plugin manager** — nvim plugins are installed and pinned with Neovim's built-in `vim.pack`; the lockfile is committed and `sync.sh` restores every machine to exactly those revisions, so upgrading is a deliberate `--update-plugins` run rather than a side effect of syncing
 - **Native where Neovim already does the job** — LSP, inline completion, diagnostics, inlay hints and code lenses use the built-in APIs instead of wrapper plugins
 - **Thin Neovim surface** — 11 plugins, each kept on its defaults where possible; format-on-save is off so an agent's diff stays exactly as written
 - **Keyboard-driven window management** — Tili tiling window manager with built-in floating-window centering

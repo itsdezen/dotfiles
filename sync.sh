@@ -9,23 +9,27 @@ set -euo pipefail
 # ── flags ──────────────────────────────────────────────────────────────────────
 
 _VERBOSE=false
+_UPDATE_PLUGINS=false
 _CMD="sync"
 usage() {
   cat <<EOF
-usage: $0 [-v|--verbose] [--no-color] [sync|bootstrap|uninstall]
+usage: $0 [-v|--verbose] [--no-color] [--update-plugins] [sync|bootstrap|uninstall]
 
   sync              sync everything (default)
   bootstrap         fresh machine: Xcode CLI tools → clone → sync
   uninstall         remove dotfile symlinks, zinit and TPM
   -v, --verbose     list every item: runtime inventory, long change lists
   --no-color        plain output (NO_COLOR is honoured as well)
+  --update-plugins  upgrade nvim plugins to their latest revision; without it
+                    each plugin is pinned to the revision in the lockfile
 EOF
 }
 for _arg in ${1+"$@"}; do
   case "$_arg" in
-    -v|--verbose) _VERBOSE=true ;;
-    --no-color)   NO_COLOR=1 ;;
-    -h|--help)    usage; exit 0 ;;
+    -v|--verbose)    _VERBOSE=true ;;
+    --no-color)      NO_COLOR=1 ;;
+    --update-plugins) _UPDATE_PLUGINS=true ;;
+    -h|--help)       usage; exit 0 ;;
     sync|bootstrap|uninstall) _CMD="$_arg" ;;
     *) usage >&2; exit 1 ;;
   esac
@@ -987,11 +991,16 @@ ENVEOF
     fi
     git -C "$DOTFILES" diff --quiet -- nvim/.config/nvim/nvim-pack-lock.json 2>/dev/null || lock_dirty_before=true
     local nvim_log _nvim_sync_ok=true
+    # target = "lockfile" puts each plugin back on the revision the committed
+    # lockfile names — a controlled update, not an upgrade. Upgrading to the
+    # latest revision of each plugin's branch is deliberate: --update-plugins.
+    local _target=lockfile
+    if $_UPDATE_PLUGINS; then _target=version; fi
     step "Syncing plugins"
     # vim.pack has no :PackUpdate command — call the Lua API directly.
     # force = true applies the update without the confirmation buffer, which
     # a headless run cannot interact with.
-    nvim_log="$(nvim --headless -c 'lua vim.pack.update(nil, { force = true })' +qa 2>&1)" || _nvim_sync_ok=false
+    nvim_log="$(nvim --headless -c "lua vim.pack.update(nil, { force = true, target = '$_target' })" +qa 2>&1)" || _nvim_sync_ok=false
     local _plugin_diff="" _n_plug=0 _nvim_tail=""
     if ! $_nvim_sync_ok; then
       spin_fail "plugin sync failed"
@@ -1015,6 +1024,8 @@ ENVEOF
       done <<<"$_plugin_diff"
       if (( _n_plug > 0 )); then
         spin_ok "$(_plural "$_n_plug" plugin) changed"
+      elif [[ "$_target" == "lockfile" ]]; then
+        spin_skip "pinned to lockfile"
       else
         spin_skip "plugins up to date"
       fi
