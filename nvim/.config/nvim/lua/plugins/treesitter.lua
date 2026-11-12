@@ -1,6 +1,20 @@
 -- The rewrite (main branch) only handles parser installation; highlighting
 -- and indentation are enabled by Neovim itself.
 --
+-- vim.pack puts the plugin root on 'runtimepath', but nvim-treesitter keeps its
+-- queries in `runtime/queries` and relies on `site/queries/<lang>` symlinks to
+-- expose them. Those symlinks outlive the install that made them: after a
+-- plugin-root move (switching plugin managers, say) they dangle, and
+-- treesitter-autoinstall only checks the *parser*, so it thinks the language is
+-- installed and never relinks. Highlighting then stays "on" with zero captures —
+-- every filetype renders unstyled. Adding the plugin's `runtime` dir directly
+-- keeps queries on the installed revision and makes that cache irrelevant.
+for _, pack in ipairs(vim.pack.get()) do
+  if pack.spec.name == "nvim-treesitter" then
+    vim.opt.rtp:append(pack.path .. "/runtime")
+  end
+end
+
 -- `treesitter-autoinstall` replaces the removed `ensure_installed` option and
 -- installs parsers on demand when a filetype is opened.
 require("treesitter-autoinstall").setup({
