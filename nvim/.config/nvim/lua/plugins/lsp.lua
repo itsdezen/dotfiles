@@ -1,8 +1,11 @@
--- Server definitions and global capabilities. These have to exist before the
+-- Server selection and global capabilities. These have to exist before the
 -- first client attaches.
 --
--- nvim-lspconfig v2 only ships `lsp/*.lua` config files; nothing to set up.
--- Tool binaries come from mise (see mise/config.toml); no plugin installs them.
+-- nvim-lspconfig v2 only ships `lsp/*.lua` config files; nothing to set up. The
+-- per-server settings themselves live in `after/lsp/<server>.lua`, which Neovim
+-- merges last (`:help lsp-config-merge`), so they override lspconfig's defaults
+-- without losing the fields they don't mention. Binary ownership: mason (see
+-- plugins/mason.lua) for servers, mise for runtimes and shell-facing CLIs.
 vim.lsp.config("*", {
   capabilities = vim.tbl_deep_extend("force", vim.lsp.protocol.make_client_capabilities(), {
     workspace = {
@@ -14,52 +17,6 @@ vim.lsp.config("*", {
   }),
 })
 
-vim.lsp.config("lua_ls", {
-  settings = {
-    Lua = {
-      runtime = { version = "LuaJIT" },
-      workspace = {
-        checkThirdParty = false,
-        library = { vim.env.VIMRUNTIME },
-      },
-      diagnostics = {
-        disable = { "incomplete-signature-doc", "trailing-space" },
-      },
-    },
-  },
-})
-
-vim.lsp.config("vtsls", {
-  settings = {
-    complete_function_calls = true,
-    vtsls = { autoUseWorkspaceTsdk = true },
-  },
-})
-
-vim.lsp.config("basedpyright", {
-  settings = {
-    python = { analysis = { typeCheckingMode = "basic" } },
-  },
-})
-
-vim.lsp.config("gopls", {
-  settings = {
-    gopls = {
-      gofumpt = true,
-      completeUnimported = true,
-      staticcheck = true,
-    },
-  },
-})
-
-vim.lsp.config("rust_analyzer", {
-  settings = {
-    ["rust-analyzer"] = {
-      check = { command = "clippy" },
-    },
-  },
-})
-
 -- The single source of truth for which servers are active.
 vim.lsp.enable({
   "lua_ls",
@@ -69,6 +26,17 @@ vim.lsp.enable({
   "gopls",
   "rust_analyzer",
   "bashls",
+  -- Common formats: json/jsonc, css/scss/less, html, yaml, tailwind, eslint,
+  -- markdown, Dockerfiles. Each one's own root markers decide whether it
+  -- attaches, so a project without the matching config stays quiet.
+  "jsonls",
+  "cssls",
+  "html",
+  "yamlls",
+  "tailwindcss",
+  "eslint",
+  "marksman",
+  "dockerls",
 })
 
 -- LSP keymaps + native completion. Neovim 0.12 already maps K (hover),

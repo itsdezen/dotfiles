@@ -25,9 +25,13 @@ vim.pack.add({
   { src = gh("mks-h/treesitter-autoinstall.nvim") },
   -- LSP
   { src = gh("neovim/nvim-lspconfig") },
+  { src = gh("mason-org/mason.nvim") },
+  { src = gh("WhoIsSethDaniel/mason-tool-installer.nvim") },
 }, { confirm = false, load = true })
 
 require("plugins.ui")
 require("plugins.editor")
+-- mason first: it puts its bin dir on vim.env.PATH before any client can spawn.
+require("plugins.mason")
 require("plugins.lsp")
 require("plugins.treesitter")

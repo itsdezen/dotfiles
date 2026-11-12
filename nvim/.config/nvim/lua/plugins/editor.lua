@@ -1,5 +1,12 @@
 -- Formatting: on demand only. Format-on-save is off on purpose -- it rewrites
 -- the files an agent just wrote and scrambles the diff being reviewed.
+--
+-- Web and markup formats go through prettierd (a resident daemon, so no Node
+-- startup per format) and fall back to the prettier CLI only when prettierd is
+-- unavailable; `stop_after_first` keeps conform from running both when the
+-- daemon answers.
+local prettier = { "prettierd", "prettier", stop_after_first = true }
+
 require("conform").setup({
   default_format_opts = {
     timeout_ms = 3000,
@@ -10,14 +17,22 @@ require("conform").setup({
     lua = { "stylua" },
     fish = { "fish_indent" },
     sh = { "shfmt" },
-    javascript = { "prettier" },
-    javascriptreact = { "prettier" },
-    typescript = { "prettier" },
-    typescriptreact = { "prettier" },
-    json = { "prettier" },
-    css = { "prettier" },
-    vue = { "prettier" },
-    svelte = { "prettier" },
+    javascript = prettier,
+    javascriptreact = prettier,
+    typescript = prettier,
+    typescriptreact = prettier,
+    json = prettier,
+    jsonc = prettier,
+    json5 = prettier,
+    yaml = prettier,
+    markdown = prettier,
+    ["markdown.mdx"] = prettier,
+    css = prettier,
+    scss = prettier,
+    less = prettier,
+    html = prettier,
+    vue = prettier,
+    svelte = prettier,
     python = { "ruff_format" },
     go = { "goimports", "gofumpt" },
     rust = { "rustfmt" },

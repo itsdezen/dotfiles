@@ -1,32 +1,18 @@
 [tools]
-# JavaScript / Bun
+# Runtimes
 node = "lts"
 bun = "latest"
 pnpm = "latest"
-"npm:cloakbrowser" = "latest"
-
-# Python
 python = "latest"
 uv = "latest"
+rust = "stable"
+go = "latest"
+
+# Dual-use servers: mason does not install these, so Neovim, an agent and CI all
+# resolve the same binary through the shell's PATH.
 ruff = "latest"
 "npm:basedpyright" = "latest"
-
-# Systems
-rust = "stable"
-rust-analyzer = "latest"
-go = "latest"
 "go:golang.org/x/tools/gopls" = "latest"
-"go:golang.org/x/tools/cmd/goimports" = "latest"
-"go:github.com/go-delve/delve/cmd/dlv" = "latest"
-gofumpt = "latest"
-golangci-lint = "latest"
 
-# Neovim toolchain (previously installed by mason.nvim)
-lua-language-server = "latest"
-"npm:@vtsls/language-server" = "latest"
-"npm:bash-language-server" = "latest"
-"npm:@fsouza/prettierd" = "latest"
-"npm:tree-sitter-cli" = "latest"
-prettier = "latest"
-stylua = "latest"
-shfmt = "latest"
+# CLI used directly, outside Neovim
+"npm:cloakbrowser" = "latest"

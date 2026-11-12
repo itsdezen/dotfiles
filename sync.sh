@@ -1065,6 +1065,32 @@ ENVEOF
       fi
     fi
     rm -f "$lock_before"
+
+    # mason installs language servers into stdpath('data'), which this repo does
+    # not track, so syncing is what puts them on a machine. The *Sync* variant
+    # waits for the downloads (the async one returns immediately and would make
+    # the step report a lie); output is captured because mason prints progress
+    # bars that would fight the spinner. Binary ownership: mason for servers,
+    # mise (previous section) for runtimes and shell-facing CLIs.
+    if $_nvim_sync_ok; then
+      step "Provisioning language servers"
+      local _mason_out _mason_ok=true
+      local _mason_bin="${XDG_DATA_HOME:-$HOME/.local/share}/nvim/mason/bin"
+      local _mason_before=0 _mason_after=0
+      _mason_before="$(find "$_mason_bin" -mindepth 1 -maxdepth 1 2>/dev/null | wc -l | tr -d ' ')"
+      _mason_out="$(nvim --headless "+MasonToolsInstallSync" +qa 2>&1)" || _mason_ok=false
+      _mason_after="$(find "$_mason_bin" -mindepth 1 -maxdepth 1 2>/dev/null | wc -l | tr -d ' ')"
+      if ! $_mason_ok; then
+        spin_warn "language server install failed"
+        while IFS= read -r _line; do
+          [[ -n "$_line" ]] && item_note "$_line"
+        done <<<"$(printf '%s\n' "$_mason_out" | tail -n 3)"
+      elif (( _mason_after > _mason_before )); then
+        spin_ok "$(( _mason_after - _mason_before )) installed ($_mason_after)"
+      else
+        spin_skip "up to date ($_mason_after)"
+      fi
+    fi
   else
     spin_warn "neovim not found — skipped"
   fi

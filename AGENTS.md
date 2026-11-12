@@ -20,7 +20,7 @@ dotfiles/
 ├── sync.sh
 ├── Brewfile
 ├── zsh/          → ~/.zshrc, ~/.zshenv, ~/.zprofile
-├── nvim/         → ~/.config/nvim/ (Neovim ≥ 0.12, plugins via built-in `vim.pack`)
+├── nvim/         → ~/.config/nvim/ (Neovim ≥ 0.12, plugins via built-in `vim.pack`, LSP servers via mason, per-server config in `after/lsp/`)
 ├── tili/         → ~/.config/tili/
 ├── starship/     → ~/.config/starship.toml
 ├── ghostty/      → ~/.config/ghostty/
@@ -101,6 +101,17 @@ nvim's colorscheme plugin drives a custom transparent-background setup (transpar
 API keys and tokens never go into a tracked file — no package dir, no `sync.sh`, no repo-versioned config. They live in **`~/.config/zsh/env.local`**: a real file outside this repo, `chmod 600` (created and re-enforced by `sync.sh`), sourced by `zsh/.zshenv` so every shell context and everything it launches sees the same values.
 
 Append `export NAME=value` there (shortcut: `envlocal`) and consume it by env-var substitution. It must stay unstowed, gitignored, and never deleted by `sync.sh uninstall`.
+
+### 8. Tool ownership: mason vs mise
+
+Every Neovim tool has exactly one installer — never both:
+
+- **mason** — `ensure_installed` in `nvim/.config/nvim/lua/plugins/mason.lua`: language servers plus the formatters and parser CLI *only Neovim calls* (prettier, prettierd, stylua, shfmt, gofumpt, goimports, tree-sitter-cli). `mason.setup()` prepends `mason/bin` to Neovim's `PATH`; the shell does not see it, which is exactly why anything an agent or CI must run stays out of this list.
+- **mise** — `mise/.config/mise/config.toml`: runtimes (node, bun, pnpm, python, uv, rust, go), the dual-use servers a shell also invokes (ruff, basedpyright, gopls), and CLI tools (cloakbrowser).
+
+Moving a tool to the other manager means removing it from the first one in the same change, or it gets installed twice at different versions. `sync.sh` provisions mason tools with `MasonToolsInstallSync` and never runs `MasonToolsClean`, so a hand-installed mason tool survives a sync.
+
+Per-server settings never live in `lua/plugins/lsp.lua` — that file holds only global capabilities, the `vim.lsp.enable()` list and the `LspAttach` handler. Each server's config is `nvim/.config/nvim/after/lsp/<server>.lua`, which Neovim merges last (`:help lsp-config-merge`).
 
 ---
 

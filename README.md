@@ -6,7 +6,8 @@ Personal macOS development environment using **GNU Stow** for dotfiles managemen
 
 - 🍺 **Homebrew** — package management
 - 🐚 **zsh + zinit + Starship** — shell, plugins, prompt
-- 🔧 **mise** — polyglot runtime manager (node, bun, pnpm, python, uv, rust, go) and the only source of Neovim's LSP servers, formatters and parser CLI
+- 🔧 **mise** — polyglot runtime manager (node, bun, pnpm, python, uv, rust, go) plus the dual-use servers an agent or CI calls directly (ruff, basedpyright, gopls)
+- 🏗️ **mason.nvim** — installs Neovim's language servers, formatters and parser CLI (nothing overlaps mise)
 - 📦 **pnpm + bun** — JS package managers
 - ✏️ **Neovim** — primary code editor (≥ 0.12, plugins managed by the built-in `vim.pack`)
 - 👻 **Ghostty** — GPU-accelerated terminal emulator, default terminal
@@ -44,7 +45,7 @@ cd ~/Developer/dotfiles && ./sync.sh
 
 | Script | Description |
 |--------|-------------|
-| `./sync.sh` | Sync everything: Homebrew, dotfiles, runtimes, nvim/tmux plugins pinned to the committed lockfile, the local env file (chmod 600) — and prune links left behind by dropped packages plus nvim plugins no longer in `vim.pack.add` |
+| `./sync.sh` | Sync everything: Homebrew, dotfiles, runtimes, nvim/tmux plugins pinned to the committed lockfile, mason language servers, the local env file (chmod 600) — and prune links left behind by dropped packages plus nvim plugins no longer in `vim.pack.add` |
 | `./sync.sh --update-plugins` | Also upgrade nvim plugins to the latest revision of their branch, then offer to commit the lockfile (default: plugins stay on the locked revisions) |
 | `./sync.sh -v` | Same, but lists every change item and the full runtime inventory (default: one line per section) |
 | `./sync.sh --no-color` | Plain output for logs and CI (piped output is already colour-free) |
@@ -85,10 +86,11 @@ API keys and machine-specific env vars live in **`~/.config/zsh/env.local`** —
 - **Unified theme** — Gruvbox across nvim, Ghostty, superfile, herdr, opencode, and btop for a consistent look everywhere (starship and tmux are terminal-adaptive instead)
 - **No third-party plugin manager** — nvim plugins are installed and pinned with Neovim's built-in `vim.pack`; the lockfile is committed and `sync.sh` restores every machine to exactly those revisions, so upgrading is a deliberate `--update-plugins` run rather than a side effect of syncing
 - **Native where Neovim already does the job** — LSP, fuzzy completion, the floating cmdline, diagnostics, inlay hints and code lenses use the built-in APIs instead of wrapper plugins
-- **Thin Neovim surface** — 12 plugins, each kept on its defaults where possible; format-on-save is off so an agent's diff stays exactly as written
+- **One owner per tool** — mason installs Neovim's language servers, formatters and parser CLI, mise owns runtimes plus the dual-use servers an agent or CI calls (ruff, basedpyright, gopls), so nothing is installed twice; per-server settings live in `after/lsp/<server>.lua`
+- **Thin Neovim surface** — 14 plugins, each kept on its defaults where possible; format-on-save is off so an agent's diff stays exactly as written
 - **Keyboard-driven window management** — Tili tiling window manager with built-in floating-window centering
 - **OpenCode** — default Build and Plan agents, plus an `/auto` plugin for runtime auto-approval without touching config
-- **Idempotent sync** — one script (`sync.sh`) installs Homebrew packages, symlinks every Stow package, provisions mise runtimes, and creates the local secrets file
+- **Idempotent sync** — one script (`sync.sh`) installs Homebrew packages, symlinks every Stow package, provisions mise runtimes and mason language servers, and creates the local secrets file
 - **Compact sync output** — one `➤ Section` line per stage with counts and duration, change items nested underneath, runtime inventory behind `-v`; spinner steps are redrawn on one line and any failure makes the run exit non-zero
 - **Self-pruning symlinks** — dropping a package from `PACKAGES` doesn't unstow it elsewhere, so `sync.sh` prunes any link back into this repo whose target is gone or belongs to a package no longer listed. Nvim plugins get the same treatment: anything installed but no longer in `vim.pack.add` is removed
 - **Cleanup candidates report** — `sync.sh` flags installed Homebrew packages not in the Brewfile (never removes automatically)
