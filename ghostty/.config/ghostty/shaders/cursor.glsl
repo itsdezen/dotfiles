@@ -1,4 +1,4 @@
-// Nord cursor shader: three independent cursor behaviors, toggled below.
+// Gruvbox cursor shader: three independent cursor behaviors, toggled below.
 // - smooth: cursor glides (VS Code-style) from its previous position/size to the current one
 // - blaze:  directional glow trail shaped by the cursor's movement, then fades
 // - smear:  bright streak swiping from the previous to the current cursor position, flash-fades out
@@ -8,9 +8,9 @@ const bool ENABLE_SMOOTH = true;
 const bool ENABLE_BLAZE = true;
 const bool ENABLE_SMEAR = true;
 
-// ---- shared nord accent palette (used by blaze and smear) ----
-const vec4 ACCENT_COLOR = vec4(0.533, 0.753, 0.816, 1.0); // nord frost ice #88c0d0 (inner)
-const vec4 ACCENT_COLOR_BRIGHT = vec4(0.533, 0.753, 0.816, 1.0); // nord frost ice #88c0d0 (outer)
+// ---- shared gruvbox accent palette (used by blaze and smear) ----
+const vec4 ACCENT_COLOR = vec4(0.980, 0.741, 0.184, 1.0); // gruvbox bright yellow #fabd2f (inner)
+const vec4 ACCENT_COLOR_BRIGHT = vec4(0.980, 0.741, 0.184, 1.0); // gruvbox bright yellow #fabd2f (outer)
 
 float sdRectangle(in vec2 p, in vec2 center, in vec2 halfSize) {
     vec2 d = abs(p - center) - halfSize;
@@ -33,7 +33,7 @@ float sdSegment(vec2 p, vec2 a, vec2 b, out float h) {
     return length(pa - ba * h);
 }
 
-// ---- blaze: nord-colored glow that flashes and fades around the cursor ----
+// ---- blaze: gruvbox-yellow glow that flashes and fades around the cursor ----
 
 const float BLAZE_DURATION = 0.3; // seconds
 const float BLAZE_SIZE_SCALE = 0.55; // shrinks the glow halo reach (1.0 = full trail length)

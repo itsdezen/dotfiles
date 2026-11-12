@@ -10,7 +10,7 @@ local gh = function(x) return "https://github.com/" .. x end
 -- breaks plugins that register their commands or autocmds there.
 vim.pack.add({
   -- UI
-  { src = gh("gbprod/nord.nvim") },
+  { src = gh("ellisonleao/gruvbox.nvim") },
   { src = gh("nvim-mini/mini.icons") },
   { src = gh("folke/snacks.nvim") },
   { src = gh("akinsho/bufferline.nvim") },

@@ -1,25 +1,24 @@
--- Colours: Nord (repo-wide unified theme, see AGENTS.md rule 6).
-require("nord").setup({
-  transparent = true,
-  on_highlights = function(highlights, colors)
-    highlights.WinSeparator = { fg = colors.polar_night.brightest, bold = true }
-    highlights.LineNr = { fg = colors.polar_night.light }
-    highlights.LineNrAbove = { fg = colors.polar_night.light }
-    highlights.LineNrBelow = { fg = colors.polar_night.light }
-    -- nord.nvim's `transparent` only clears Normal/SignColumn; floats and
-    -- non-current windows need explicit overrides
-    highlights.NormalFloat = { fg = colors.snow_storm.origin, bg = colors.none }
-    highlights.FloatBorder = { fg = colors.polar_night.brightest, bg = colors.none }
-    highlights.WhichKeyFloat = { bg = colors.none }
-    highlights.NormalNC = { fg = colors.snow_storm.origin, bg = colors.none }
+-- Colours: Gruvbox (repo-wide unified theme, see AGENTS.md rule 6).
+local palette = require("gruvbox").palette
+
+require("gruvbox").setup({
+  contrast = "",
+  transparent_mode = true,
+  overrides = {
+    -- gruvbox.nvim's `transparent_mode` only clears Normal/NormalFloat/
+    -- SignColumn/FoldColumn/WinSeparator; float borders and the tabline row
+    -- are still painted, so reset their background explicitly.
+    WinSeparator = { fg = palette.dark4, bg = "NONE", bold = true },
+    FloatBorder = { fg = palette.dark4, bg = "NONE" },
+    WhichKeyFloat = { bg = "NONE" },
     -- The whole tabline row is painted with TabLineFill; clear its bg or the
     -- bufferline gets an opaque strip. TabLineSel only feeds bufferline's
     -- selected-indicator colour (no background is painted from it).
-    highlights.TabLineFill = { bg = colors.none }
-    highlights.TabLineSel = { fg = colors.frost.artic_water, bg = colors.none }
-  end,
+    TabLineFill = { bg = "NONE" },
+    TabLineSel = { fg = palette.bright_yellow, bg = "NONE" },
+  },
 })
-vim.cmd.colorscheme("nord")
+vim.cmd.colorscheme("gruvbox")
 
 -- Icons: needed by lualine and snacks right away.
 require("mini.icons").setup()
@@ -31,7 +30,7 @@ local gh_icon = glyph("f408") .. " "
 
 -- Bufferline: the tabline is hidden while there is nothing to switch between
 -- (`always_show_bufferline = false`), and the offset keeps the tabs clear of the
--- explorer sidebar. Colours are derived from the transparent Nord groups.
+-- explorer sidebar. Colours are derived from the transparent Gruvbox groups.
 require("bufferline").setup({
   options = {
     close_command = function(n) Snacks.bufdelete(n) end,
