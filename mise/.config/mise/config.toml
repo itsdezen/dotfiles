@@ -13,6 +13,3 @@ go = "latest"
 ruff = "latest"
 "npm:basedpyright" = "latest"
 "go:golang.org/x/tools/gopls" = "latest"
-
-# CLI used directly, outside Neovim
-"npm:cloakbrowser" = "latest"
