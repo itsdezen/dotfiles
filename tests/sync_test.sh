@@ -45,6 +45,18 @@ exit 0
 STUB
 chmod +x "$WORK/bin/nvim"
 
+cat >"$WORK/bin/sudo" <<'STUB'
+#!/bin/sh
+# stub for sudo; STUB_SUDO picks the auth state. Only `-n` (non-interactive
+# probe) and `-v` (validate/authenticate) are ever called by preauth_sudo.
+case "${STUB_SUDO:-cached}" in
+  cached)   [[ "${1:-}" == "-n" ]] && exit 0; exit 0 ;;
+  ask-ok)   [[ "${1:-}" == "-n" ]] && exit 1; exit 0 ;;
+  ask-fail) exit 1 ;;
+esac
+STUB
+chmod +x "$WORK/bin/sudo"
+
 # ── assertions ────────────────────────────────────────────────────────────────
 
 PASS=0
@@ -95,11 +107,13 @@ run_case() {
   cat >"$file"
   _OUT="$(
     HOME="$_SB/home" XDG_DATA_HOME="$_SB/data" \
-      PATH="$WORK/bin:$BASE_PATH" SYNC="$SYNC" STUB_NVIM="${STUB_NVIM:-nothing}" \
+      PATH="$WORK/bin:$BASE_PATH" SYNC="$SYNC" \
+      STUB_NVIM="${STUB_NVIM:-nothing}" STUB_SUDO="${STUB_SUDO:-cached}" \
       NO_COLOR=1 sh -u "$file" 2>&1
   )"
   _RC=$?
   STUB_NVIM=nothing
+  STUB_SUDO=cached
 }
 
 rc_is() {
@@ -122,6 +136,19 @@ out_lacks() {
 
 out_empty() {
   [[ -z "$_OUT" ]] || _boom "expected no output"
+}
+
+# a must appear before b — used where order is the point (erase after prompt)
+out_order() {
+  local a="$1" b="$2" rest
+  case "$_OUT" in
+    *"$a"*) rest="${_OUT#*"$a"}" ;;
+    *) _boom "output missing: $a"; return ;;
+  esac
+  case "$rest" in
+    *"$b"*) : ;;
+    *) _boom "expected '$a' before '$b'" ;;
+  esac
 }
 
 # ── cases ─────────────────────────────────────────────────────────────────────
@@ -339,6 +366,90 @@ EOF
   _end
 }
 
+# ── sudo pre-auth ─────────────────────────────────────────────────────────────
+
+# Cached credentials (sudo's timestamp) mean the note and the prompt would both
+# be noise — the common second-run case.
+t_preauth_skips_when_cached() {
+  _begin "sudo: cached credentials skip the prompt entirely"
+  STUB_SUDO=cached run_case <<'EOF'
+. "$SYNC"
+_TTY=true
+preauth_sudo "some-cask other-cask"
+printf 'after\n'
+EOF
+  rc_is 0
+  out_has "after"
+  out_lacks "may ask for your password"
+  out_lacks "$(printf '\033[2A')"
+  _end
+}
+
+# After the password is entered the scaffolding must be wiped, because
+# `step "Checking packages"` repeats the same words on the next row.
+t_preauth_erases_prompt() {
+  _begin "sudo: prompt lines are erased once the password is entered"
+  STUB_SUDO=ask-ok run_case <<'EOF'
+. "$SYNC"
+_TTY=true
+preauth_sudo "some-cask"
+printf 'step-line\n'
+EOF
+  rc_is 0
+  out_has "may ask for your password"
+  out_has "$(printf '\033[2A\033[J')"
+  out_order "$(printf '\033[2A\033[J')" "step-line" || true
+  out_has "step-line"
+  _end
+}
+
+# A wrong password or ^C has to remain readable — erasing it would hide sudo's
+# own error.
+t_preauth_keeps_failure() {
+  _begin "sudo: a failed prompt stays on screen"
+  STUB_SUDO=ask-fail run_case <<'EOF'
+. "$SYNC"
+_TTY=true
+preauth_sudo "some-cask"
+printf 'step-line\n'
+EOF
+  rc_is 0
+  out_has "may ask for your password"
+  out_lacks "$(printf '\033[2A')"
+  out_has "step-line"
+  _end
+}
+
+t_preauth_no_pending_casks() {
+  _begin "sudo: no pending cask means no prompt"
+  STUB_SUDO=ask-ok run_case <<'EOF'
+. "$SYNC"
+_TTY=true
+preauth_sudo "   "
+printf 'after\n'
+EOF
+  rc_is 0
+  out_has "after"
+  out_lacks "may ask for your password"
+  out_lacks "$(printf '\033[2A')"
+  _end
+}
+
+# Piped output (logs, CI) is never interactive and never gets escape codes.
+t_preauth_non_tty() {
+  _begin "sudo: non-TTY output is never prompted"
+  STUB_SUDO=ask-ok run_case <<'EOF'
+. "$SYNC"
+preauth_sudo "some-cask"
+printf 'after\n'
+EOF
+  rc_is 0
+  out_has "after"
+  out_lacks "may ask for your password"
+  out_lacks "$(printf '\033')"
+  _end
+}
+
 # ── flag parsing / output contract ────────────────────────────────────────────
 
 t_flag_help() {
@@ -408,6 +519,11 @@ t_snapshot_without_config
 t_prune_without_config
 t_snapshot_detects_change
 t_prune_removes_dangling_only
+t_preauth_skips_when_cached
+t_preauth_erases_prompt
+t_preauth_keeps_failure
+t_preauth_no_pending_casks
+t_preauth_non_tty
 t_flag_help
 t_flag_unknown
 t_non_tty_is_plain

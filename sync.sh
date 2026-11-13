@@ -554,6 +554,32 @@ cmd_uninstall() {
 
 # ── sync ────────────────────────────────────────────────────────────────────────
 
+# `brew bundle` can make sudo ask for a password: a cask with a pkg installer, or
+# one replacing an /Applications bundle owned by root. sudo writes that prompt
+# straight to /dev/tty (not stderr), i.e. wherever the cursor happens to be — so
+# it needs a line that is already terminated, never the spinner's line, or the
+# two overwrite each other. Only casks can trigger sudo (formulae install under
+# the user's own prefix), so `$1` is the pending-cask list: authenticate up front
+# on a clean line, then let the step spin as usual.
+preauth_sudo() {
+  $_TTY && [[ -n "${1//[[:space:]]/}" ]] || return 0
+  # credentials already cached (sudo's timestamp): nothing to ask and nothing to
+  # print, so the erase arithmetic below never runs
+  if sudo -n true 2>/dev/null; then return 0; fi
+  printf "  ${D}→${NC} cask work may ask for your password\n"
+  if SUDO_PROMPT="    Password: " sudo -v; then
+    # the note and the prompt were scaffolding: `step "Checking packages"` says
+    # the same thing on the next row, so erase both rather than leaving a stale
+    # copy above the real line. The cursor sits one row below the prompt → up 2,
+    # then clear everything to the end of the screen.
+    printf '\033[2A\033[J'
+  else
+    # a failed sudo (wrong password, ^C) must stay readable: close the prompt row
+    # and let the step below report what bundle could not do
+    printf '\n'
+  fi
+}
+
 # mason installs language servers into stdpath('data'), which this repo does not
 # track, so syncing is what puts them on a machine. The *Sync* variant waits for
 # the downloads (the async one returns immediately and would make the step report
@@ -636,12 +662,8 @@ cmd_sync() {
   fi
 
   # `brew bundle` can make sudo ask for a password: a cask with a pkg installer,
-  # or one replacing an /Applications bundle owned by root. sudo writes that
-  # prompt straight to /dev/tty (not stderr), i.e. wherever the cursor happens to
-  # be — so it needs a line that is already terminated, never the spinner's line,
-  # or the two overwrite each other. Only casks can trigger sudo (formulae
-  # install under the user's own prefix), so gate on pending cask work:
-  # authenticate up front on a clean line, then spin as usual.
+  # or one replacing an /Applications bundle owned by root. Only casks can
+  # trigger sudo, and `preauth_sudo` asks once up front — never mid-spinner.
   local _cask_tmp _pending_casks
   _cask_tmp="$(mktemp -d)"
   brew list --cask 2>/dev/null | sort >"$_cask_tmp/installed" || true
@@ -654,10 +676,7 @@ cmd_sync() {
   # cask.rb: upgrading?), which sync never passes, so keep them out of this list
   _pending_casks="$_pending_casks $(brew outdated --cask --quiet 2>/dev/null || true)"
   rm -rf "$_cask_tmp"
-  if $_TTY && [[ -n "${_pending_casks//[[:space:]]/}" ]]; then
-    printf "  ${D}→${NC} Checking packages · cask work may ask for your password\n"
-    SUDO_PROMPT="    Password: " sudo -v || true
-  fi
+  preauth_sudo "$_pending_casks"
   step "Checking packages"
   local _btmp _bout _bundle_ok=true _stale_cask
   _btmp="$(mktemp)"

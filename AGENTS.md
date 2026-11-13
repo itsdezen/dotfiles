@@ -59,7 +59,7 @@ dotfiles/
 - A step that dies with its spinner still open is reported by the EXIT trap (`_on_exit`) as `— failed (exit N)`; only a real signal (SIGINT/SIGTERM) says `— interrupted`. Never label a `set -e` abort as an interruption
 - Probes that may legitimately find nothing (counting a directory mason has not created yet, `grep` with no match, `brew leaves`) must end in `|| true` — under `set -e` + `pipefail` a bare failed pipeline kills the run mid-step
 - `sync.sh` targets macOS `/bin/sh` (bash 3.2 in POSIX mode) — its `#!/bin/sh` shebang makes `./sync.sh` and `sh sync.sh` identical. Avoid syntax the POSIX parser rejects (process substitution, …); verify with `sh -n sync.sh` and `bash -n sync.sh`
-- No banners, no prompts (except destructive ops in `sync.sh uninstall`, the nvim lockfile auto-commit confirmation in `sync.sh sync`, and the sudo password `brew bundle` can need for a cask — asked once, up front, never mid-spinner)
+- No banners, no prompts (except destructive ops in `sync.sh uninstall`, the nvim lockfile auto-commit confirmation in `sync.sh sync`, and the sudo password `brew bundle` can need for a cask — asked once, up front, never mid-spinner, through `preauth_sudo`, which skips the ask when sudo's timestamp is still valid and erases the note + prompt rows afterwards so the step line below isn't a duplicate)
 - Commit style: emoji prefix (`🚀 🐞 🔧 ♻️ 📝 🗑️ ⬆️`)
 
 ### 4. When adding features
