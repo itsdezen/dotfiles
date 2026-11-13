@@ -92,20 +92,11 @@ brew "lazydocker"
 # jq - Command-line JSON processor
 brew "jq"
 
-# yq - Command-line YAML processor
-brew "yq"
-
 # direnv - Per-project environment variable loader
 brew "direnv"
 
 # shellcheck - Static analysis/linter for shell scripts (sync.sh, etc.)
 brew "shellcheck"
-
-# ffmpeg - Audio/video conversion and processing
-brew "ffmpeg"
-
-# hf - Hugging Face CLI (formerly huggingface-cli)
-brew "hf"
 
 # ── System Info ───────────────────────────────────────────────────────────────
 
