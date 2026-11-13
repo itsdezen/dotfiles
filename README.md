@@ -51,6 +51,7 @@ cd ~/Developer/dotfiles && ./sync.sh
 | `./sync.sh --no-color` | Plain output for logs and CI (piped output is already colour-free) |
 | `./sync.sh bootstrap` | Fresh machine setup: Xcode CLI tools → clone → sync |
 | `./sync.sh uninstall` | Remove all dotfiles symlinks, zinit, and TPM (never touches the local env file) |
+| `./tests/sync_test.sh` | Sandboxed test harness for `sync.sh`: stub `nvim`, throwaway `$HOME`/`$XDG_DATA_HOME`, no network, no Homebrew, no sudo. Covers the mason provisioning step (fresh machine / incremental / up to date / failure), the `failed (exit N)` vs `interrupted` trap wording, link snapshots and pruning without `~/.config`, and flag parsing. `./tests/sync_test.sh mason` filters by case name |
 
 `sync.sh` exits non-zero if any step failed (stow, plugin sync, clone), so it can gate CI or a wrapper script.
 

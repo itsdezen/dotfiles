@@ -19,6 +19,7 @@ AI assistant instructions for this dotfiles repository. For general documentatio
 dotfiles/
 ├── sync.sh
 ├── Brewfile
+├── tests/        → sync_test.sh (sandboxed harness: stub nvim, throwaway $HOME — never touches the real machine)
 ├── zsh/          → ~/.zshrc, ~/.zshenv, ~/.zprofile
 ├── nvim/         → ~/.config/nvim/ (Neovim ≥ 0.12, plugins via built-in `vim.pack`, LSP servers via mason, per-server config in `after/lsp/`)
 ├── tili/         → ~/.config/tili/
@@ -55,6 +56,8 @@ dotfiles/
 - Stow package dirs: lowercase
 - Scripts: `set -euo pipefail`, helpers: `ok/skip/run/info/warn/abort/finish`, `section/section_end`, `step/spin/spin_ok/spin_skip/spin_warn/spin_fail`, `item_new/item_upd/item_rm/item_note`
 - Output contract: `item_*` buffer into the open section and flush at `section_end`, so each stage prints exactly one `➤ Section` line (status, counts, duration) with its change items nested below; runtime inventory only with `-v`; non-TTY output is colour-free and spinner frames are dropped; `abort` clears the live line and reports the section, and any failed step makes `sync.sh` exit non-zero
+- A step that dies with its spinner still open is reported by the EXIT trap (`_on_exit`) as `— failed (exit N)`; only a real signal (SIGINT/SIGTERM) says `— interrupted`. Never label a `set -e` abort as an interruption
+- Probes that may legitimately find nothing (counting a directory mason has not created yet, `grep` with no match, `brew leaves`) must end in `|| true` — under `set -e` + `pipefail` a bare failed pipeline kills the run mid-step
 - `sync.sh` targets macOS `/bin/sh` (bash 3.2 in POSIX mode) — its `#!/bin/sh` shebang makes `./sync.sh` and `sh sync.sh` identical. Avoid syntax the POSIX parser rejects (process substitution, …); verify with `sh -n sync.sh` and `bash -n sync.sh`
 - No banners, no prompts (except destructive ops in `sync.sh uninstall`, the nvim lockfile auto-commit confirmation in `sync.sh sync`, and the sudo password `brew bundle` can need for a cask — asked once, up front, never mid-spinner)
 - Commit style: emoji prefix (`🚀 🐞 🔧 ♻️ 📝 🗑️ ⬆️`)
@@ -77,6 +80,7 @@ Trigger → what to update:
 | Add/remove a tool or package | `README.md` Stack + Stow Packages table; `AGENTS.md` Directory Structure |
 | Add/remove a Stow package dir | Same as above |
 | Change `sync.sh` behavior or helpers | `README.md` Scripts table; `AGENTS.md` Conventions helpers list |
+| Add/change a case in `tests/sync_test.sh` | `README.md` Scripts table (only if the invocation changes) |
 | New user-facing capability | `README.md` Highlights |
 | New AI rule or convention | `AGENTS.md` AI Assistant Rules |
 | Change nvim plugin manager / lockfile | `README.md` Stack + Highlights; `AGENTS.md` Directory Structure |
@@ -85,6 +89,7 @@ Trigger → what to update:
 1. `grep` or `Read` the actual config file to confirm each stated fact
 2. Cross-check `PACKAGES` in `sync.sh` against the Stow Packages table in `README.md` — they must match exactly
 3. Cross-check `AGENTS.md` Directory Structure against the actual package dirs on disk
+4. `./tests/sync_test.sh` green, plus `sh -n sync.sh` and `bash -n sync.sh` — every `sync.sh` change comes with a case when it is testable without network/Homebrew/sudo
 
 **Do not** document: ephemeral state, current branch, per-package config values (theme names, font sizes, keybinds) — those live in the config file and go stale. `README.md` stays at Stack/Highlights altitude.
 

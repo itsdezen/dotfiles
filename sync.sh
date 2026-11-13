@@ -24,16 +24,21 @@ usage: $0 [-v|--verbose] [--no-color] [--update-plugins] [sync|bootstrap|uninsta
                     each plugin is pinned to the revision in the lockfile
 EOF
 }
-for _arg in ${1+"$@"}; do
-  case "$_arg" in
-    -v|--verbose)    _VERBOSE=true ;;
-    --no-color)      NO_COLOR=1 ;;
-    --update-plugins) _UPDATE_PLUGINS=true ;;
-    -h|--help)       usage; exit 0 ;;
-    sync|bootstrap|uninstall) _CMD="$_arg" ;;
-    *) usage >&2; exit 1 ;;
-  esac
-done
+# parsing lives in a function so tests can source this file in library mode
+# (see the entrypoint guard at the bottom) without their own arguments being
+# read as sync flags
+_parse_args() {
+  for _arg in ${1+"$@"}; do
+    case "$_arg" in
+      -v|--verbose)    _VERBOSE=true ;;
+      --no-color)      NO_COLOR=1 ;;
+      --update-plugins) _UPDATE_PLUGINS=true ;;
+      -h|--help)       usage; exit 0 ;;
+      sync|bootstrap|uninstall) _CMD="$_arg" ;;
+      *) usage >&2; exit 1 ;;
+    esac
+  done
+}
 
 # ── terminal ───────────────────────────────────────────────────────────────────
 
@@ -91,9 +96,17 @@ _live_clear() {
 
 # a failing step must never leave the spinner running or the run mislabelled
 _on_exit() {
+  local rc=$?
   if (( _STEP_OPEN )); then
+    local why="failed (exit $rc)"
+    # 130/143 = SIGINT/SIGTERM; >128 is the shell's "killed by signal N"
+    # encoding. rc 0 also means interrupted: when a signal lands right after a
+    # command finished, bash runs the trap with the *previous* status, and
+    # nothing else exits mid-step with 0. Everything else is a real failure —
+    # labelling it "interrupted" would blame the user for a `set -e` abort.
+    if (( rc == 0 || rc > 128 )); then why=interrupted; fi
     _live_clear
-    printf "  ${R}✗${NC} %s\n" "${_SEC_NAME:+$_SEC_NAME · }${_STEP_MSG} — interrupted"
+    printf "  ${R}✗${NC} %s\n" "${_SEC_NAME:+$_SEC_NAME · }${_STEP_MSG} — $why"
   fi
 }
 trap '_on_exit' EXIT
@@ -245,6 +258,16 @@ _join() {
   printf '%s' "$out"
 }
 
+# Count entries in a directory that may not exist yet. Bare
+# `find "$dir" … | wc -l` exits 1 on a missing path, and with `set -e` +
+# `pipefail` that kills the whole run mid-step — reported only as "interrupted",
+# because the trap sees the step still open. mason's bin dir is exactly that
+# case on a fresh machine: it is created by the first package install, not by
+# setup, so every count before that would abort. Count zero instead.
+_count_dir() {
+  { find "$1" -mindepth 1 -maxdepth 1 2>/dev/null || true; } | wc -l | tr -d ' '
+}
+
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_REPO="https://github.com/itsdezen/dotfiles"
 DOTFILES_DIR="$HOME/Developer/dotfiles"
@@ -328,9 +351,11 @@ unstow_pkg() {
 # only honest answer to "did stowing change anything".
 stow_snapshot() {
   local links
+  # `|| true`: same reason as prune_links — a missing ~/.config must snapshot as
+  # "no links", not abort the stow step
   links="$( { find "$HOME" -maxdepth 1 -type l
               find "$HOME/.config" -type l
-            } 2>/dev/null )"
+            } 2>/dev/null || true )"
   [[ -n "$links" ]] || return 0
   prune_resolve_all "$links" "$(prune_canon "$DOTFILES")" "$(prune_canon "$DOTFILES_DIR")"
 }
@@ -395,9 +420,11 @@ prune_empty_dirs() {
 
 prune_links() {
   local link abs owner links repo_a repo_b
+  # `|| true`: the second find fails when ~/.config does not exist yet (first
+  # run on a bare machine), and under `set -e` + `pipefail` that aborted the run
   links="$( { find "$HOME" -maxdepth 1 -type l
               find "$HOME/.config" -type l
-            } 2>/dev/null )"
+            } 2>/dev/null || true )"
   [[ -n "$links" ]] || return 0
   repo_a="$(prune_canon "$DOTFILES")"
   repo_b="$(prune_canon "$DOTFILES_DIR")"
@@ -527,6 +554,36 @@ cmd_uninstall() {
 
 # ── sync ────────────────────────────────────────────────────────────────────────
 
+# mason installs language servers into stdpath('data'), which this repo does not
+# track, so syncing is what puts them on a machine. The *Sync* variant waits for
+# the downloads (the async one returns immediately and would make the step report
+# a lie); output is captured because mason prints progress bars that would fight
+# the spinner. Binary ownership: mason for servers, mise (previous section) for
+# runtimes and shell-facing CLIs.
+#
+# Its own function, not an inline block: tests/sync_test.sh runs it directly
+# against a stub `nvim`, including the fresh-machine case where mason's bin dir
+# does not exist yet.
+provision_language_servers() {
+  local _mason_out _mason_ok=true
+  local _mason_bin="${XDG_DATA_HOME:-$HOME/.local/share}/nvim/mason/bin"
+  local _mason_before _mason_after
+  step "Provisioning language servers"
+  _mason_before="$(_count_dir "$_mason_bin")"
+  _mason_out="$(nvim --headless "+MasonToolsInstallSync" +qa 2>&1 </dev/null)" || _mason_ok=false
+  _mason_after="$(_count_dir "$_mason_bin")"
+  if ! $_mason_ok; then
+    spin_warn "language server install failed"
+    while IFS= read -r _line; do
+      [[ -n "$_line" ]] && item_note "$_line"
+    done <<<"$(printf '%s\n' "$_mason_out" | tail -n 3)"
+  elif (( _mason_after > _mason_before )); then
+    spin_ok "$(( _mason_after - _mason_before )) installed ($_mason_after)"
+  else
+    spin_skip "up to date ($_mason_after)"
+  fi
+}
+
 cmd_sync() {
   _T0=$SECONDS
   STOW_OK=(); STOW_FAIL=(); STOW_REPLACED=(); PRUNED=()
@@ -564,7 +621,10 @@ cmd_sync() {
   if [[ -n "$_hb_tag" ]]; then
     git -C "$_hb_repo" checkout --quiet "$_hb_tag" &>/dev/null || true
   fi
-  _hb_ver="$(brew --version | head -1 | awk '{print $2}')"
+  # `|| true`: `head -1` can SIGPIPE `brew --version` (pipefail turns 141 into a
+  # fatal step), and a missing version string must not abort the run
+  _hb_ver="$(brew --version 2>/dev/null | head -1 | awk '{print $2}' || true)"
+  [[ -n "$_hb_ver" ]] || _hb_ver="unknown"
   # `brew update` is a no-op most runs; report that as such instead of always
   # claiming an update (state precision, not just cosmetics)
   if ! $_hb_updated; then
@@ -608,7 +668,10 @@ cmd_sync() {
     # but bundle aborts before reaching cleanup, so retry once after clearing it
     _bout="$_bout
 $(cat "$_btmp")"
-    _stale_cask=$(grep -oE "conflicts with '[^']+'" <<<"$_bout" | head -1 | sed -E "s/conflicts with '(.+)'/\1/")
+    # `|| true`: grep exits 1 when the message has no "conflicts with", and
+    # under `set -e` + `pipefail` that would abort the run while reporting a
+    # brew failure the user actually needs to read
+    _stale_cask=$(grep -oE "conflicts with '[^']+'" <<<"$_bout" | head -1 | sed -E "s/conflicts with '(.+)'/\1/" || true)
     if [[ -n "$_stale_cask" ]] && ! grep -q "cask \"$_stale_cask\"" "$DOTFILES/Brewfile" && brew list --cask "$_stale_cask" &>/dev/null; then
       item_note "removing stale cask $_stale_cask (renamed in Brewfile)"
       brew uninstall --cask "$_stale_cask" &>/dev/null || true
@@ -691,11 +754,13 @@ $(cat "$_btmp")"
   # (`brew leaves`): formulae nothing else installed depends on
   if grep -q $'^formula\t' <<<"$_cleanup_list"; then
     local _leaves _filtered kind name
-    _leaves=$(brew leaves)
+    # `brew leaves` failing must not kill the run (nor empty the report): with no
+    # leaf data, keep every row instead of dropping all formulae as "not a leaf"
+    _leaves=$(brew leaves 2>/dev/null) || _leaves=""
     _filtered=""
     while IFS=$'\t' read -r kind name; do
       [[ -z "$name" ]] && continue
-      if [[ "$kind" != "formula" ]] || grep -Fxq "$name" <<<"$_leaves"; then
+      if [[ -z "$_leaves" || "$kind" != "formula" ]] || grep -Fxq "$name" <<<"$_leaves"; then
         _filtered+="$kind"$'\t'"$name"$'\n'
       fi
     done <<<"$_cleanup_list"
@@ -735,7 +800,11 @@ $(cat "$_btmp")"
     while read -r name; do
       [[ -z "$name" ]] && continue
       local _bin_dir _f _spctl_out
-      _bin_dir="$(brew --prefix "$name" 2>/dev/null)/bin"
+      # never `brew --prefix x || true` bare: an empty prefix would make the
+      # scan below walk /bin and try to re-sign system binaries
+      _bin_dir="$(brew --prefix "$name" 2>/dev/null || true)"
+      [[ -n "$_bin_dir" ]] || continue
+      _bin_dir="$_bin_dir/bin"
       [[ -d "$_bin_dir" ]] || continue
       for _f in "$_bin_dir"/*; do
         [[ -f "$_f" && -x "$_f" ]] || continue
@@ -934,7 +1003,7 @@ ENVEOF
           if (!exists $old{$k})        { print "new\t$k\t-\t$new{$k}\n" }
           elsif ($old{$k} ne $new{$k}) { print "upd\t$k\t$old{$k}\t$new{$k}\n" }
         }
-      ')
+      ' || true)
   fi
   local _rt_old _rt_new
   if [[ -n "$_rt_diff" ]]; then
@@ -1008,7 +1077,7 @@ ENVEOF
     step "Pruning plugins"
     local _prune_out _n_pruned=0 _pname _prune_ok=true
     _prune_out="$(mktemp)"
-    NVIM_PACK_PRUNE_OUT="$_prune_out" nvim --headless -c 'lua local stale = {} for _, p in ipairs(vim.pack.get()) do if not p.active then stale[#stale + 1] = p.spec.name end end vim.fn.writefile(stale, vim.env.NVIM_PACK_PRUNE_OUT) if #stale > 0 then vim.pack.del(stale) end' +qa >/dev/null 2>&1 || _prune_ok=false
+    NVIM_PACK_PRUNE_OUT="$_prune_out" nvim --headless -c 'lua local stale = {} for _, p in ipairs(vim.pack.get()) do if not p.active then stale[#stale + 1] = p.spec.name end end vim.fn.writefile(stale, vim.env.NVIM_PACK_PRUNE_OUT) if #stale > 0 then vim.pack.del(stale) end' +qa >/dev/null 2>&1 </dev/null || _prune_ok=false
     while IFS= read -r _pname; do
       [[ -n "$_pname" ]] || continue
       _n_pruned=$(( _n_pruned + 1 ))
@@ -1027,7 +1096,7 @@ ENVEOF
     # vim.pack has no :PackUpdate command — call the Lua API directly.
     # force = true applies the update without the confirmation buffer, which
     # a headless run cannot interact with.
-    nvim_log="$(nvim --headless -c "lua vim.pack.update(nil, { force = true, target = '$_target' })" +qa 2>&1)" || _nvim_sync_ok=false
+    nvim_log="$(nvim --headless -c "lua vim.pack.update(nil, { force = true, target = '$_target' })" +qa 2>&1 </dev/null)" || _nvim_sync_ok=false
     local _plugin_diff="" _n_plug=0 _nvim_tail=""
     if ! $_nvim_sync_ok; then
       spin_fail "plugin sync failed"
@@ -1067,30 +1136,8 @@ ENVEOF
     rm -f "$lock_before"
 
     # mason installs language servers into stdpath('data'), which this repo does
-    # not track, so syncing is what puts them on a machine. The *Sync* variant
-    # waits for the downloads (the async one returns immediately and would make
-    # the step report a lie); output is captured because mason prints progress
-    # bars that would fight the spinner. Binary ownership: mason for servers,
-    # mise (previous section) for runtimes and shell-facing CLIs.
-    if $_nvim_sync_ok; then
-      step "Provisioning language servers"
-      local _mason_out _mason_ok=true
-      local _mason_bin="${XDG_DATA_HOME:-$HOME/.local/share}/nvim/mason/bin"
-      local _mason_before=0 _mason_after=0
-      _mason_before="$(find "$_mason_bin" -mindepth 1 -maxdepth 1 2>/dev/null | wc -l | tr -d ' ')"
-      _mason_out="$(nvim --headless "+MasonToolsInstallSync" +qa 2>&1)" || _mason_ok=false
-      _mason_after="$(find "$_mason_bin" -mindepth 1 -maxdepth 1 2>/dev/null | wc -l | tr -d ' ')"
-      if ! $_mason_ok; then
-        spin_warn "language server install failed"
-        while IFS= read -r _line; do
-          [[ -n "$_line" ]] && item_note "$_line"
-        done <<<"$(printf '%s\n' "$_mason_out" | tail -n 3)"
-      elif (( _mason_after > _mason_before )); then
-        spin_ok "$(( _mason_after - _mason_before )) installed ($_mason_after)"
-      else
-        spin_skip "up to date ($_mason_after)"
-      fi
-    fi
+    # not track, so syncing is what puts them on a machine.
+    if $_nvim_sync_ok; then provision_language_servers; fi
   else
     spin_warn "neovim not found — skipped"
   fi
@@ -1133,9 +1180,15 @@ ENVEOF
 
 # ── entrypoint ──────────────────────────────────────────────────────────────────
 
-case "$_CMD" in
-  sync)      cmd_sync ;;
-  bootstrap) cmd_bootstrap ;;
-  uninstall) cmd_uninstall ;;
-  *) usage >&2; exit 1 ;;
-esac
+# `tests/sync_test.sh` sources this file for the functions only; the guard makes
+# that a library load instead of a run. Invoking the file directly (./sync.sh or
+# `sh sync.sh` — same interpreter) still runs exactly one command.
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+  _parse_args "$@"
+  case "$_CMD" in
+    sync)      cmd_sync ;;
+    bootstrap) cmd_bootstrap ;;
+    uninstall) cmd_uninstall ;;
+    *)         usage >&2; exit 1 ;;
+  esac
+fi
